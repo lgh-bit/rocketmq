@@ -21,6 +21,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public abstract class ReferenceResource {
     protected final AtomicLong refCount = new AtomicLong(1);
     protected volatile boolean available = true;
+    // release成功，释放资源时为true
     protected volatile boolean cleanupOver = false;
     private volatile long firstShutdownTimestamp = 0;
 
@@ -54,12 +55,13 @@ public abstract class ReferenceResource {
     }
 
     public void release() {
+        // 引用次数减一
         long value = this.refCount.decrementAndGet();
         if (value > 0)
             return;
-
+        // 如果引用次数小于等于零
         synchronized (this) {
-
+            // 执行清理动作
             this.cleanupOver = this.cleanup(value);
         }
     }
@@ -71,6 +73,7 @@ public abstract class ReferenceResource {
     public abstract boolean cleanup(final long currentRef);
 
     public boolean isCleanupOver() {
+        // 判断是否清理完成
         return this.refCount.get() <= 0 && this.cleanupOver;
     }
 }

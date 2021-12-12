@@ -85,7 +85,9 @@ public class RequestCode {
     public static final int GET_KV_CONFIG = 101;
 
     public static final int DELETE_KV_CONFIG = 102;
-
+    /**
+     * broker 信息注册到NameServer
+     */
     public static final int REGISTER_BROKER = 103;
 
     public static final int UNREGISTER_BROKER = 104;

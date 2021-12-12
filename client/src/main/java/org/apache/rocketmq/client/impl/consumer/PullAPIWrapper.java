@@ -140,6 +140,26 @@ public class PullAPIWrapper {
         }
     }
 
+    /**
+     *
+     * @param mq 消息队列
+     * @param subExpression 消息过滤表达式
+     * @param expressionType 表达式类型 tag、SQL92
+     * @param subVersion
+     * @param offset 消息拉取偏移量
+     * @param maxNums 本次消息拉取最大消息数
+     * @param sysFlag 拉取请求标记
+     * @param commitOffset 当前消费进度
+     * @param brokerSuspendMaxTimeMillis 消息拉取过程中允许broker挂起的时间，默认15秒
+     * @param timeoutMillis 消息拉取超时时间
+     * @param communicationMode 消息拉取模式，默认为异步拉取
+     * @param pullCallback 回调
+     * @return
+     * @throws MQClientException
+     * @throws RemotingException
+     * @throws MQBrokerException
+     * @throws InterruptedException
+     */
     public PullResult pullKernelImpl(
         final MessageQueue mq,
         final String subExpression,
@@ -154,6 +174,7 @@ public class PullAPIWrapper {
         final CommunicationMode communicationMode,
         final PullCallback pullCallback
     ) throws MQClientException, RemotingException, MQBrokerException, InterruptedException {
+        // 根据brokername和brokerId获取broker地址
         FindBrokerResult findBrokerResult =
             this.mQClientFactory.findBrokerAddressInSubscribe(mq.getBrokerName(),
                 this.recalculatePullFromWhichNode(mq), false);
@@ -193,6 +214,7 @@ public class PullAPIWrapper {
             requestHeader.setExpressionType(expressionType);
 
             String brokerAddr = findBrokerResult.getBrokerAddr();
+            // 判断是否是类过滤模式，如果是从FilterServer拉取消息
             if (PullSysFlag.hasClassFilterFlag(sysFlagInner)) {
                 brokerAddr = computePullFromWhichFilterServer(mq.getTopic(), brokerAddr);
             }

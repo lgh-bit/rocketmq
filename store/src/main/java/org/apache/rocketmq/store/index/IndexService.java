@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.apache.rocketmq.common.UtilAll;
@@ -55,19 +56,27 @@ public class IndexService {
     }
 
     public boolean load(final boolean lastExitOK) {
+        // 索引文件目录
         File dir = new File(this.storePath);
+        // 获取所有索引文件
         File[] files = dir.listFiles();
         if (files != null) {
+            // 按文件名排序
             // ascending order
             Arrays.sort(files);
+            // 遍历所有索引文件
             for (File file : files) {
                 try {
+                    // 创建索引文件
                     IndexFile f = new IndexFile(file.getPath(), this.hashSlotNum, this.indexNum, 0, 0);
+                    // 加载
                     f.load();
-
+                    // 如果上次不是正常退出
                     if (!lastExitOK) {
+                        // 索引文件的上次刷盘点小于该索引文件的最大的消息时间戳
                         if (f.getEndTimestamp() > this.defaultMessageStore.getStoreCheckpoint()
                             .getIndexMsgTimestamp()) {
+                            // 该索引文件没有正常刷盘，删除该文件，继续处理下一个
                             f.destroy(0);
                             continue;
                         }
@@ -199,49 +208,53 @@ public class IndexService {
     }
 
     public void buildIndex(DispatchRequest req) {
+        // 获取IndexFile文件
         IndexFile indexFile = retryGetAndCreateIndexFile();
-        if (indexFile != null) {
-            long endPhyOffset = indexFile.getEndPhyOffset();
-            DispatchRequest msg = req;
-            String topic = msg.getTopic();
-            String keys = msg.getKeys();
-            if (msg.getCommitLogOffset() < endPhyOffset) {
+        if (Objects.isNull(indexFile)) {
+            log.error("build index error, stop building index");
+            return;
+        }
+        // 获取文件的物理偏移量
+        long endPhyOffset = indexFile.getEndPhyOffset();
+        DispatchRequest msg = req;
+        String topic = msg.getTopic();
+        String keys = msg.getKeys();
+        // 如果消息得偏移量小于文件嗲偏移量，则是重复消息，忽略
+        if (msg.getCommitLogOffset() < endPhyOffset) {
+            return;
+        }
+
+        final int tranType = MessageSysFlag.getTransactionValue(msg.getSysFlag());
+        switch (tranType) {
+            case MessageSysFlag.TRANSACTION_NOT_TYPE:
+            case MessageSysFlag.TRANSACTION_PREPARED_TYPE:
+            case MessageSysFlag.TRANSACTION_COMMIT_TYPE:
+                break;
+            case MessageSysFlag.TRANSACTION_ROLLBACK_TYPE:
+                return;
+        }
+        // 存在key才创建索引
+        if (req.getUniqKey() != null) {
+            // 调用putKey方法
+            indexFile = putKey(indexFile, msg, buildKey(topic, req.getUniqKey()));
+            if (indexFile == null) {
+                log.error("putKey error commitlog {} uniqkey {}", req.getCommitLogOffset(), req.getUniqKey());
                 return;
             }
-
-            final int tranType = MessageSysFlag.getTransactionValue(msg.getSysFlag());
-            switch (tranType) {
-                case MessageSysFlag.TRANSACTION_NOT_TYPE:
-                case MessageSysFlag.TRANSACTION_PREPARED_TYPE:
-                case MessageSysFlag.TRANSACTION_COMMIT_TYPE:
-                    break;
-                case MessageSysFlag.TRANSACTION_ROLLBACK_TYPE:
-                    return;
-            }
-
-            if (req.getUniqKey() != null) {
-                indexFile = putKey(indexFile, msg, buildKey(topic, req.getUniqKey()));
-                if (indexFile == null) {
-                    log.error("putKey error commitlog {} uniqkey {}", req.getCommitLogOffset(), req.getUniqKey());
-                    return;
-                }
-            }
-
-            if (keys != null && keys.length() > 0) {
-                String[] keyset = keys.split(MessageConst.KEY_SEPARATOR);
-                for (int i = 0; i < keyset.length; i++) {
-                    String key = keyset[i];
-                    if (key.length() > 0) {
-                        indexFile = putKey(indexFile, msg, buildKey(topic, key));
-                        if (indexFile == null) {
-                            log.error("putKey error commitlog {} uniqkey {}", req.getCommitLogOffset(), req.getUniqKey());
-                            return;
-                        }
+        }
+        // 如果有key 则记录索引
+        if (keys != null && keys.length() > 0) {
+            String[] keyset = keys.split(MessageConst.KEY_SEPARATOR);
+            for (int i = 0; i < keyset.length; i++) {
+                String key = keyset[i];
+                if (key.length() > 0) {
+                    indexFile = putKey(indexFile, msg, buildKey(topic, key));
+                    if (indexFile == null) {
+                        log.error("putKey error commitlog {} uniqkey {}", req.getCommitLogOffset(), req.getUniqKey());
+                        return;
                     }
                 }
             }
-        } else {
-            log.error("build index error, stop building index");
         }
     }
 

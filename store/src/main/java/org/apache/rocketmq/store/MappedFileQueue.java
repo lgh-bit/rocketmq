@@ -29,23 +29,27 @@ import org.apache.rocketmq.common.constant.LoggerName;
 import org.apache.rocketmq.logging.InternalLogger;
 import org.apache.rocketmq.logging.InternalLoggerFactory;
 
+/**
+ * CommitLog文件的目录
+ */
 public class MappedFileQueue {
     private static final InternalLogger log = InternalLoggerFactory.getLogger(LoggerName.STORE_LOGGER_NAME);
     private static final InternalLogger LOG_ERROR = InternalLoggerFactory.getLogger(LoggerName.STORE_ERROR_LOGGER_NAME);
 
     private static final int DELETE_FILES_BATCH_MAX = 10;
-
+    // 存储路径
     private final String storePath;
-
+    // 单个文件大小，默认1G
     private final int mappedFileSize;
-
+    // 保存所有的MappedFile文件集合
     private final CopyOnWriteArrayList<MappedFile> mappedFiles = new CopyOnWriteArrayList<MappedFile>();
-
+    // MappedFile的创建服务
     private final AllocateMappedFileService allocateMappedFileService;
-
+    // 刷新到哪，该指针之前的数据已经刷新到磁盘
     private long flushedWhere = 0;
+    // 提交到哪，内存中ByteBuffer当前的写指针
     private long committedWhere = 0;
-
+    // 开始存储的时间戳
     private volatile long storeTimestamp = 0;
 
     public MappedFileQueue(final String storePath, int mappedFileSize,
@@ -73,13 +77,14 @@ public class MappedFileQueue {
             }
         }
     }
-
+    // 根据时间查找MappedFile
     public MappedFile getMappedFileByTime(final long timestamp) {
         Object[] mfs = this.copyMappedFiles(0);
 
         if (null == mfs)
             return null;
 
+        // 从第一个文件开始查找，找到第一个最后一次更新时间大于待查找时间戳的文件，如果不存在，则返回最后一个
         for (int i = 0; i < mfs.length; i++) {
             MappedFile mappedFile = (MappedFile) mfs[i];
             if (mappedFile.getLastModifiedTimestamp() >= timestamp) {
@@ -145,13 +150,17 @@ public class MappedFileQueue {
     }
 
     public boolean load() {
+        // 加载home/store/commitLog目录
         File dir = new File(this.storePath);
+        // 加载目录下索引文件
         File[] files = dir.listFiles();
         if (files != null) {
+            // 对文件按文件名排序
             // ascending order
             Arrays.sort(files);
+            // 遍历所有文件
             for (File file : files) {
-
+                // 如果文件大小不一致，将忽略目录下所有的文件
                 if (file.length() != this.mappedFileSize) {
                     log.warn(file + "\t" + file.length()
                         + " length not matched message store config value, please check it manually");
@@ -159,11 +168,13 @@ public class MappedFileQueue {
                 }
 
                 try {
+                    // 创建MappedFile，指定大小为mappedFileSize
                     MappedFile mappedFile = new MappedFile(file.getPath(), mappedFileSize);
-
+                    // 设置写入、提交、刷新位置为文件大小
                     mappedFile.setWrotePosition(this.mappedFileSize);
                     mappedFile.setFlushedPosition(this.mappedFileSize);
                     mappedFile.setCommittedPosition(this.mappedFileSize);
+                    // 加入集合中
                     this.mappedFiles.add(mappedFile);
                     log.info("load " + file.getPath() + " OK");
                 } catch (IOException e) {
@@ -190,7 +201,7 @@ public class MappedFileQueue {
 
         return 0;
     }
-
+    // 根据消息偏移量查找MappedFile，如果CommitLog为空这里会创建
     public MappedFile getLastMappedFile(final long startOffset, boolean needCreate) {
         long createOffset = -1;
         MappedFile mappedFileLast = getLastMappedFile();
@@ -242,6 +253,7 @@ public class MappedFileQueue {
 
         while (!this.mappedFiles.isEmpty()) {
             try {
+                // 获取最后一个commitlog
                 mappedFileLast = this.mappedFiles.get(this.mappedFiles.size() - 1);
                 break;
             } catch (IndexOutOfBoundsException e) {
@@ -348,8 +360,11 @@ public class MappedFileQueue {
         if (null != mfs) {
             for (int i = 0; i < mfsLength; i++) {
                 MappedFile mappedFile = (MappedFile) mfs[i];
+                // 文件最后一次更新时间加上过期时间
                 long liveMaxTimestamp = mappedFile.getLastModifiedTimestamp() + expiredTime;
+                // 如果当前时间大于最大存活时间，则可以删除
                 if (System.currentTimeMillis() >= liveMaxTimestamp || cleanImmediately) {
+                    // 执行文件删除逻辑
                     if (mappedFile.destroy(intervalForcibly)) {
                         files.add(mappedFile);
                         deleteCount++;
@@ -421,7 +436,7 @@ public class MappedFileQueue {
 
         return deleteCount;
     }
-
+    // 刷盘
     public boolean flush(final int flushLeastPages) {
         boolean result = true;
         MappedFile mappedFile = this.findMappedFileByOffset(this.flushedWhere, this.flushedWhere == 0);
@@ -453,6 +468,7 @@ public class MappedFileQueue {
     }
 
     /**
+     * 根据消息偏移量查找MappedFile
      * Finds a mapped file by offset.
      *
      * @param offset Offset.
@@ -472,6 +488,7 @@ public class MappedFileQueue {
                         this.mappedFileSize,
                         this.mappedFiles.size());
                 } else {
+                    // index = (offset-begin)/size , 如size=5 begin = 15 offset = 26 ,11/5 = 2
                     int index = (int) ((offset / this.mappedFileSize) - (firstMappedFile.getFileFromOffset() / this.mappedFileSize));
                     MappedFile targetFile = null;
                     try {

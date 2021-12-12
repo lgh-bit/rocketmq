@@ -22,21 +22,28 @@ import java.util.function.Supplier;
  * When write a message to the commit log, returns results
  */
 public class AppendMessageResult {
+    // 存储消息状态
     // Return code
     private AppendMessageStatus status;
+    // 消息的物理偏移量
     // Where to start writing
     private long wroteOffset;
+    // 消息本次写入的大小,可能不是消息得大小，如果文件大小不够，就会写入空白占用的大小
     // Write Bytes
     private int wroteBytes;
+    // 消息Id
     // Message ID
     private String msgId;
+    // 消息Id生成器
     private Supplier<String> msgIdSupplier;
+    // 存储消息得时间戳
     // Message storage timestamp
     private long storeTimestamp;
+    // 消息在队列里的偏移量(逻辑偏移量)
     // Consume queue's offset(step by one)
     private long logicsOffset;
     private long pagecacheRT = 0;
-
+    // 消息条数
     private int msgNum = 1;
 
     public AppendMessageResult(AppendMessageStatus status) {

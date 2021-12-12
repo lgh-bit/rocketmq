@@ -142,7 +142,7 @@ public class NamesrvStartup {
             controller.shutdown();
             System.exit(-3);
         }
-
+        // 注册优雅关闭的钩子
         Runtime.getRuntime().addShutdownHook(new ShutdownHookThread(log, new Callable<Void>() {
             @Override
             public Void call() throws Exception {
@@ -150,7 +150,7 @@ public class NamesrvStartup {
                 return null;
             }
         }));
-
+        //启动控制器
         controller.start();
 
         return controller;

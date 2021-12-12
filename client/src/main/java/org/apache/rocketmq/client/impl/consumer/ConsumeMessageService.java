@@ -34,8 +34,21 @@ public interface ConsumeMessageService {
 
     int getCorePoolSize();
 
+    /**
+     * 直接消息消费，主要用于接受管理命令
+     * @param msg
+     * @param brokerName
+     * @return
+     */
     ConsumeMessageDirectlyResult consumeMessageDirectly(final MessageExt msg, final String brokerName);
 
+    /**
+     * 提交消息消费
+     * @param msgs
+     * @param processQueue
+     * @param messageQueue
+     * @param dispathToConsume 是否转发到消费线程池，并发消费时忽略
+     */
     void submitConsumeRequest(
         final List<MessageExt> msgs,
         final ProcessQueue processQueue,

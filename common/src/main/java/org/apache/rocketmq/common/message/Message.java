@@ -26,7 +26,13 @@ public class Message implements Serializable {
     private static final long serialVersionUID = 8445773977080406428L;
 
     private String topic;
+    // 消息tag，用于消息过滤
     private int flag;
+    /**
+     * 包含：
+     * waitStoreMsgOK
+     * delayTimeLevel
+     */
     private Map<String, String> properties;
     private byte[] body;
     private String transactionId;
@@ -59,7 +65,7 @@ public class Message implements Serializable {
     public Message(String topic, String tags, String keys, byte[] body) {
         this(topic, tags, keys, 0, body, true);
     }
-
+    // Message索引键，用于多个空格隔开，可以根据这些key快速检索到消息
     public void setKeys(String keys) {
         this.putProperty(MessageConst.PROPERTY_KEYS, keys);
     }
@@ -144,7 +150,7 @@ public class Message implements Serializable {
 
         return 0;
     }
-
+    // 消息延迟级别，用于定时消息或消息重试
     public void setDelayTimeLevel(int level) {
         this.putProperty(MessageConst.PROPERTY_DELAY_TIME_LEVEL, String.valueOf(level));
     }
@@ -156,7 +162,7 @@ public class Message implements Serializable {
 
         return Boolean.parseBoolean(result);
     }
-
+    // 消息发送时是否等到消息存储完成后再返回
     public void setWaitStoreMsgOK(boolean waitStoreMsgOK) {
         this.putProperty(MessageConst.PROPERTY_WAIT_STORE_MSG_OK, Boolean.toString(waitStoreMsgOK));
     }

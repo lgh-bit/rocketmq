@@ -16,7 +16,11 @@
  */
 package org.apache.rocketmq.remoting.netty;
 
+/**
+ * NameServer的网络参数
+ */
 public class NettyServerConfig implements Cloneable {
+
     private int listenPort = 8888;
     private int serverWorkerThreads = 8;
     private int serverCallbackExecutorThreads = 0;
@@ -30,6 +34,7 @@ public class NettyServerConfig implements Cloneable {
     private boolean serverPooledByteBufAllocatorEnable = true;
 
     /**
+     *
      * make make install
      *
      *

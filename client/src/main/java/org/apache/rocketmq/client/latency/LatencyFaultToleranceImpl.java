@@ -25,16 +25,20 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.rocketmq.client.common.ThreadLocalIndex;
 
 public class LatencyFaultToleranceImpl implements LatencyFaultTolerance<String> {
+    // 记录不可用的Broker
     private final ConcurrentHashMap<String, FaultItem> faultItemTable = new ConcurrentHashMap<String, FaultItem>(16);
-
+    // 取可用列表中前面一半的指针
     private final ThreadLocalIndex whichItemWorst = new ThreadLocalIndex();
 
     @Override
     public void updateFaultItem(final String name, final long currentLatency, final long notAvailableDuration) {
+        // 看是否存在
         FaultItem old = this.faultItemTable.get(name);
         if (null == old) {
+            // 如果不存在则创建FaultItem
             final FaultItem faultItem = new FaultItem(name);
             faultItem.setCurrentLatency(currentLatency);
+            // 设置再次可用时间
             faultItem.setStartTimestamp(System.currentTimeMillis() + notAvailableDuration);
 
             old = this.faultItemTable.putIfAbsent(name, faultItem);
@@ -44,6 +48,7 @@ public class LatencyFaultToleranceImpl implements LatencyFaultTolerance<String> 
             }
         } else {
             old.setCurrentLatency(currentLatency);
+            // 设置再次可用时间
             old.setStartTimestamp(System.currentTimeMillis() + notAvailableDuration);
         }
     }
@@ -52,8 +57,10 @@ public class LatencyFaultToleranceImpl implements LatencyFaultTolerance<String> 
     public boolean isAvailable(final String name) {
         final FaultItem faultItem = this.faultItemTable.get(name);
         if (faultItem != null) {
+            // 判断是否到时间了
             return faultItem.isAvailable();
         }
+        // 如果不在不可用表里，那就是可用的
         return true;
     }
 
@@ -72,14 +79,18 @@ public class LatencyFaultToleranceImpl implements LatencyFaultTolerance<String> 
         }
 
         if (!tmpList.isEmpty()) {
+            // 为了更好的排序效果
             Collections.shuffle(tmpList);
-
+            // 将broker按是否可用、消息发送延迟时间、开始可用时间排序， 效果是越靠前的越好
             Collections.sort(tmpList);
 
+            // 取中间的数，为了下面只取前面一半
             final int half = tmpList.size() / 2;
             if (half <= 0) {
+                // 只有一个
                 return tmpList.get(0).getName();
             } else {
+                // 只取列表中前面的一半broker
                 final int i = this.whichItemWorst.incrementAndGet() % half;
                 return tmpList.get(i).getName();
             }
@@ -96,9 +107,15 @@ public class LatencyFaultToleranceImpl implements LatencyFaultTolerance<String> 
             '}';
     }
 
+    /**
+     * 封装上次不可用的broker
+     */
     class FaultItem implements Comparable<FaultItem> {
+        // broker名称
         private final String name;
+        // 本次消息发送的延迟
         private volatile long currentLatency;
+        // 可能再次可用的时间
         private volatile long startTimestamp;
 
         public FaultItem(final String name) {
@@ -131,6 +148,7 @@ public class LatencyFaultToleranceImpl implements LatencyFaultTolerance<String> 
         }
 
         public boolean isAvailable() {
+            // 如果当前时间大于再次可用时间，认为可用
             return (System.currentTimeMillis() - startTimestamp) >= 0;
         }
 

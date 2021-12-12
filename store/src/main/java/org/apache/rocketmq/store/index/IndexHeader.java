@@ -20,7 +20,12 @@ import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
+/**
+ * IndexFile的头
+ * 组成 = 8 beginTimestamp + 8 endTimestamp + 8 beginPhyoffset + 8 endPhyoffset + 4 hashSlotcount + 4 indexCount
+ */
 public class IndexHeader {
+    // IndexHeader大小
     public static final int INDEX_HEADER_SIZE = 40;
     private static int beginTimestampIndex = 0;
     private static int endTimestampIndex = 8;
@@ -29,12 +34,17 @@ public class IndexHeader {
     private static int hashSlotcountIndex = 32;
     private static int indexCountIndex = 36;
     private final ByteBuffer byteBuffer;
+    // 包含消息得最小存储时间
     private AtomicLong beginTimestamp = new AtomicLong(0);
+    // 包含消息得最大存储时间
     private AtomicLong endTimestamp = new AtomicLong(0);
+    // 包含消息得最小物理偏移量
     private AtomicLong beginPhyOffset = new AtomicLong(0);
+    // 包含消息得最大物理偏移量
     private AtomicLong endPhyOffset = new AtomicLong(0);
+    // hash slot的个数
     private AtomicInteger hashSlotCount = new AtomicInteger(0);
-
+    // Index的个数
     private AtomicInteger indexCount = new AtomicInteger(1);
 
     public IndexHeader(final ByteBuffer byteBuffer) {
@@ -42,6 +52,7 @@ public class IndexHeader {
     }
 
     public void load() {
+        // 初始化索引文件的属性
         this.beginTimestamp.set(byteBuffer.getLong(beginTimestampIndex));
         this.endTimestamp.set(byteBuffer.getLong(endTimestampIndex));
         this.beginPhyOffset.set(byteBuffer.getLong(beginPhyoffsetIndex));

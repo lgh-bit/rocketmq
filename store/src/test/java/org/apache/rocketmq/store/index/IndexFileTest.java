@@ -63,7 +63,7 @@ public class IndexFileTest {
         assertThat(putResult).isFalse();
 
         final List<Long> phyOffsets = new ArrayList<Long>();
-        indexFile.selectPhyOffset(phyOffsets, "60", 10, 0, Long.MAX_VALUE, true);
+        indexFile.selectPhyOffset2(phyOffsets, "60", 10, 0, Long.MAX_VALUE, true);
         assertThat(phyOffsets).isNotEmpty();
         assertThat(phyOffsets.size()).isEqualTo(1);
         indexFile.destroy(0);
