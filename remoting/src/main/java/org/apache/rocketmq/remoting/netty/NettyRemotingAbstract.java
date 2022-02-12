@@ -154,9 +154,11 @@ public abstract class NettyRemotingAbstract {
         final RemotingCommand cmd = msg;
         if (cmd != null) {
             switch (cmd.getType()) {
+                // 请求
                 case REQUEST_COMMAND:
                     processRequestCommand(ctx, cmd);
                     break;
+                // 返回
                 case RESPONSE_COMMAND:
                     processResponseCommand(ctx, cmd);
                     break;
@@ -286,16 +288,20 @@ public abstract class NettyRemotingAbstract {
      */
     public void processResponseCommand(ChannelHandlerContext ctx, RemotingCommand cmd) {
         final int opaque = cmd.getOpaque();
+        // 响应表里找原始请求
         final ResponseFuture responseFuture = responseTable.get(opaque);
         if (responseFuture != null) {
             responseFuture.setResponseCommand(cmd);
-
+            // 移除
             responseTable.remove(opaque);
 
             if (responseFuture.getInvokeCallback() != null) {
+                // 如果设置了回调，执行回调
                 executeInvokeCallback(responseFuture);
             } else {
+                // 同步调用，触发原始请求返回
                 responseFuture.putResponse(cmd);
+                // 控制并发请求数量
                 responseFuture.release();
             }
         } else {

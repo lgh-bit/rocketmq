@@ -89,36 +89,29 @@ public class PullMessageProcessor extends AsyncNettyRequestProcessor implements 
         return false;
     }
 
+    /**
+     * 1. 检验逻辑掩盖了核心逻辑
+     * 2. 消息过滤处理没有单独抽出
+     * 3.
+     */
     private RemotingCommand processRequest(final Channel channel, RemotingCommand request, boolean brokerAllowSuspend)
         throws RemotingCommandException {
         RemotingCommand response = RemotingCommand.createResponseCommand(PullMessageResponseHeader.class);
         final PullMessageResponseHeader responseHeader = (PullMessageResponseHeader) response.readCustomHeader();
         final PullMessageRequestHeader requestHeader =
             (PullMessageRequestHeader) request.decodeCommandCustomHeader(PullMessageRequestHeader.class);
-
+        // 设置请求Id
         response.setOpaque(request.getOpaque());
 
         log.debug("receive PullMessage request command, {}", request);
-
-        if (!PermName.isReadable(this.brokerController.getBrokerConfig().getBrokerPermission())) {
-            response.setCode(ResponseCode.NO_PERMISSION);
-            response.setRemark(String.format("the broker[%s] pulling message is forbidden", this.brokerController.getBrokerConfig().getBrokerIP1()));
+        Check check = new Check(response, requestHeader, channel).invoke();
+        if (check.is()) {
             return response;
         }
+        SubscriptionGroupConfig subscriptionGroupConfig = check.getSubscriptionGroupConfig();
 
-        SubscriptionGroupConfig subscriptionGroupConfig =
-            this.brokerController.getSubscriptionGroupManager().findSubscriptionGroupConfig(requestHeader.getConsumerGroup());
-        if (null == subscriptionGroupConfig) {
-            response.setCode(ResponseCode.SUBSCRIPTION_GROUP_NOT_EXIST);
-            response.setRemark(String.format("subscription group [%s] does not exist, %s", requestHeader.getConsumerGroup(), FAQUrl.suggestTodo(FAQUrl.SUBSCRIPTION_GROUP_NOT_EXIST)));
-            return response;
-        }
-
-        if (!subscriptionGroupConfig.isConsumeEnable()) {
-            response.setCode(ResponseCode.NO_PERMISSION);
-            response.setRemark("subscription group no permission, " + requestHeader.getConsumerGroup());
-            return response;
-        }
+        SubscriptionData subscriptionData = null;
+        ConsumerFilterData consumerFilterData = null;
 
         final boolean hasSuspendFlag = PullSysFlag.hasSuspendFlag(requestHeader.getSysFlag());
         final boolean hasCommitOffsetFlag = PullSysFlag.hasCommitOffsetFlag(requestHeader.getSysFlag());
@@ -126,31 +119,6 @@ public class PullMessageProcessor extends AsyncNettyRequestProcessor implements 
 
         final long suspendTimeoutMillisLong = hasSuspendFlag ? requestHeader.getSuspendTimeoutMillis() : 0;
 
-        TopicConfig topicConfig = this.brokerController.getTopicConfigManager().selectTopicConfig(requestHeader.getTopic());
-        if (null == topicConfig) {
-            log.error("the topic {} not exist, consumer: {}", requestHeader.getTopic(), RemotingHelper.parseChannelRemoteAddr(channel));
-            response.setCode(ResponseCode.TOPIC_NOT_EXIST);
-            response.setRemark(String.format("topic[%s] not exist, apply first please! %s", requestHeader.getTopic(), FAQUrl.suggestTodo(FAQUrl.APPLY_TOPIC_URL)));
-            return response;
-        }
-
-        if (!PermName.isReadable(topicConfig.getPerm())) {
-            response.setCode(ResponseCode.NO_PERMISSION);
-            response.setRemark("the topic[" + requestHeader.getTopic() + "] pulling message is forbidden");
-            return response;
-        }
-
-        if (requestHeader.getQueueId() < 0 || requestHeader.getQueueId() >= topicConfig.getReadQueueNums()) {
-            String errorInfo = String.format("queueId[%d] is illegal, topic:[%s] topicConfig.readQueueNums:[%d] consumer:[%s]",
-                requestHeader.getQueueId(), requestHeader.getTopic(), topicConfig.getReadQueueNums(), channel.remoteAddress());
-            log.warn(errorInfo);
-            response.setCode(ResponseCode.SYSTEM_ERROR);
-            response.setRemark(errorInfo);
-            return response;
-        }
-
-        SubscriptionData subscriptionData = null;
-        ConsumerFilterData consumerFilterData = null;
         if (hasSubscriptionFlag) {
             try {
                 subscriptionData = FilterAPI.build(
@@ -170,56 +138,16 @@ public class PullMessageProcessor extends AsyncNettyRequestProcessor implements 
                 response.setRemark("parse the consumer's subscription failed");
                 return response;
             }
-        } else {
-            ConsumerGroupInfo consumerGroupInfo =
-                this.brokerController.getConsumerManager().getConsumerGroupInfo(requestHeader.getConsumerGroup());
-            if (null == consumerGroupInfo) {
-                log.warn("the consumer's group info not exist, group: {}", requestHeader.getConsumerGroup());
-                response.setCode(ResponseCode.SUBSCRIPTION_NOT_EXIST);
-                response.setRemark("the consumer's group info not exist" + FAQUrl.suggestTodo(FAQUrl.SAME_GROUP_DIFFERENT_TOPIC));
-                return response;
-            }
-
-            if (!subscriptionGroupConfig.isConsumeBroadcastEnable()
-                && consumerGroupInfo.getMessageModel() == MessageModel.BROADCASTING) {
-                response.setCode(ResponseCode.NO_PERMISSION);
-                response.setRemark("the consumer group[" + requestHeader.getConsumerGroup() + "] can not consume by broadcast way");
-                return response;
-            }
-
-            subscriptionData = consumerGroupInfo.findSubscriptionData(requestHeader.getTopic());
-            if (null == subscriptionData) {
-                log.warn("the consumer's subscription not exist, group: {}, topic:{}", requestHeader.getConsumerGroup(), requestHeader.getTopic());
-                response.setCode(ResponseCode.SUBSCRIPTION_NOT_EXIST);
-                response.setRemark("the consumer's subscription not exist" + FAQUrl.suggestTodo(FAQUrl.SAME_GROUP_DIFFERENT_TOPIC));
-                return response;
-            }
-
-            if (subscriptionData.getSubVersion() < requestHeader.getSubVersion()) {
-                log.warn("The broker's subscription is not latest, group: {} {}", requestHeader.getConsumerGroup(),
-                    subscriptionData.getSubString());
-                response.setCode(ResponseCode.SUBSCRIPTION_NOT_LATEST);
-                response.setRemark("the consumer's subscription not latest");
-                return response;
-            }
-            if (!ExpressionType.isTagType(subscriptionData.getExpressionType())) {
-                consumerFilterData = this.brokerController.getConsumerFilterManager().get(requestHeader.getTopic(),
-                    requestHeader.getConsumerGroup());
-                if (consumerFilterData == null) {
-                    response.setCode(ResponseCode.FILTER_DATA_NOT_EXIST);
-                    response.setRemark("The broker's consumer filter data is not exist!Your expression may be wrong!");
-                    return response;
-                }
-                if (consumerFilterData.getClientVersion() < requestHeader.getSubVersion()) {
-                    log.warn("The broker's consumer filter data is not latest, group: {}, topic: {}, serverV: {}, clientV: {}",
-                        requestHeader.getConsumerGroup(), requestHeader.getTopic(), consumerFilterData.getClientVersion(), requestHeader.getSubVersion());
-                    response.setCode(ResponseCode.FILTER_DATA_NOT_LATEST);
-                    response.setRemark("the consumer's consumer filter data not latest");
-                    return response;
-                }
-            }
         }
-
+        else {
+            ConsumerCheck consumerCheck = new ConsumerCheck(requestHeader, subscriptionGroupConfig, consumerFilterData, response).invoke();
+            if (consumerCheck.is()) {
+                return response;
+            }
+            subscriptionData = consumerCheck.getSubscriptionData();
+            consumerFilterData = consumerCheck.getConsumerFilterData();
+        }
+        // 消息过滤的设置非法
         if (!ExpressionType.isTagType(subscriptionData.getExpressionType())
             && !this.brokerController.getBrokerConfig().isEnablePropertyFilter()) {
             response.setCode(ResponseCode.SYSTEM_ERROR);
@@ -235,19 +163,24 @@ public class PullMessageProcessor extends AsyncNettyRequestProcessor implements 
             messageFilter = new ExpressionMessageFilter(subscriptionData, consumerFilterData,
                 this.brokerController.getConsumerFilterManager());
         }
+
         // 通过MessageStore查找消息
         final GetMessageResult getMessageResult =
             this.brokerController.getMessageStore().getMessage(requestHeader.getConsumerGroup(), requestHeader.getTopic(),
                 requestHeader.getQueueId(), requestHeader.getQueueOffset(), requestHeader.getMaxMsgNums(), messageFilter);
         if (getMessageResult != null) {
+            // 拉取消息状态
             response.setRemark(getMessageResult.getStatus().name());
+            // 下次拉取消息的起始offset
             responseHeader.setNextBeginOffset(getMessageResult.getNextBeginOffset());
+            // 最小offset
             responseHeader.setMinOffset(getMessageResult.getMinOffset());
             responseHeader.setMaxOffset(getMessageResult.getMaxOffset());
-
+            // 设置建议拉取消息的服务器
             if (getMessageResult.isSuggestPullingFromSlave()) {
                 responseHeader.setSuggestWhichBrokerId(subscriptionGroupConfig.getWhichBrokerWhenConsumeSlowly());
             } else {
+                // 从master拉取
                 responseHeader.setSuggestWhichBrokerId(MixAll.MASTER_ID);
             }
 
@@ -586,5 +519,174 @@ public class PullMessageProcessor extends AsyncNettyRequestProcessor implements 
 
     public void registerConsumeMessageHook(List<ConsumeMessageHook> consumeMessageHookList) {
         this.consumeMessageHookList = consumeMessageHookList;
+    }
+
+    private class Check {
+        private boolean myResult;
+        private RemotingCommand response;
+        private PullMessageRequestHeader requestHeader;
+        private Channel channel;
+        private SubscriptionGroupConfig subscriptionGroupConfig;
+
+        public Check(RemotingCommand response, PullMessageRequestHeader requestHeader, Channel channel) {
+            this.response = response;
+            this.requestHeader = requestHeader;
+            this.channel = channel;
+        }
+
+        boolean is() {
+            return myResult;
+        }
+
+        public SubscriptionGroupConfig getSubscriptionGroupConfig() {
+            return subscriptionGroupConfig;
+        }
+
+        public Check invoke() {
+            // 检查是否可读
+            if (!PermName.isReadable(PullMessageProcessor.this.brokerController.getBrokerConfig().getBrokerPermission())) {
+                response.setCode(ResponseCode.NO_PERMISSION);
+                response.setRemark(String.format("the broker[%s] pulling message is forbidden", PullMessageProcessor.this.brokerController.getBrokerConfig().getBrokerIP1()));
+                myResult = true;
+                return this;
+            }
+
+            // 消费组信息
+            subscriptionGroupConfig = PullMessageProcessor.this.brokerController.getSubscriptionGroupManager().findSubscriptionGroupConfig(requestHeader.getConsumerGroup());
+            if (null == subscriptionGroupConfig) {
+                // 返回消费者不存在错
+                response.setCode(ResponseCode.SUBSCRIPTION_GROUP_NOT_EXIST);
+                response.setRemark(String.format("subscription group [%s] does not exist, %s", requestHeader.getConsumerGroup(), FAQUrl.suggestTodo(FAQUrl.SUBSCRIPTION_GROUP_NOT_EXIST)));
+                myResult = true;
+                return this;
+            }
+
+            // 检查消费组是否被禁用
+            if (!subscriptionGroupConfig.isConsumeEnable()) {
+                response.setCode(ResponseCode.NO_PERMISSION);
+                response.setRemark("subscription group no permission, " + requestHeader.getConsumerGroup());
+                myResult = true;
+                return this;
+            }
+
+            // 获取topic配置
+            TopicConfig topicConfig = PullMessageProcessor.this.brokerController.getTopicConfigManager().selectTopicConfig(requestHeader.getTopic());
+            if (null == topicConfig) {
+                log.error("the topic {} not exist, consumer: {}", requestHeader.getTopic(), RemotingHelper.parseChannelRemoteAddr(channel));
+                response.setCode(ResponseCode.TOPIC_NOT_EXIST);
+                response.setRemark(String.format("topic[%s] not exist, apply first please! %s", requestHeader.getTopic(), FAQUrl.suggestTodo(FAQUrl.APPLY_TOPIC_URL)));
+                myResult = true;
+                return this;
+            }
+            // 检查该topic是否有读权限
+            if (!PermName.isReadable(topicConfig.getPerm())) {
+                response.setCode(ResponseCode.NO_PERMISSION);
+                response.setRemark("the topic[" + requestHeader.getTopic() + "] pulling message is forbidden");
+                myResult = true;
+                return this;
+            }
+            // 检查队列Id是否合法
+            if (requestHeader.getQueueId() < 0 || requestHeader.getQueueId() >= topicConfig.getReadQueueNums()) {
+                String errorInfo = String.format("queueId[%d] is illegal, topic:[%s] topicConfig.readQueueNums:[%d] consumer:[%s]",
+                    requestHeader.getQueueId(), requestHeader.getTopic(), topicConfig.getReadQueueNums(), channel.remoteAddress());
+                log.warn(errorInfo);
+                response.setCode(ResponseCode.SYSTEM_ERROR);
+                response.setRemark(errorInfo);
+                myResult = true;
+                return this;
+            }
+            myResult = false;
+            return this;
+        }
+    }
+
+    private class ConsumerCheck {
+        private boolean myResult;
+        private PullMessageRequestHeader requestHeader;
+        private SubscriptionGroupConfig subscriptionGroupConfig;
+        private ConsumerFilterData consumerFilterData;
+        private RemotingCommand response;
+        private SubscriptionData subscriptionData;
+
+        public ConsumerCheck(PullMessageRequestHeader requestHeader, SubscriptionGroupConfig subscriptionGroupConfig, ConsumerFilterData consumerFilterData, RemotingCommand response) {
+            this.requestHeader = requestHeader;
+            this.subscriptionGroupConfig = subscriptionGroupConfig;
+            this.consumerFilterData = consumerFilterData;
+            this.response = response;
+        }
+
+        boolean is() {
+            return myResult;
+        }
+
+        public SubscriptionData getSubscriptionData() {
+            return subscriptionData;
+        }
+
+        public ConsumerFilterData getConsumerFilterData() {
+            return consumerFilterData;
+        }
+
+        public ConsumerCheck invoke() {
+            // 获取消费组信息
+            ConsumerGroupInfo consumerGroupInfo =
+                PullMessageProcessor.this.brokerController.getConsumerManager().getConsumerGroupInfo(requestHeader.getConsumerGroup());
+            if (null == consumerGroupInfo) {
+                log.warn("the consumer's group info not exist, group: {}", requestHeader.getConsumerGroup());
+                response.setCode(ResponseCode.SUBSCRIPTION_NOT_EXIST);
+                response.setRemark("the consumer's group info not exist" + FAQUrl.suggestTodo(FAQUrl.SAME_GROUP_DIFFERENT_TOPIC));
+                myResult = true;
+                return this;
+            }
+            // 检查广播消费的合法性
+            if (!subscriptionGroupConfig.isConsumeBroadcastEnable()
+                && consumerGroupInfo.getMessageModel() == MessageModel.BROADCASTING) {
+                response.setCode(ResponseCode.NO_PERMISSION);
+                response.setRemark("the consumer group[" + requestHeader.getConsumerGroup() + "] can not consume by broadcast way");
+                myResult = true;
+                return this;
+            }
+            // 检查消费组的订阅信息
+            subscriptionData = consumerGroupInfo.findSubscriptionData(requestHeader.getTopic());
+            if (null == subscriptionData) {
+                log.warn("the consumer's subscription not exist, group: {}, topic:{}", requestHeader.getConsumerGroup(), requestHeader.getTopic());
+                response.setCode(ResponseCode.SUBSCRIPTION_NOT_EXIST);
+                response.setRemark("the consumer's subscription not exist" + FAQUrl.suggestTodo(FAQUrl.SAME_GROUP_DIFFERENT_TOPIC));
+                myResult = true;
+                return this;
+            }
+            // 检查订阅信息的子版本号是否合法
+            if (subscriptionData.getSubVersion() < requestHeader.getSubVersion()) {
+                log.warn("The broker's subscription is not latest, group: {} {}", requestHeader.getConsumerGroup(),
+                    subscriptionData.getSubString());
+                response.setCode(ResponseCode.SUBSCRIPTION_NOT_LATEST);
+                response.setRemark("the consumer's subscription not latest");
+                myResult = true;
+                return this;
+            }
+            if (!ExpressionType.isTagType(subscriptionData.getExpressionType())) {
+                // 消费过滤信息
+                consumerFilterData = PullMessageProcessor.this.brokerController.getConsumerFilterManager().get(requestHeader.getTopic(),
+                    requestHeader.getConsumerGroup());
+
+                if (consumerFilterData == null) {
+                    response.setCode(ResponseCode.FILTER_DATA_NOT_EXIST);
+                    response.setRemark("The broker's consumer filter data is not exist!Your expression may be wrong!");
+                    myResult = true;
+                    return this;
+                }
+                // 消息过滤器的版本号检查
+                if (consumerFilterData.getClientVersion() < requestHeader.getSubVersion()) {
+                    log.warn("The broker's consumer filter data is not latest, group: {}, topic: {}, serverV: {}, clientV: {}",
+                        requestHeader.getConsumerGroup(), requestHeader.getTopic(), consumerFilterData.getClientVersion(), requestHeader.getSubVersion());
+                    response.setCode(ResponseCode.FILTER_DATA_NOT_LATEST);
+                    response.setRemark("the consumer's consumer filter data not latest");
+                    myResult = true;
+                    return this;
+                }
+            }
+            myResult = false;
+            return this;
+        }
     }
 }

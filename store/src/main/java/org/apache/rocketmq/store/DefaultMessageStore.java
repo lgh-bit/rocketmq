@@ -533,6 +533,7 @@ public class DefaultMessageStore implements MessageStore {
         return commitLog;
     }
 
+    @Override
     public GetMessageResult getMessage(final String group, final String topic, final int queueId, final long offset,
         final int maxMsgNums,
         final MessageFilter messageFilter) {
@@ -1865,6 +1866,7 @@ public class DefaultMessageStore implements MessageStore {
             }
         }
 
+        @Override
         public void run() {
             DefaultMessageStore.log.info(this.getServiceName() + " service started");
 
@@ -2006,87 +2008,6 @@ public class DefaultMessageStore implements MessageStore {
                 else {
                     doNext = false;
                 }
-            }
-        }
-        private void doReput2() {
-            if (this.reputFromOffset < DefaultMessageStore.this.commitLog.getMinOffset()) {
-                log.warn("The reputFromOffset={} is smaller than minPyOffset={}, this usually indicate that the dispatch behind too much and the commitlog has expired.",
-                        this.reputFromOffset, DefaultMessageStore.this.commitLog.getMinOffset());
-                this.reputFromOffset = DefaultMessageStore.this.commitLog.getMinOffset();
-            }
-            // 检查是否有未分发的消息
-            for (boolean doNext = true; this.isCommitLogAvailable() && doNext; ) {
-
-                if (DefaultMessageStore.this.getMessageStoreConfig().isDuplicationEnable()
-                        && this.reputFromOffset >= DefaultMessageStore.this.getConfirmOffset()) {
-                    break;
-                }
-                // 返回从reputFromOffset开始的全部有效消息
-                SelectMappedBufferResult result = DefaultMessageStore.this.commitLog.getData(reputFromOffset);
-                if (Objects.isNull(result)) {
-                    break;
-                }
-                try {
-                    // 重置偏移量
-                    this.reputFromOffset = result.getStartOffset();
-                    // 从返回的result中循环的读取消息
-                    for (int readSize = 0; readSize < result.getSize() && doNext; ) {
-                        // 一次读取一条消息，创建DispatchRequest对象
-                        DispatchRequest dispatchRequest =
-                                DefaultMessageStore.this.commitLog.checkMessageAndReturnSize(result.getByteBuffer(), false, false);
-                        // 看是否使用了DLedgerCommitLog，如果没有返回msgSize,如果是返回bufferSize
-                        int size = dispatchRequest.getBufferSize() == -1 ? dispatchRequest.getMsgSize() : dispatchRequest.getBufferSize();
-                        // 检查读取一条消息是否成功
-                        if (dispatchRequest.isSuccess()) {
-                            if (size > 0) {
-                                // 核心转发逻辑
-                                DefaultMessageStore.this.doDispatch(dispatchRequest);
-
-                                if (BrokerRole.SLAVE != DefaultMessageStore.this.getMessageStoreConfig().getBrokerRole()
-                                        && DefaultMessageStore.this.brokerConfig.isLongPollingEnable()
-                                        && DefaultMessageStore.this.messageArrivingListener != null) {
-                                    DefaultMessageStore.this.messageArrivingListener.arriving(dispatchRequest.getTopic(),
-                                            dispatchRequest.getQueueId(), dispatchRequest.getConsumeQueueOffset() + 1,
-                                            dispatchRequest.getTagsCode(), dispatchRequest.getStoreTimestamp(),
-                                            dispatchRequest.getBitMap(), dispatchRequest.getPropertiesMap());
-                                }
-                                // 更新偏移量
-                                this.reputFromOffset += size;
-                                readSize += size;
-                                if (DefaultMessageStore.this.getMessageStoreConfig().getBrokerRole() == BrokerRole.SLAVE) {
-                                    DefaultMessageStore.this.storeStatsService
-                                            .getSinglePutMessageTopicTimesTotal(dispatchRequest.getTopic()).incrementAndGet();
-                                    DefaultMessageStore.this.storeStatsService
-                                            .getSinglePutMessageTopicSizeTotal(dispatchRequest.getTopic())
-                                            .addAndGet(dispatchRequest.getMsgSize());
-                                }
-                            } else if (size == 0) {
-                                this.reputFromOffset = DefaultMessageStore.this.commitLog.rollNextFile(this.reputFromOffset);
-                                readSize = result.getSize();
-                            }
-                        }
-                        else if (!dispatchRequest.isSuccess()) {
-
-                            if (size > 0) {
-                                log.error("[BUG]read total count not equals msg total size. reputFromOffset={}", reputFromOffset);
-                                this.reputFromOffset += size;
-                            } else {
-                                doNext = false;
-                                // If user open the dledger pattern or the broker is master node,
-                                // it will not ignore the exception and fix the reputFromOffset variable
-                                if (DefaultMessageStore.this.getMessageStoreConfig().isEnableDLegerCommitLog() ||
-                                        DefaultMessageStore.this.brokerConfig.getBrokerId() == MixAll.MASTER_ID) {
-                                    log.error("[BUG]dispatch message to consume queue error, COMMITLOG OFFSET: {}",
-                                            this.reputFromOffset);
-                                    this.reputFromOffset += result.getSize() - readSize;
-                                }
-                            }
-                        }
-                    }
-                } finally {
-                    result.release();
-                }
-
             }
         }
 

@@ -30,8 +30,9 @@ public class ResponseFuture {
     private final long timeoutMillis;
     private final InvokeCallback invokeCallback;
     private final long beginTimestamp = System.currentTimeMillis();
+    // 阻塞请求
     private final CountDownLatch countDownLatch = new CountDownLatch(1);
-
+    // 控制最大请求数
     private final SemaphoreReleaseOnlyOnce once;
 
     private final AtomicBoolean executeCallbackOnlyOnce = new AtomicBoolean(false);
@@ -50,12 +51,15 @@ public class ResponseFuture {
 
     public void executeInvokeCallback() {
         if (invokeCallback != null) {
+            // CAS防止并发
             if (this.executeCallbackOnlyOnce.compareAndSet(false, true)) {
+                // 执行回调
                 invokeCallback.operationComplete(this);
             }
         }
     }
 
+    // 标识本次请求结束(控制请求速度)
     public void release() {
         if (this.once != null) {
             this.once.release();
