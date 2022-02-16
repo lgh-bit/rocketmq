@@ -20,6 +20,9 @@ package org.apache.rocketmq.broker;
 import java.io.File;
 
 public class BrokerPathConfigHelper {
+    /**
+     * brokerconfig的配置文件路径地址
+     */
     private static String brokerConfigPath = System.getProperty("user.home") + File.separator + "store"
         + File.separator + "config" + File.separator + "broker.properties";
 
@@ -30,19 +33,35 @@ public class BrokerPathConfigHelper {
     public static void setBrokerConfigPath(String path) {
         brokerConfigPath = path;
     }
-
+    /**
+     * 获取topic的config的path
+     * @param rootDir 根路径
+     * @return ;
+     */
     public static String getTopicConfigPath(final String rootDir) {
         return rootDir + File.separator + "config" + File.separator + "topics.json";
     }
-
+    /**
+     * 获取消费偏移的path
+     * @param rootDir 根据了
+     * @return ;
+     */
     public static String getConsumerOffsetPath(final String rootDir) {
         return rootDir + File.separator + "config" + File.separator + "consumerOffset.json";
     }
-
+    /**
+     * getSubscriptionGroupPath
+     * @param rootDir ;
+     * @return ;
+     */
     public static String getSubscriptionGroupPath(final String rootDir) {
         return rootDir + File.separator + "config" + File.separator + "subscriptionGroup.json";
     }
-
+    /**
+     * consumerFilterPath
+     * @param rootDir ;
+     * @return ;
+     */
     public static String getConsumerFilterPath(final String rootDir) {
         return rootDir + File.separator + "config" + File.separator + "consumerFilter.json";
     }

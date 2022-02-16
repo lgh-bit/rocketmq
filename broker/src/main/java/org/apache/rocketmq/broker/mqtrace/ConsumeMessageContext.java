@@ -19,15 +19,36 @@ package org.apache.rocketmq.broker.mqtrace;
 import java.util.Map;
 import org.apache.rocketmq.store.stats.BrokerStatsManager;
 
+/**
+ * 消费消息的勾子上下文
+ */
 public class ConsumeMessageContext {
+    /**
+     * 消费组
+     */
     private String consumerGroup;
     private String topic;
+    /**
+     * 队列id
+     */
     private Integer queueId;
+    /**
+     * 客户端地址
+     */
     private String clientHost;
     private String storeHost;
     private Map<String, Long> messageIds;
+    /**
+     * body长度
+     */
     private int bodyLength;
+    /**
+     * 是否成功
+     */
     private boolean success;
+    /**
+     * 状态
+     */
     private String status;
     private Object mqTraceContext;
 

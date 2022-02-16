@@ -34,11 +34,21 @@ import org.apache.rocketmq.common.constant.LoggerName;
 import org.apache.rocketmq.logging.InternalLogger;
 import org.apache.rocketmq.logging.InternalLoggerFactory;
 import org.apache.rocketmq.remoting.common.RemotingUtil;
-
+/**
+ * FilterServer管理器
+ */
 public class FilterServerManager {
 
+    /**
+     * 最大空闲超时时间
+     */
     public static final long FILTER_SERVER_MAX_IDLE_TIME_MILLS = 30000;
     private static final InternalLogger log = InternalLoggerFactory.getLogger(LoggerName.BROKER_LOGGER_NAME);
+    /**
+     * FilterServer启动时指定了端口号为0，代表的是随机端口号
+     * FilterServer和Broker部署在了一起，节省网络带宽
+     * FileServer信息
+     */
     private final ConcurrentMap<Channel, FilterServerInfo> filterServerTable =
         new ConcurrentHashMap<Channel, FilterServerInfo>(16);
     private final BrokerController brokerController;
@@ -51,7 +61,7 @@ public class FilterServerManager {
     }
 
     public void start() {
-
+        // 每30秒执行一次，创建FilterServer
         this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
@@ -63,7 +73,9 @@ public class FilterServerManager {
             }
         }, 1000 * 5, 1000 * 30, TimeUnit.MILLISECONDS);
     }
-
+    /**
+     * 通过Shell脚本创建FilterServer
+     */
     public void createFilterServer() {
         int more =
             this.brokerController.getBrokerConfig().getFilterServerNums() - this.filterServerTable.size();

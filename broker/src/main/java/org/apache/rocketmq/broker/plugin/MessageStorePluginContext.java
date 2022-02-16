@@ -22,10 +22,28 @@ import org.apache.rocketmq.store.MessageArrivingListener;
 import org.apache.rocketmq.store.config.MessageStoreConfig;
 import org.apache.rocketmq.store.stats.BrokerStatsManager;
 
+/**
+ * 消息存储插件加载上下文
+ */
 public class MessageStorePluginContext {
+    /**
+     * 消息存储类配置
+     */
     private MessageStoreConfig messageStoreConfig;
+
+    /**
+     * Broker状态管理器
+     */
     private BrokerStatsManager brokerStatsManager;
+
+    /**
+     * 消息到达监听器
+     */
     private MessageArrivingListener messageArrivingListener;
+
+    /**
+     * BROKER的配置
+     */
     private BrokerConfig brokerConfig;
 
     public MessageStorePluginContext(MessageStoreConfig messageStoreConfig,

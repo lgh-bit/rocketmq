@@ -34,6 +34,9 @@ import org.apache.rocketmq.store.QueryMessageResult;
 import org.apache.rocketmq.store.SelectMappedBufferResult;
 import org.apache.rocketmq.store.stats.BrokerStatsManager;
 
+/**
+ * MessageStore插件类装饰的抽象类
+ */
 public abstract class AbstractPluginMessageStore implements MessageStore {
     protected MessageStore next = null;
     protected MessageStorePluginContext context;

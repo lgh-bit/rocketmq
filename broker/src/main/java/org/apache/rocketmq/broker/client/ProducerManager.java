@@ -30,22 +30,46 @@ import org.apache.rocketmq.logging.InternalLoggerFactory;
 import org.apache.rocketmq.remoting.common.RemotingHelper;
 import org.apache.rocketmq.remoting.common.RemotingUtil;
 
+/**
+ * 生产者管理
+ */
 public class ProducerManager {
     private static final InternalLogger log = InternalLoggerFactory.getLogger(LoggerName.BROKER_LOGGER_NAME);
+    /**
+     * channel超时时间，120秒
+     */
     private static final long CHANNEL_EXPIRED_TIMEOUT = 1000 * 120;
+    /**
+     * 获取可用channel列表重试次数
+     */
     private static final int GET_AVAILABLE_CHANNEL_RETRY_COUNT = 3;
+    /**
+     * groupName对应的客户端channel信息
+     */
     private final ConcurrentHashMap<String /* group name */, ConcurrentHashMap<Channel, ClientChannelInfo>> groupChannelTable =
         new ConcurrentHashMap<>();
+    /**
+     *  <clientId, Channel>
+     */
     private final ConcurrentHashMap<String, Channel> clientChannelTable = new ConcurrentHashMap<>();
+    /**
+     * 计数器
+     */
     private PositiveAtomicCounter positiveAtomicCounter = new PositiveAtomicCounter();
 
     public ProducerManager() {
     }
 
+    /**
+     * 获取所有的groupChannelTables
+     */
     public ConcurrentHashMap<String, ConcurrentHashMap<Channel, ClientChannelInfo>> getGroupChannelTable() {
         return groupChannelTable;
     }
 
+    /**
+     * 移除失效的channel
+     */
     public void scanNotActiveChannel() {
         for (final Map.Entry<String, ConcurrentHashMap<Channel, ClientChannelInfo>> entry : this.groupChannelTable
                 .entrySet()) {
@@ -71,6 +95,9 @@ public class ProducerManager {
         }
     }
 
+    /**
+     * channel关闭的事件
+     */
     public synchronized void doChannelCloseEvent(final String remoteAddr, final Channel channel) {
         if (channel != null) {
             for (final Map.Entry<String, ConcurrentHashMap<Channel, ClientChannelInfo>> entry : this.groupChannelTable
@@ -91,6 +118,9 @@ public class ProducerManager {
         }
     }
 
+    /**
+     * 注册一个Producer
+     */
     public synchronized void registerProducer(final String group, final ClientChannelInfo clientChannelInfo) {
         ClientChannelInfo clientChannelInfoFound = null;
 
@@ -114,6 +144,9 @@ public class ProducerManager {
         }
     }
 
+    /**
+     * 取消注册一个Producer
+     */
     public synchronized void unregisterProducer(final String group, final ClientChannelInfo clientChannelInfo) {
         ConcurrentHashMap<Channel, ClientChannelInfo> channelTable = this.groupChannelTable.get(group);
         if (null != channelTable && !channelTable.isEmpty()) {
@@ -131,6 +164,9 @@ public class ProducerManager {
         }
     }
 
+    /**
+     * 获取可用的可写的channel
+     */
     public Channel getAvailableChannel(String groupId) {
         if (groupId == null) {
             return null;
@@ -171,6 +207,11 @@ public class ProducerManager {
         return lastActiveChannel;
     }
 
+    /**
+     * 查询clientId对应的Channel
+     * @param clientId
+     * @return
+     */
     public Channel findChannel(String clientId) {
         return clientChannelTable.get(clientId);
     }

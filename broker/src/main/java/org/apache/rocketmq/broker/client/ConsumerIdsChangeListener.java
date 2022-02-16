@@ -16,6 +16,9 @@
  */
 package org.apache.rocketmq.broker.client;
 
+/**
+ * 消费者id变化监听器
+ */
 public interface ConsumerIdsChangeListener {
 
     void handle(ConsumerGroupEvent event, String group, Object... args);

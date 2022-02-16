@@ -96,14 +96,19 @@ public class RequestCode {
     public static final int GET_BROKER_CLUSTER_INFO = 106;
     public static final int UPDATE_AND_CREATE_SUBSCRIPTIONGROUP = 200;
     public static final int GET_ALL_SUBSCRIPTIONGROUP_CONFIG = 201;
+    //获取topic的状态信息
     public static final int GET_TOPIC_STATS_INFO = 202;
+    //获取消费者连接列表
     public static final int GET_CONSUMER_CONNECTION_LIST = 203;
+    //获取全部生产者的连接列表
     public static final int GET_PRODUCER_CONNECTION_LIST = 204;
+
     public static final int WIPE_WRITE_PERM_OF_BROKER = 205;
 
     public static final int GET_ALL_TOPIC_LIST_FROM_NAMESERVER = 206;
 
     public static final int DELETE_SUBSCRIPTIONGROUP = 207;
+    //获取消费状态
     public static final int GET_CONSUME_STATS = 208;
 
     public static final int SUSPEND_CONSUMER = 209;

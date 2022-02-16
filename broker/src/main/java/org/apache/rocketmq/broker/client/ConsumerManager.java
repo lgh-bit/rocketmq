@@ -33,17 +33,36 @@ import org.apache.rocketmq.common.protocol.heartbeat.SubscriptionData;
 import org.apache.rocketmq.remoting.common.RemotingHelper;
 import org.apache.rocketmq.remoting.common.RemotingUtil;
 
+/**
+ * 消费者管理
+ */
 public class ConsumerManager {
     private static final InternalLogger log = InternalLoggerFactory.getLogger(LoggerName.BROKER_LOGGER_NAME);
+    /**
+     * channel超时时间：2分钟
+     */
     private static final long CHANNEL_EXPIRED_TIMEOUT = 1000 * 120;
+    /**
+     * key group,value是group对应的信息
+     */
     private final ConcurrentMap<String/* Group */, ConsumerGroupInfo> consumerTable =
         new ConcurrentHashMap<String, ConsumerGroupInfo>(1024);
+
+    /**
+     * 消费者id变监听器
+     */
     private final ConsumerIdsChangeListener consumerIdsChangeListener;
 
     public ConsumerManager(final ConsumerIdsChangeListener consumerIdsChangeListener) {
         this.consumerIdsChangeListener = consumerIdsChangeListener;
     }
 
+    /**
+     * 通过某个组的client找到channel
+     * @param group group
+     * @param clientId 客户端id
+     * @return ;
+     */
     public ClientChannelInfo findChannel(final String group, final String clientId) {
         ConsumerGroupInfo consumerGroupInfo = this.consumerTable.get(group);
         if (consumerGroupInfo != null) {
@@ -51,7 +70,9 @@ public class ConsumerManager {
         }
         return null;
     }
-
+    /**
+     * 根据group和topic找到 SubscriptionData
+     */
     public SubscriptionData findSubscriptionData(final String group, final String topic) {
         ConsumerGroupInfo consumerGroupInfo = this.getConsumerGroupInfo(group);
         if (consumerGroupInfo != null) {
@@ -65,6 +86,11 @@ public class ConsumerManager {
         return this.consumerTable.get(group);
     }
 
+    /**
+     * 找到某个消费group的subScription的count
+     * @param group group
+     * @return ;
+     */
     public int findSubscriptionDataCount(final String group) {
         ConsumerGroupInfo consumerGroupInfo = this.getConsumerGroupInfo(group);
         if (consumerGroupInfo != null) {
@@ -74,6 +100,11 @@ public class ConsumerManager {
         return 0;
     }
 
+    /**
+     * channelClose的事件处理
+     * @param remoteAddr 远程地址
+     * @param channel ;
+     */
     public void doChannelCloseEvent(final String remoteAddr, final Channel channel) {
         Iterator<Entry<String, ConsumerGroupInfo>> it = this.consumerTable.entrySet().iterator();
         while (it.hasNext()) {
@@ -95,6 +126,9 @@ public class ConsumerManager {
         }
     }
 
+    /**
+     * 注册一个消费者
+     */
     public boolean registerConsumer(final String group, final ClientChannelInfo clientChannelInfo,
         ConsumeType consumeType, MessageModel messageModel, ConsumeFromWhere consumeFromWhere,
         final Set<SubscriptionData> subList, boolean isNotifyConsumerIdsChangedEnable) {
@@ -122,6 +156,12 @@ public class ConsumerManager {
         return r1 || r2;
     }
 
+    /**
+     * 取消注册一个consumer
+     * @param group group
+     * @param clientChannelInfo 客户端的channel信息
+     * @param isNotifyConsumerIdsChangedEnable 是否通知消费者id变化
+     */
     public void unregisterConsumer(final String group, final ClientChannelInfo clientChannelInfo,
         boolean isNotifyConsumerIdsChangedEnable) {
         ConsumerGroupInfo consumerGroupInfo = this.consumerTable.get(group);
@@ -141,6 +181,9 @@ public class ConsumerManager {
         }
     }
 
+    /**
+     * 扫描失效的Channel
+     */
     public void scanNotActiveChannel() {
         Iterator<Entry<String, ConsumerGroupInfo>> it = this.consumerTable.entrySet().iterator();
         while (it.hasNext()) {
@@ -163,7 +206,9 @@ public class ConsumerManager {
                     itChannel.remove();
                 }
             }
-
+            /*
+             * 如果一个consumerGroup下的所有的channel都空了，就移除consumerTable指定的group
+             */
             if (channelInfoTable.isEmpty()) {
                 log.warn(
                     "SCAN: remove expired channel from ConsumerManager consumerTable, all clear, consumerGroup={}",
@@ -173,6 +218,9 @@ public class ConsumerManager {
         }
     }
 
+    /**
+     * 查询topic的消费者group
+     */
     public HashSet<String> queryTopicConsumeByWho(final String topic) {
         HashSet<String> groups = new HashSet<>();
         Iterator<Entry<String, ConsumerGroupInfo>> it = this.consumerTable.entrySet().iterator();

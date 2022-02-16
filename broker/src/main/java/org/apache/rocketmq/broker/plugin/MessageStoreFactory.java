@@ -20,7 +20,9 @@ package org.apache.rocketmq.broker.plugin;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import org.apache.rocketmq.store.MessageStore;
-
+/**
+ * MessageStore工厂。通过装饰者装饰MessageStore
+ */
 public final class MessageStoreFactory {
     public final static MessageStore build(MessageStorePluginContext context, MessageStore messageStore)
         throws IOException {

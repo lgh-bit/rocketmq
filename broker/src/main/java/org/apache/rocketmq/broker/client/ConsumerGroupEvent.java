@@ -16,6 +16,9 @@
  */
 package org.apache.rocketmq.broker.client;
 
+/**
+ * ConsumerGroup的事件
+ */
 public enum ConsumerGroupEvent {
 
     /**

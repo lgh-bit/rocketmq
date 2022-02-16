@@ -20,29 +20,83 @@ import java.util.Properties;
 import org.apache.rocketmq.common.message.MessageType;
 import org.apache.rocketmq.store.stats.BrokerStatsManager;
 
+/**
+ * 发送信息的上下文
+ */
 public class SendMessageContext {
+    /**
+     * 生产者
+     */
     private String producerGroup;
     private String topic;
+    /**
+     * msgid
+     */
     private String msgId;
+    /**
+     * 原始msgid
+     */
     private String originMsgId;
+    /**
+     * 队列id
+     */
     private Integer queueId;
+    /**
+     * 队列偏移量
+     */
     private Long queueOffset;
+    /**
+     * broker地址
+     */
     private String brokerAddr;
+    /**
+     * 客户端地址
+     */
     private String bornHost;
+    /**
+     * body长度
+     */
     private int bodyLength;
+    /**
+     * code
+     */
     private int code;
+    /**
+     * 错误码
+     */
     private String errorMsg;
+    /**
+     * mq配置
+     */
     private String msgProps;
+    /**
+     * mqtrace轨迹
+     */
     private Object mqTraceContext;
+    /**
+     * 扩展extProps
+     */
     private Properties extProps;
+    /**
+     * 区域id
+     */
     private String brokerRegionId;
+    /**
+     * msg唯一的key
+     */
     private String msgUniqueKey;
     private long bornTimeStamp;
+    /**
+     * 消息类型
+     */
     private MessageType msgType = MessageType.Trans_msg_Commit;
     private boolean isSuccess = false;
 
     private String commercialOwner;
     private BrokerStatsManager.StatsType commercialSendStats;
+    /**
+     * 发送的size
+     */
     private int commercialSendSize;
     private int commercialSendTimes;
     private String namespace;

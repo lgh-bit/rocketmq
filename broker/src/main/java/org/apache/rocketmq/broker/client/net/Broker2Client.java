@@ -59,6 +59,9 @@ public class Broker2Client {
         this.brokerController = brokerController;
     }
 
+    /**
+     * 检查生产者的事务状态(事务回查接口)
+     */
     public void checkProducerTransactionState(
         final String group,
         final Channel channel,
@@ -75,12 +78,18 @@ public class Broker2Client {
         }
     }
 
+    /**
+     * 调用客户端
+     */
     public RemotingCommand callClient(final Channel channel,
                                       final RemotingCommand request
     ) throws RemotingSendRequestException, RemotingTimeoutException, InterruptedException {
         return this.brokerController.getRemotingServer().invokeSync(channel, request, 10000);
     }
 
+    /**
+     * 通知消费者消费id有变化
+     */
     public void notifyConsumerIdsChanged(
         final Channel channel,
         final String consumerGroup) {
@@ -101,10 +110,9 @@ public class Broker2Client {
         }
     }
 
-    public RemotingCommand resetOffset(String topic, String group, long timeStamp, boolean isForce) {
-        return resetOffset(topic, group, timeStamp, isForce, false);
-    }
-
+    /**
+     * 通知消费者消费id有变化
+     */
     public RemotingCommand resetOffset(String topic, String group, long timeStamp, boolean isForce,
                                        boolean isC) {
         final RemotingCommand response = RemotingCommand.createResponseCommand(null);
@@ -199,6 +207,7 @@ public class Broker2Client {
                 }
             }
         } else {
+            //consumer不在线
             String errorInfo =
                 String.format("Consumer not online, so can not reset offset, Group: %s Topic: %s Timestamp: %d",
                     requestHeader.getGroup(),
@@ -227,6 +236,12 @@ public class Broker2Client {
         return list;
     }
 
+    /**
+     * 获取消费者状态
+     * @param topic topic集群
+     * @param group group
+     * @param originClientId 原始客户端id
+     */
     public RemotingCommand getConsumeStatus(String topic, String group, String originClientId) {
         final RemotingCommand result = RemotingCommand.createResponseCommand(null);
 

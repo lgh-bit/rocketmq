@@ -19,11 +19,27 @@ package org.apache.rocketmq.broker.client;
 import io.netty.channel.Channel;
 import org.apache.rocketmq.remoting.protocol.LanguageCode;
 
+/**
+ * 客户端的channel管理
+ * @author ;
+ */
 public class ClientChannelInfo {
     private final Channel channel;
+    /**
+     * 客户端id
+     */
     private final String clientId;
+    /**
+     * 语言
+     */
     private final LanguageCode language;
+    /**
+     * 版本
+     */
     private final int version;
+    /**
+     * 最后更新时间戳
+     */
     private volatile long lastUpdateTimestamp = System.currentTimeMillis();
 
     public ClientChannelInfo(Channel channel) {

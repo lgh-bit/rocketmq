@@ -24,12 +24,24 @@ import java.nio.channels.WritableByteChannel;
 import java.util.List;
 import org.apache.rocketmq.store.GetMessageResult;
 
+/**
+ * 多消息的传递体。FileRegion 的方式可以节省两次拷贝
+ * 通过 Nio 的 FileChannel 可以使用 map 文件映射的方式，直接发送到 SocketChannel中，这样可以减少两次 IO 的复制。
+ */
 public class ManyMessageTransfer extends AbstractReferenceCounted implements FileRegion {
+    /**
+     * 消息头
+     */
     private final ByteBuffer byteBufferHeader;
+    /**
+     * 查询消息结果
+     */
     private final GetMessageResult getMessageResult;
 
     /**
      * Bytes which were transferred already.
+     *
+     * 已经传输的字节
      */
     private long transferred;
 

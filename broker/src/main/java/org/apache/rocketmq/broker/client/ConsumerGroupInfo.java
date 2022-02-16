@@ -32,16 +32,40 @@ import org.apache.rocketmq.common.protocol.heartbeat.ConsumeType;
 import org.apache.rocketmq.common.protocol.heartbeat.MessageModel;
 import org.apache.rocketmq.common.protocol.heartbeat.SubscriptionData;
 
+/**
+ * 消费组的信息
+ */
 public class ConsumerGroupInfo {
     private static final InternalLogger log = InternalLoggerFactory.getLogger(LoggerName.BROKER_LOGGER_NAME);
+    /**
+     * 消费者组名称
+     */
     private final String groupName;
+    /**
+     * key；Topic value :SubscriptionData
+     */
     private final ConcurrentMap<String/* Topic */, SubscriptionData> subscriptionTable =
         new ConcurrentHashMap<String, SubscriptionData>();
+    /**
+     * key：channel,v：ClientChannelInfo
+     */
     private final ConcurrentMap<Channel, ClientChannelInfo> channelInfoTable =
         new ConcurrentHashMap<Channel, ClientChannelInfo>(16);
+    /**
+     * 消费类型。推／拉
+     */
     private volatile ConsumeType consumeType;
+    /**
+     * 消息模式。广播or集群
+     */
     private volatile MessageModel messageModel;
+    /**
+     * 消费者消费从哪里开始消费
+     */
     private volatile ConsumeFromWhere consumeFromWhere;
+    /**
+     * 最后更新时间戳
+     */
     private volatile long lastUpdateTimestamp = System.currentTimeMillis();
 
     public ConsumerGroupInfo(String groupName, ConsumeType consumeType, MessageModel messageModel,
@@ -52,6 +76,11 @@ public class ConsumerGroupInfo {
         this.consumeFromWhere = consumeFromWhere;
     }
 
+    /**
+     * 通过clientId获取channel
+     * @param clientId clientId
+     * @return ;
+     */
     public ClientChannelInfo findChannel(final String clientId) {
         Iterator<Entry<Channel, ClientChannelInfo>> it = this.channelInfoTable.entrySet().iterator();
         while (it.hasNext()) {
@@ -94,6 +123,10 @@ public class ConsumerGroupInfo {
         return result;
     }
 
+    /**
+     * 取消注册channel
+     * @param clientChannelInfo ;
+     */
     public void unregisterChannel(final ClientChannelInfo clientChannelInfo) {
         ClientChannelInfo old = this.channelInfoTable.remove(clientChannelInfo.getChannel());
         if (old != null) {
@@ -101,6 +134,9 @@ public class ConsumerGroupInfo {
         }
     }
 
+    /**
+     * channelClose事件：从channelInfoTable中移除
+     */
     public boolean doChannelCloseEvent(final String remoteAddr, final Channel channel) {
         final ClientChannelInfo info = this.channelInfoTable.remove(channel);
         if (info != null) {
@@ -113,6 +149,9 @@ public class ConsumerGroupInfo {
         return false;
     }
 
+    /**
+     * 更新channel
+     */
     public boolean updateChannel(final ClientChannelInfo infoNew, ConsumeType consumeType,
         MessageModel messageModel, ConsumeFromWhere consumeFromWhere) {
         boolean updated = false;
@@ -146,6 +185,9 @@ public class ConsumerGroupInfo {
         return updated;
     }
 
+    /**
+     * 更新subscriptions
+     */
     public boolean updateSubscription(final Set<SubscriptionData> subList) {
         boolean updated = false;
 

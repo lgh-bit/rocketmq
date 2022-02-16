@@ -24,6 +24,9 @@ import java.util.List;
 import org.apache.rocketmq.broker.BrokerController;
 import org.apache.rocketmq.common.protocol.heartbeat.SubscriptionData;
 
+/**
+ * 默认的消费者id变化监听器
+ */
 public class DefaultConsumerIdsChangeListener implements ConsumerIdsChangeListener {
     private final BrokerController brokerController;
 
@@ -44,11 +47,13 @@ public class DefaultConsumerIdsChangeListener implements ConsumerIdsChangeListen
                 List<Channel> channels = (List<Channel>) args[0];
                 if (channels != null && brokerController.getBrokerConfig().isNotifyConsumerIdsChangedEnable()) {
                     for (Channel chl : channels) {
+                        //如果消费者id有变化，就调用所有的getBroker2Client通知
                         this.brokerController.getBroker2Client().notifyConsumerIdsChanged(chl, group);
                     }
                 }
                 break;
             case UNREGISTER:
+                //调用getConsumerFilterManager去取消注册
                 this.brokerController.getConsumerFilterManager().unRegister(group);
                 break;
             case REGISTER:
@@ -56,6 +61,7 @@ public class DefaultConsumerIdsChangeListener implements ConsumerIdsChangeListen
                     return;
                 }
                 Collection<SubscriptionData> subscriptionDataList = (Collection<SubscriptionData>) args[0];
+                //注册FilterManager
                 this.brokerController.getConsumerFilterManager().register(group, subscriptionDataList);
                 break;
             default:
