@@ -254,20 +254,28 @@ public class AdminBrokerProcessor extends AsyncNettyRequestProcessor implements 
             //查询Broker的状态数据
             case RequestCode.VIEW_BROKER_STATS_DATA:
                 return ViewBrokerStatsData(ctx, request);
+            //获取broker的消费者的状态
             case RequestCode.GET_BROKER_CONSUME_STATS:
                 return fetchAllConsumeStatsInBroker(ctx, request);
+            //查询消费队列
             case RequestCode.QUERY_CONSUME_QUEUE:
                 return queryConsumeQueue(ctx, request);
+            //更新和创建ACL配置
             case RequestCode.UPDATE_AND_CREATE_ACL_CONFIG:
                 return updateAndCreateAccessConfig(ctx, request);
+            // 删除ACL配置
             case RequestCode.DELETE_ACL_CONFIG:
                 return deleteAccessConfig(ctx, request);
+            // 获取broker集群的ACL信息
             case RequestCode.GET_BROKER_CLUSTER_ACL_INFO:
                 return getBrokerAclConfigVersion(ctx, request);
+            // 更新白名单地址配置
             case RequestCode.UPDATE_GLOBAL_WHITE_ADDRS_CONFIG:
                 return updateGlobalWhiteAddrsConfig(ctx, request);
+            // 重新消费half检查消息
             case RequestCode.RESUME_CHECK_HALF_MESSAGE:
                 return resumeCheckHalfMessage(ctx, request);
+            // 查询broker集群的ACL配置
             case RequestCode.GET_BROKER_CLUSTER_ACL_CONFIG:
                 return getBrokerClusterAclConfig(ctx, request);
             default:
@@ -280,6 +288,9 @@ public class AdminBrokerProcessor extends AsyncNettyRequestProcessor implements 
         return false;
     }
 
+    /**
+     * 更新或者创建topic
+     */
     private synchronized RemotingCommand updateAndCreateTopic(ChannelHandlerContext ctx,
         RemotingCommand request) throws RemotingCommandException {
         final RemotingCommand response = RemotingCommand.createResponseCommand(null);
@@ -311,6 +322,9 @@ public class AdminBrokerProcessor extends AsyncNettyRequestProcessor implements 
         return response;
     }
 
+    /**
+     * 删除topic
+     */
     private synchronized RemotingCommand deleteTopic(ChannelHandlerContext ctx,
         RemotingCommand request) throws RemotingCommandException {
         final RemotingCommand response = RemotingCommand.createResponseCommand(null);
@@ -338,6 +352,9 @@ public class AdminBrokerProcessor extends AsyncNettyRequestProcessor implements 
         return response;
     }
 
+    /**
+     * 更新或者创建访问配置
+     */
     private synchronized RemotingCommand updateAndCreateAccessConfig(ChannelHandlerContext ctx,
         RemotingCommand request) throws RemotingCommandException {
         final RemotingCommand response = RemotingCommand.createResponseCommand(null);
@@ -379,7 +396,9 @@ public class AdminBrokerProcessor extends AsyncNettyRequestProcessor implements 
 
         return null;
     }
-
+    /**
+     * 删除访问配置
+     */
     private synchronized RemotingCommand deleteAccessConfig(ChannelHandlerContext ctx,
         RemotingCommand request) throws RemotingCommandException {
         final RemotingCommand response = RemotingCommand.createResponseCommand(null);
@@ -414,7 +433,9 @@ public class AdminBrokerProcessor extends AsyncNettyRequestProcessor implements 
 
         return null;
     }
-
+    /**
+     * 更新全局白名单地址配置
+     */
     private synchronized RemotingCommand updateGlobalWhiteAddrsConfig(ChannelHandlerContext ctx,
         RemotingCommand request) throws RemotingCommandException {
 
@@ -447,7 +468,9 @@ public class AdminBrokerProcessor extends AsyncNettyRequestProcessor implements 
 
         return null;
     }
-
+    /**
+     * 获取ACL配置版本
+     */
     private RemotingCommand getBrokerAclConfigVersion(ChannelHandlerContext ctx, RemotingCommand request) {
 
         final RemotingCommand response = RemotingCommand.createResponseCommand(GetBrokerAclConfigResponseHeader.class);
@@ -471,7 +494,9 @@ public class AdminBrokerProcessor extends AsyncNettyRequestProcessor implements 
 
         return null;
     }
-
+    /**
+     * 获取broker集群的ACL配置
+     */
     private RemotingCommand getBrokerClusterAclConfig(ChannelHandlerContext ctx, RemotingCommand request) {
 
         final RemotingCommand response = RemotingCommand.createResponseCommand(GetBrokerClusterAclConfigResponseHeader.class);
@@ -499,7 +524,9 @@ public class AdminBrokerProcessor extends AsyncNettyRequestProcessor implements 
                 RemotingCommand.createResponseCommand(RemotingSysResponseCode.REQUEST_CODE_NOT_SUPPORTED, error);
         return response;
     }
-
+    /**
+     * 获取所有的topic配置
+     */
     private RemotingCommand getAllTopicConfig(ChannelHandlerContext ctx, RemotingCommand request) {
         final RemotingCommand response = RemotingCommand.createResponseCommand(GetAllTopicConfigResponseHeader.class);
         // final GetAllTopicConfigResponseHeader responseHeader =
@@ -528,7 +555,9 @@ public class AdminBrokerProcessor extends AsyncNettyRequestProcessor implements 
 
         return response;
     }
-
+    /**
+     * 更新broker配置
+     */
     private synchronized RemotingCommand updateBrokerConfig(ChannelHandlerContext ctx, RemotingCommand request) {
         final RemotingCommand response = RemotingCommand.createResponseCommand(null);
 
@@ -564,7 +593,9 @@ public class AdminBrokerProcessor extends AsyncNettyRequestProcessor implements 
         response.setRemark(null);
         return response;
     }
-
+    /**
+     * 获取broker配置
+     */
     private RemotingCommand getBrokerConfig(ChannelHandlerContext ctx, RemotingCommand request) {
 
         final RemotingCommand response = RemotingCommand.createResponseCommand(GetBrokerConfigResponseHeader.class);
@@ -590,6 +621,9 @@ public class AdminBrokerProcessor extends AsyncNettyRequestProcessor implements 
         return response;
     }
 
+    /**
+     * 根据时间戳查询偏移量
+     */
     private RemotingCommand searchOffsetByTimestamp(ChannelHandlerContext ctx,
         RemotingCommand request) throws RemotingCommandException {
         final RemotingCommand response = RemotingCommand.createResponseCommand(SearchOffsetResponseHeader.class);
@@ -606,7 +640,9 @@ public class AdminBrokerProcessor extends AsyncNettyRequestProcessor implements 
         response.setRemark(null);
         return response;
     }
-
+    /**
+     * 获取最大的偏移量
+     */
     private RemotingCommand getMaxOffset(ChannelHandlerContext ctx,
         RemotingCommand request) throws RemotingCommandException {
         final RemotingCommand response = RemotingCommand.createResponseCommand(GetMaxOffsetResponseHeader.class);
@@ -622,7 +658,9 @@ public class AdminBrokerProcessor extends AsyncNettyRequestProcessor implements 
         response.setRemark(null);
         return response;
     }
-
+    /**
+     * 获取最小的偏移量
+     */
     private RemotingCommand getMinOffset(ChannelHandlerContext ctx,
         RemotingCommand request) throws RemotingCommandException {
         final RemotingCommand response = RemotingCommand.createResponseCommand(GetMinOffsetResponseHeader.class);
@@ -637,7 +675,9 @@ public class AdminBrokerProcessor extends AsyncNettyRequestProcessor implements 
         response.setRemark(null);
         return response;
     }
-
+    /**
+     * 获取最早的消息的存储的时间
+     */
     private RemotingCommand getEarliestMsgStoretime(ChannelHandlerContext ctx,
         RemotingCommand request) throws RemotingCommandException {
         final RemotingCommand response = RemotingCommand.createResponseCommand(GetEarliestMsgStoretimeResponseHeader.class);
@@ -718,6 +758,9 @@ public class AdminBrokerProcessor extends AsyncNettyRequestProcessor implements 
         return response;
     }
 
+    /**
+     * 获取全部的订阅信息
+     */
     private RemotingCommand getAllSubscriptionGroup(ChannelHandlerContext ctx,
         RemotingCommand request) throws RemotingCommandException {
         final RemotingCommand response = RemotingCommand.createResponseCommand(null);
@@ -745,6 +788,9 @@ public class AdminBrokerProcessor extends AsyncNettyRequestProcessor implements 
         return response;
     }
 
+    /**
+     * 删除消费组的订阅信息
+     */
     private RemotingCommand deleteSubscriptionGroup(ChannelHandlerContext ctx,
         RemotingCommand request) throws RemotingCommandException {
         final RemotingCommand response = RemotingCommand.createResponseCommand(null);
@@ -767,6 +813,9 @@ public class AdminBrokerProcessor extends AsyncNettyRequestProcessor implements 
         return response;
     }
 
+    /**
+     * 获取topic的状态信息
+     */
     private RemotingCommand getTopicStatsInfo(ChannelHandlerContext ctx,
         RemotingCommand request) throws RemotingCommandException {
         final RemotingCommand response = RemotingCommand.createResponseCommand(null);
@@ -790,12 +839,14 @@ public class AdminBrokerProcessor extends AsyncNettyRequestProcessor implements 
 
             TopicOffset topicOffset = new TopicOffset();
             long min = this.brokerController.getMessageStore().getMinOffsetInQueue(topic, i);
-            if (min < 0)
+            if (min < 0) {
                 min = 0;
+            }
 
             long max = this.brokerController.getMessageStore().getMaxOffsetInQueue(topic, i);
-            if (max < 0)
+            if (max < 0) {
                 max = 0;
+            }
 
             long timestamp = 0;
             if (max > 0) {
@@ -816,6 +867,9 @@ public class AdminBrokerProcessor extends AsyncNettyRequestProcessor implements 
         return response;
     }
 
+    /**
+     * 获取消费者的连接列表
+     */
     private RemotingCommand getConsumerConnectionList(ChannelHandlerContext ctx,
         RemotingCommand request) throws RemotingCommandException {
         final RemotingCommand response = RemotingCommand.createResponseCommand(null);
@@ -856,6 +910,9 @@ public class AdminBrokerProcessor extends AsyncNettyRequestProcessor implements 
         return response;
     }
 
+    /**
+     * 获取全部生产者的连接的列表
+     */
     private RemotingCommand getProducerConnectionList(ChannelHandlerContext ctx,
         RemotingCommand request) throws RemotingCommandException {
         final RemotingCommand response = RemotingCommand.createResponseCommand(null);
@@ -890,6 +947,9 @@ public class AdminBrokerProcessor extends AsyncNettyRequestProcessor implements 
         return response;
     }
 
+    /**
+     * 获取消费者状态
+     */
     private RemotingCommand getConsumeStats(ChannelHandlerContext ctx,
         RemotingCommand request) throws RemotingCommandException {
         final RemotingCommand response = RemotingCommand.createResponseCommand(null);
@@ -932,8 +992,9 @@ public class AdminBrokerProcessor extends AsyncNettyRequestProcessor implements 
                 OffsetWrapper offsetWrapper = new OffsetWrapper();
 
                 long brokerOffset = this.brokerController.getMessageStore().getMaxOffsetInQueue(topic, i);
-                if (brokerOffset < 0)
+                if (brokerOffset < 0) {
                     brokerOffset = 0;
+                }
 
                 long consumerOffset = this.brokerController.getConsumerOffsetManager().queryOffset(
                     requestHeader.getConsumerGroup(),
@@ -969,6 +1030,9 @@ public class AdminBrokerProcessor extends AsyncNettyRequestProcessor implements 
         return response;
     }
 
+    /**
+     * 获取所有消费者的队列偏移量
+     */
     private RemotingCommand getAllConsumerOffset(ChannelHandlerContext ctx, RemotingCommand request) {
         final RemotingCommand response = RemotingCommand.createResponseCommand(null);
 
@@ -996,6 +1060,9 @@ public class AdminBrokerProcessor extends AsyncNettyRequestProcessor implements 
         return response;
     }
 
+    /**
+     * 获取所有延迟队列的偏移量
+     */
     private RemotingCommand getAllDelayOffset(ChannelHandlerContext ctx, RemotingCommand request) {
         final RemotingCommand response = RemotingCommand.createResponseCommand(null);
 
@@ -1030,6 +1097,9 @@ public class AdminBrokerProcessor extends AsyncNettyRequestProcessor implements 
         return response;
     }
 
+    /**
+     * Broker端重置偏移量
+     */
     public RemotingCommand resetOffset(ChannelHandlerContext ctx,
         RemotingCommand request) throws RemotingCommandException {
         final ResetOffsetRequestHeader requestHeader =
@@ -1048,6 +1118,9 @@ public class AdminBrokerProcessor extends AsyncNettyRequestProcessor implements 
             requestHeader.getTimestamp(), requestHeader.isForce(), isC);
     }
 
+    /**
+     * 获取消费者状态
+     */
     public RemotingCommand getConsumerStatus(ChannelHandlerContext ctx,
         RemotingCommand request) throws RemotingCommandException {
         final GetConsumerStatusRequestHeader requestHeader =
@@ -1059,7 +1132,9 @@ public class AdminBrokerProcessor extends AsyncNettyRequestProcessor implements 
         return this.brokerController.getBroker2Client().getConsumeStatus(requestHeader.getTopic(), requestHeader.getGroup(),
             requestHeader.getClientAddr());
     }
-
+    /**
+     * 查询topic的消费者状态
+     */
     private RemotingCommand queryTopicConsumeByWho(ChannelHandlerContext ctx,
         RemotingCommand request) throws RemotingCommandException {
         final RemotingCommand response = RemotingCommand.createResponseCommand(null);
@@ -1083,6 +1158,9 @@ public class AdminBrokerProcessor extends AsyncNettyRequestProcessor implements 
         return response;
     }
 
+    /**
+     * 注册FilterServer
+     */
     private RemotingCommand registerFilterServer(ChannelHandlerContext ctx,
         RemotingCommand request) throws RemotingCommandException {
         final RemotingCommand response = RemotingCommand.createResponseCommand(RegisterFilterServerResponseHeader.class);
@@ -1099,7 +1177,9 @@ public class AdminBrokerProcessor extends AsyncNettyRequestProcessor implements 
         response.setRemark(null);
         return response;
     }
-
+    /**
+     * 查询消费的timespan
+     */
     private RemotingCommand queryConsumeTimeSpan(ChannelHandlerContext ctx,
         RemotingCommand request) throws RemotingCommandException {
         final RemotingCommand response = RemotingCommand.createResponseCommand(null);
@@ -1156,6 +1236,9 @@ public class AdminBrokerProcessor extends AsyncNettyRequestProcessor implements 
         return response;
     }
 
+    /**
+     * 获取系统的topic列表
+     */
     private RemotingCommand getSystemTopicListFromBroker(ChannelHandlerContext ctx, RemotingCommand request)
         throws RemotingCommandException {
         final RemotingCommand response = RemotingCommand.createResponseCommand(null);
@@ -1169,6 +1252,9 @@ public class AdminBrokerProcessor extends AsyncNettyRequestProcessor implements 
         return response;
     }
 
+    /**
+     * 清除超时的消费队列
+     */
     public RemotingCommand cleanExpiredConsumeQueue() {
         log.warn("invoke cleanExpiredConsumeQueue start.");
         final RemotingCommand response = RemotingCommand.createResponseCommand(null);
@@ -1179,6 +1265,9 @@ public class AdminBrokerProcessor extends AsyncNettyRequestProcessor implements 
         return response;
     }
 
+    /**
+     * 清除未使用的topic
+     */
     public RemotingCommand cleanUnusedTopic() {
         log.warn("invoke cleanUnusedTopic start.");
         final RemotingCommand response = RemotingCommand.createResponseCommand(null);
@@ -1189,6 +1278,9 @@ public class AdminBrokerProcessor extends AsyncNettyRequestProcessor implements 
         return response;
     }
 
+    /**
+     * 获取消费者运行时信息
+     */
     private RemotingCommand getConsumerRunningInfo(ChannelHandlerContext ctx,
         RemotingCommand request) throws RemotingCommandException {
         final GetConsumerRunningInfoRequestHeader requestHeader =
@@ -1198,6 +1290,9 @@ public class AdminBrokerProcessor extends AsyncNettyRequestProcessor implements 
             requestHeader.getClientId());
     }
 
+    /**
+     * 查询当前的偏移量
+     */
     private RemotingCommand queryCorrectionOffset(ChannelHandlerContext ctx,
         RemotingCommand request) throws RemotingCommandException {
         final RemotingCommand response = RemotingCommand.createResponseCommand(null);
@@ -1226,6 +1321,9 @@ public class AdminBrokerProcessor extends AsyncNettyRequestProcessor implements 
         return response;
     }
 
+    /**
+     * 直接消费信息
+     */
     private RemotingCommand consumeMessageDirectly(ChannelHandlerContext ctx,
         RemotingCommand request) throws RemotingCommandException {
         final ConsumeMessageDirectlyResultRequestHeader requestHeader = (ConsumeMessageDirectlyResultRequestHeader) request
@@ -1251,6 +1349,9 @@ public class AdminBrokerProcessor extends AsyncNettyRequestProcessor implements 
             requestHeader.getClientId());
     }
 
+    /**
+     * 克隆消费组的偏移量
+     */
     private RemotingCommand cloneGroupOffset(ChannelHandlerContext ctx,
         RemotingCommand request) throws RemotingCommandException {
         final RemotingCommand response = RemotingCommand.createResponseCommand(null);
@@ -1292,6 +1393,9 @@ public class AdminBrokerProcessor extends AsyncNettyRequestProcessor implements 
         return response;
     }
 
+    /**
+     * 查询broker的状态数据
+     */
     private RemotingCommand ViewBrokerStatsData(ChannelHandlerContext ctx,
         RemotingCommand request) throws RemotingCommandException {
         final ViewBrokerStatsDataRequestHeader requestHeader =
@@ -1341,6 +1445,9 @@ public class AdminBrokerProcessor extends AsyncNettyRequestProcessor implements 
         return response;
     }
 
+    /**
+     * 获取Broker对应的消费者的状态
+     */
     private RemotingCommand fetchAllConsumeStatsInBroker(ChannelHandlerContext ctx, RemotingCommand request)
         throws RemotingCommandException {
         final RemotingCommand response = RemotingCommand.createResponseCommand(null);
@@ -1388,14 +1495,16 @@ public class AdminBrokerProcessor extends AsyncNettyRequestProcessor implements 
                     mq.setQueueId(i);
                     OffsetWrapper offsetWrapper = new OffsetWrapper();
                     long brokerOffset = this.brokerController.getMessageStore().getMaxOffsetInQueue(topic, i);
-                    if (brokerOffset < 0)
+                    if (brokerOffset < 0) {
                         brokerOffset = 0;
+                    }
                     long consumerOffset = this.brokerController.getConsumerOffsetManager().queryOffset(
                         group,
                         topic,
                         i);
-                    if (consumerOffset < 0)
+                    if (consumerOffset < 0) {
                         consumerOffset = 0;
+                    }
 
                     offsetWrapper.setBrokerOffset(brokerOffset);
                     offsetWrapper.setConsumerOffset(consumerOffset);
@@ -1428,6 +1537,9 @@ public class AdminBrokerProcessor extends AsyncNettyRequestProcessor implements 
         return response;
     }
 
+    /**
+     * 封装运行时信息并返回给客户端
+     */
     private HashMap<String, String> prepareRuntimeInfo() {
         HashMap<String, String> runtimeInfo = this.brokerController.getMessageStore().getRuntimeInfo();
         runtimeInfo.put("brokerVersionDesc", MQVersion.getVersionDesc(MQVersion.CURRENT_VERSION));
@@ -1486,6 +1598,9 @@ public class AdminBrokerProcessor extends AsyncNettyRequestProcessor implements 
         return runtimeInfo;
     }
 
+    /**
+     * 调用消费者
+     */
     private RemotingCommand callConsumer(
         final int requestCode,
         final RemotingCommand request,
@@ -1527,6 +1642,9 @@ public class AdminBrokerProcessor extends AsyncNettyRequestProcessor implements 
         }
     }
 
+    /**
+     * 查询消费队列
+     */
     private RemotingCommand queryConsumeQueue(ChannelHandlerContext ctx,
         RemotingCommand request) throws RemotingCommandException {
         QueryConsumeQueueRequestHeader requestHeader =

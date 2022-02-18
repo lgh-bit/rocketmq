@@ -43,6 +43,9 @@ import org.apache.rocketmq.remoting.netty.NettyRequestProcessor;
 import org.apache.rocketmq.remoting.netty.AsyncNettyRequestProcessor;
 import org.apache.rocketmq.remoting.protocol.RemotingCommand;
 
+/**
+ * 客户端管理Processor
+ */
 public class ClientManageProcessor extends AsyncNettyRequestProcessor implements NettyRequestProcessor {
     private static final InternalLogger log = InternalLoggerFactory.getLogger(LoggerName.BROKER_LOGGER_NAME);
     private final BrokerController brokerController;
@@ -56,10 +59,13 @@ public class ClientManageProcessor extends AsyncNettyRequestProcessor implements
         throws RemotingCommandException {
         switch (request.getCode()) {
             case RequestCode.HEART_BEAT:
+                // 心跳
                 return this.heartBeat(ctx, request);
             case RequestCode.UNREGISTER_CLIENT:
+                // 取消注册
                 return this.unregisterClient(ctx, request);
             case RequestCode.CHECK_CLIENT_CONFIG:
+                // 检查客户端配置
                 return this.checkClientConfig(ctx, request);
             default:
                 break;
@@ -100,6 +106,7 @@ public class ClientManageProcessor extends AsyncNettyRequestProcessor implements
                     PermName.PERM_WRITE | PermName.PERM_READ, topicSysFlag);
             }
 
+            //消费者管理器进行注册
             boolean changed = this.brokerController.getConsumerManager().registerConsumer(
                 data.getGroupName(),
                 clientChannelInfo,
@@ -119,6 +126,7 @@ public class ClientManageProcessor extends AsyncNettyRequestProcessor implements
         }
 
         for (ProducerData data : heartbeatData.getProducerDataSet()) {
+            // 注册Producer
             this.brokerController.getProducerManager().registerProducer(data.getGroupName(),
                 clientChannelInfo);
         }
@@ -127,6 +135,9 @@ public class ClientManageProcessor extends AsyncNettyRequestProcessor implements
         return response;
     }
 
+    /**
+     * 取消注册client,包括生产者和消费者
+     */
     public RemotingCommand unregisterClient(ChannelHandlerContext ctx, RemotingCommand request)
         throws RemotingCommandException {
         final RemotingCommand response =
@@ -143,6 +154,7 @@ public class ClientManageProcessor extends AsyncNettyRequestProcessor implements
         {
             final String group = requestHeader.getProducerGroup();
             if (group != null) {
+                // 取消注册生产者
                 this.brokerController.getProducerManager().unregisterProducer(group, clientChannelInfo);
             }
         }
@@ -156,6 +168,7 @@ public class ClientManageProcessor extends AsyncNettyRequestProcessor implements
                 if (null != subscriptionGroupConfig) {
                     isNotifyConsumerIdsChangedEnable = subscriptionGroupConfig.isNotifyConsumerIdsChangedEnable();
                 }
+                // 取消注册消费者
                 this.brokerController.getConsumerManager().unregisterConsumer(group, clientChannelInfo, isNotifyConsumerIdsChangedEnable);
             }
         }
@@ -175,12 +188,14 @@ public class ClientManageProcessor extends AsyncNettyRequestProcessor implements
         if (requestBody != null && requestBody.getSubscriptionData() != null) {
             SubscriptionData subscriptionData = requestBody.getSubscriptionData();
 
+            //如果是tagType,就返回成功
             if (ExpressionType.isTagType(subscriptionData.getExpressionType())) {
                 response.setCode(ResponseCode.SUCCESS);
                 response.setRemark(null);
                 return response;
             }
 
+            //不是tagType，但是BrokerConfig不支持isEnablePropertyFilter，返回错误
             if (!this.brokerController.getBrokerConfig().isEnablePropertyFilter()) {
                 response.setCode(ResponseCode.SYSTEM_ERROR);
                 response.setRemark("The broker does not support consumer to filter message by " + subscriptionData.getExpressionType());
@@ -188,6 +203,7 @@ public class ClientManageProcessor extends AsyncNettyRequestProcessor implements
             }
 
             try {
+                //使用sql92的方式，看看能否编译subString
                 FilterFactory.INSTANCE.get(subscriptionData.getExpressionType()).compile(subscriptionData.getSubString());
             } catch (Exception e) {
                 log.warn("Client {}@{} filter message, but failed to compile expression! sub={}, error={}",
