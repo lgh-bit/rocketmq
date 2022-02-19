@@ -19,6 +19,9 @@ package org.apache.rocketmq.client.producer;
 
 import org.apache.rocketmq.common.message.Message;
 
+/**
+ * 异步消息发送的callBack
+ */
 public interface RequestCallback {
     void onSuccess(final Message message);
 

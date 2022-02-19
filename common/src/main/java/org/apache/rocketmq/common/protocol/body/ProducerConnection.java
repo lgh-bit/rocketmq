@@ -20,7 +20,13 @@ package org.apache.rocketmq.common.protocol.body;
 import java.util.HashSet;
 import org.apache.rocketmq.remoting.protocol.RemotingSerializable;
 
+/**
+ * 生产者连接实例
+ */
 public class ProducerConnection extends RemotingSerializable {
+    /**
+     * 连接实例
+     */
     private HashSet<Connection> connectionSet = new HashSet<Connection>();
 
     public HashSet<Connection> getConnectionSet() {

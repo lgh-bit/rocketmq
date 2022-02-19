@@ -28,9 +28,13 @@ public class PullRequest {
     private MessageQueue messageQueue;
     // 消息处理队列
     private ProcessQueue processQueue;
-    // 偏移量
+    /**
+     * 下一个偏移量
+     */
     private long nextOffset;
-    // 是否被锁定
+    /**
+     * 是否是第一次锁定
+     */
     private boolean previouslyLocked = false;
 
     public boolean isPreviouslyLocked() {

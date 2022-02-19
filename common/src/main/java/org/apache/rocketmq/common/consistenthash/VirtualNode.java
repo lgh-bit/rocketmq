@@ -16,8 +16,18 @@
  */
 package org.apache.rocketmq.common.consistenthash;
 
+/**
+ * 虚拟节点
+ */
 public class VirtualNode<T extends Node> implements Node {
+    /**
+     * 物理节点
+     */
     final T physicalNode;
+
+    /**
+     * 副本索引
+     */
     final int replicaIndex;
 
     public VirtualNode(T physicalNode, int replicaIndex) {
@@ -30,6 +40,10 @@ public class VirtualNode<T extends Node> implements Node {
         return physicalNode.getKey() + "-" + replicaIndex;
     }
 
+    /**
+     * 是否是某个物理节点的虚拟节点
+     * @param pNode pNode 物理节点
+     */
     public boolean isVirtualNodeOf(T pNode) {
         return physicalNode.getKey().equals(pNode.getKey());
     }

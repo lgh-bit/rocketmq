@@ -56,10 +56,16 @@ import org.apache.rocketmq.remoting.exception.RemotingException;
  * <p> <strong>Thread Safety:</strong> After configuring and starting process, this class can be regarded as thread-safe
  * and used among multiple threads context. </p>
  */
+
+/**
+ * 生产者发送消息的客户端API。都代理给了 DefaultMQProducerImpl
+ */
 public class DefaultMQProducer extends ClientConfig implements MQProducer {
 
     /**
      * Wrapping internal implementations for virtually all methods presented in this class.
+     *
+     * 委派给defaultMQProducerImpl完成消息发送
      */
     protected final transient DefaultMQProducerImpl defaultMQProducerImpl;
     private final InternalLogger log = ClientLogger.getLog();
@@ -71,11 +77,15 @@ public class DefaultMQProducer extends ClientConfig implements MQProducer {
      * For non-transactional messages, it does not matter as long as it's unique per process. </p>
      *
      * See {@linktourl http://rocketmq.apache.org/docs/core-concept/} for more discussion.
+     *
+     * 生产者组概念上聚合了完全相同角色的所有生产者实例，特别是
+     * 当涉及事务性消息时很重要。
      */
     private String producerGroup;
 
     /**
      * Just for testing or demo program
+     * 如果autocreate可以，使用AUTO_CREATE_TOPIC_KEY_TOPIC
      */
     private String createTopicKey = TopicValidator.AUTO_CREATE_TOPIC_KEY_TOPIC;
 
@@ -93,12 +103,14 @@ public class DefaultMQProducer extends ClientConfig implements MQProducer {
 
     /**
      * 消息超过该值时启动压缩机制，默认4K
+     * 如果消息大小超过4k就要压缩
      * Compress message body threshold, namely, message body larger than 4k will be compressed on default.
      */
     private int compressMsgBodyOverHowmuch = 1024 * 4;
 
     /**
      * 同步发送消息失败后重试次数，一个3次
+     * 发送失败重试2次
      * Maximum number of retry to perform internally before claiming sending failure in synchronous mode. </p>
      *
      * This may potentially cause message duplication which is up to application developers to resolve.

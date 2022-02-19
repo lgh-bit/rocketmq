@@ -17,6 +17,9 @@
 
 package org.apache.rocketmq.common.filter.impl;
 
+/**
+ * OP类型的枚举
+ */
 public enum Type {
     NULL,
     OPERAND,

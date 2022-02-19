@@ -21,6 +21,9 @@ import org.apache.rocketmq.remoting.CommandCustomHeader;
 import org.apache.rocketmq.remoting.annotation.CFNullable;
 import org.apache.rocketmq.remoting.exception.RemotingCommandException;
 
+/**
+ * 获取kvconfig的响应的header
+ */
 public class GetKVConfigResponseHeader implements CommandCustomHeader {
     @CFNullable
     private String value;

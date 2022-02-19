@@ -49,16 +49,37 @@ import org.apache.rocketmq.common.protocol.route.TopicRouteData;
 import org.apache.rocketmq.common.sysflag.PullSysFlag;
 import org.apache.rocketmq.remoting.exception.RemotingException;
 
+/**
+ * 拉取消息的APIWrapper包装器
+ */
 public class PullAPIWrapper {
     private final InternalLogger log = ClientLogger.getLog();
+    /**
+     * 消费者客户端
+     */
     private final MQClientInstance mQClientFactory;
+    /**
+     * 消费组
+     */
     private final String consumerGroup;
     private final boolean unitMode;
+    /**
+     * key:是消息队列，v是brokerId,是从master读还是从slave读
+     */
     private ConcurrentMap<MessageQueue, AtomicLong/* brokerId */> pullFromWhichNodeTable =
         new ConcurrentHashMap<MessageQueue, AtomicLong>(32);
     private volatile boolean connectBrokerByUser = false;
+    /**
+     * 默认的brokerId为masterId
+     */
     private volatile long defaultBrokerId = MixAll.MASTER_ID;
+    /**
+     * 随机数
+     */
     private Random random = new Random(System.currentTimeMillis());
+    /**
+     * FilterMessageHook
+     */
     private ArrayList<FilterMessageHook> filterMessageHookList = new ArrayList<FilterMessageHook>();
 
     public PullAPIWrapper(MQClientInstance mQClientFactory, String consumerGroup, boolean unitMode) {
@@ -67,6 +88,9 @@ public class PullAPIWrapper {
         this.unitMode = unitMode;
     }
 
+    /**
+     * 处理请求结果
+     */
     public PullResult processPullResult(final MessageQueue mq, final PullResult pullResult,
         final SubscriptionData subscriptionData) {
         PullResultExt pullResultExt = (PullResultExt) pullResult;
@@ -77,6 +101,7 @@ public class PullAPIWrapper {
             List<MessageExt> msgList = MessageDecoder.decodes(byteBuffer);
 
             List<MessageExt> msgListFilterAgain = msgList;
+            //执行一遍客户端过滤
             if (!subscriptionData.getTagsSet().isEmpty() && !subscriptionData.isClassFilterMode()) {
                 msgListFilterAgain = new ArrayList<MessageExt>(msgList.size());
                 for (MessageExt msg : msgList) {
@@ -88,6 +113,7 @@ public class PullAPIWrapper {
                 }
             }
 
+            //执行MessageFilterHook
             if (this.hasHook()) {
                 FilterMessageContext filterMessageContext = new FilterMessageContext();
                 filterMessageContext.setUnitMode(unitMode);
@@ -115,6 +141,9 @@ public class PullAPIWrapper {
         return pullResult;
     }
 
+    /**
+     * 更新下一次从哪个broker读取
+     */
     public void updatePullFromWhichNode(final MessageQueue mq, final long brokerId) {
         AtomicLong suggest = this.pullFromWhichNodeTable.get(mq);
         if (null == suggest) {
@@ -124,6 +153,9 @@ public class PullAPIWrapper {
         }
     }
 
+    /**
+     * 是否hasMessageFilterHook
+     */
     public boolean hasHook() {
         return !this.filterMessageHookList.isEmpty();
     }
@@ -154,11 +186,6 @@ public class PullAPIWrapper {
      * @param timeoutMillis 消息拉取超时时间
      * @param communicationMode 消息拉取模式，默认为异步拉取
      * @param pullCallback 回调
-     * @return
-     * @throws MQClientException
-     * @throws RemotingException
-     * @throws MQBrokerException
-     * @throws InterruptedException
      */
     public PullResult pullKernelImpl(
         final MessageQueue mq,
@@ -219,6 +246,9 @@ public class PullAPIWrapper {
                 brokerAddr = computePullFromWhichFilterServer(mq.getTopic(), brokerAddr);
             }
 
+            /*
+             * 拉取消息
+             */
             PullResult pullResult = this.mQClientFactory.getMQClientAPIImpl().pullMessage(
                 brokerAddr,
                 requestHeader,
@@ -232,6 +262,9 @@ public class PullAPIWrapper {
         throw new MQClientException("The broker[" + mq.getBrokerName() + "] not exist", null);
     }
 
+    /**
+     * 计算从哪个节点拉取数据
+     */
     public long recalculatePullFromWhichNode(final MessageQueue mq) {
         if (this.isConnectBrokerByUser()) {
             return this.defaultBrokerId;
@@ -245,6 +278,9 @@ public class PullAPIWrapper {
         return MixAll.MASTER_ID;
     }
 
+    /**
+     * BrokerAddr变成从哪个FilterServer拉取
+     */
     private String computePullFromWhichFilterServer(final String topic, final String brokerAddr)
         throws MQClientException {
         ConcurrentMap<String, TopicRouteData> topicRouteTable = this.mQClientFactory.getTopicRouteTable();
@@ -270,6 +306,9 @@ public class PullAPIWrapper {
 
     }
 
+    /**
+     * 随机数
+     */
     public int randomNum() {
         int value = random.nextInt();
         if (value < 0) {

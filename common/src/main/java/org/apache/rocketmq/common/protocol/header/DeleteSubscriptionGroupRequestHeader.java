@@ -21,7 +21,13 @@ import org.apache.rocketmq.remoting.CommandCustomHeader;
 import org.apache.rocketmq.remoting.annotation.CFNotNull;
 import org.apache.rocketmq.remoting.exception.RemotingCommandException;
 
+/**
+ * 删除消费者的订阅信息
+ */
 public class DeleteSubscriptionGroupRequestHeader implements CommandCustomHeader {
+    /**
+     * 消费组的名称
+     */
     @CFNotNull
     private String groupName;
 

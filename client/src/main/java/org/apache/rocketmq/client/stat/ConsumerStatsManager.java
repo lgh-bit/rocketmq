@@ -25,15 +25,36 @@ import org.apache.rocketmq.common.protocol.body.ConsumeStatus;
 import org.apache.rocketmq.common.stats.StatsItemSet;
 import org.apache.rocketmq.common.stats.StatsSnapshot;
 
+/**
+ * 消费状态管理器
+ */
 public class ConsumerStatsManager {
     private static final InternalLogger log = ClientLogger.getLog();
 
+    /**
+     * topic的消费者消费ok的tps
+     */
     private static final String TOPIC_AND_GROUP_CONSUME_OK_TPS = "CONSUME_OK_TPS";
+    /**
+     * topic的消费者消费失败的tps
+     */
     private static final String TOPIC_AND_GROUP_CONSUME_FAILED_TPS = "CONSUME_FAILED_TPS";
+    /**
+     * 消费者消费的响应时间
+     */
     private static final String TOPIC_AND_GROUP_CONSUME_RT = "CONSUME_RT";
+    /**
+     * 拉取的tps
+     */
     private static final String TOPIC_AND_GROUP_PULL_TPS = "PULL_TPS";
+    /**
+     * 拉取的相响应时间
+     */
     private static final String TOPIC_AND_GROUP_PULL_RT = "PULL_RT";
 
+    /**
+     * 一些列对应的指标
+     */
     private final StatsItemSet topicAndGroupConsumeOKTPS;
     private final StatsItemSet topicAndGroupConsumeRT;
     private final StatsItemSet topicAndGroupConsumeFailedTPS;

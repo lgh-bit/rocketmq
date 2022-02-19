@@ -28,6 +28,9 @@ import org.apache.rocketmq.logging.inner.LoggingBuilder;
 import org.apache.rocketmq.logging.inner.LoggingEvent;
 import org.apache.rocketmq.remoting.common.RemotingHelper;
 
+/**
+ * 客户端日志管理器
+ */
 public class ClientLogger {
 
     public static final String CLIENT_LOG_USESLF4J = "rocketmq.client.logUseSlf4j";
@@ -58,6 +61,9 @@ public class ClientLogger {
         }
     }
 
+    /**
+     * 创建客户端logappender
+     */
     private static synchronized Appender createClientAppender() {
         String clientLogRoot = System.getProperty(CLIENT_LOG_ROOT, System.getProperty("user.home") + "/logs/rocketmqlogs");
         String clientLogMaxIndex = System.getProperty(CLIENT_LOG_MAXINDEX, "10");
@@ -80,6 +86,11 @@ public class ClientLogger {
         return rocketmqClientAppender;
     }
 
+    /**
+     * 创建Logger
+     * @param loggerName loggerName
+     * @return ;
+     */
     private static InternalLogger createLogger(final String loggerName) {
         String clientLogLevel = System.getProperty(CLIENT_LOG_LEVEL, "INFO");
         boolean additive = "true".equalsIgnoreCase(System.getProperty(CLIENT_LOG_ADDITIVE));

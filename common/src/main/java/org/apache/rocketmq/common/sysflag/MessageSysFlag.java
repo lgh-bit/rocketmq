@@ -16,9 +16,15 @@
  */
 package org.apache.rocketmq.common.sysflag;
 
+/**
+ * Message的系统参数
+ */
 public class MessageSysFlag {
     public final static int COMPRESSED_FLAG = 0x1;
     public final static int MULTI_TAGS_FLAG = 0x1 << 1;
+    /**
+     * 事务消息not type
+     */
     public final static int TRANSACTION_NOT_TYPE = 0;
     public final static int TRANSACTION_PREPARED_TYPE = 0x1 << 2;
     public final static int TRANSACTION_COMMIT_TYPE = 0x2 << 2;
@@ -30,6 +36,9 @@ public class MessageSysFlag {
         return flag & TRANSACTION_ROLLBACK_TYPE;
     }
 
+    /**
+     * 重置事务消息flag
+     */
     public static int resetTransactionValue(final int flag, final int type) {
         return (flag & (~TRANSACTION_ROLLBACK_TYPE)) | type;
     }

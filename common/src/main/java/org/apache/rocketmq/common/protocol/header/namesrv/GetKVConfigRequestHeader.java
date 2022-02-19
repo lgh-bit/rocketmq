@@ -21,6 +21,9 @@ import org.apache.rocketmq.remoting.CommandCustomHeader;
 import org.apache.rocketmq.remoting.annotation.CFNotNull;
 import org.apache.rocketmq.remoting.exception.RemotingCommandException;
 
+/**
+ * 获取kvconfig的请求的hander
+ */
 public class GetKVConfigRequestHeader implements CommandCustomHeader {
     @CFNotNull
     private String namespace;

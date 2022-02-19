@@ -22,6 +22,9 @@ import org.apache.rocketmq.client.producer.MessageQueueSelector;
 import org.apache.rocketmq.common.message.Message;
 import org.apache.rocketmq.common.message.MessageQueue;
 
+/**
+ * MessageQuqueSelector的一个算法之一：随机
+ */
 public class SelectMessageQueueByRandom implements MessageQueueSelector {
     private Random random = new Random(System.currentTimeMillis());
 

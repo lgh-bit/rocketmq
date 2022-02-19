@@ -22,18 +22,40 @@ import org.apache.rocketmq.remoting.annotation.CFNotNull;
 import org.apache.rocketmq.remoting.annotation.CFNullable;
 import org.apache.rocketmq.remoting.exception.RemotingCommandException;
 
+/**
+ * 消费者消费失败的消费回发给Broker
+ */
 public class ConsumerSendMsgBackRequestHeader implements CommandCustomHeader {
+    /**
+     * 偏移量
+     */
     @CFNotNull
     private Long offset;
+    /**
+     * 消费组
+     */
     @CFNotNull
     private String group;
+    /**
+     * 延迟级别
+     */
     @CFNotNull
     private Integer delayLevel;
+    /**
+     * 原始消息id
+     */
     private String originMsgId;
+    /**
+     * 原始topic
+     */
     private String originTopic;
     @CFNullable
     private boolean unitMode = false;
+    /**
+     * 最大可以重试消费多少次
+     */
     private Integer maxReconsumeTimes;
+
 
     @Override
     public void checkFields() throws RemotingCommandException {

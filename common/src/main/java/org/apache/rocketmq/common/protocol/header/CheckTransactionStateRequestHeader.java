@@ -24,13 +24,29 @@ import org.apache.rocketmq.remoting.CommandCustomHeader;
 import org.apache.rocketmq.remoting.annotation.CFNotNull;
 import org.apache.rocketmq.remoting.exception.RemotingCommandException;
 
+/**
+ * 检查事务状态的接口
+ * @author ;
+ */
 public class CheckTransactionStateRequestHeader implements CommandCustomHeader {
     @CFNotNull
     private Long tranStateTableOffset;
+    /**
+     * 就是消息的偏移量commitlogoffset
+     */
     @CFNotNull
     private Long commitLogOffset;
+    /**
+     * 客户端msgID:内容包含 IP:PORT,classloader的hashCode+时间差值和自增值
+     */
     private String msgId;
+    /**
+     * 事务id
+     */
     private String transactionId;
+    /**
+     * 偏移消息id。规则：brokerIP:brokerPort,brokerOffset。是brokerMsgId
+     */
     private String offsetMsgId;
 
     @Override

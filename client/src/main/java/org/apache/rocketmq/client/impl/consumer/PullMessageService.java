@@ -30,14 +30,25 @@ import org.apache.rocketmq.common.utils.ThreadUtils;
 /**
  * 拉取消息得服务
  * 一个简单的生产者消费者模型
+ *
+ * 拉取消息的线程
  */
 public class PullMessageService extends ServiceThread {
     private final InternalLogger log = ClientLogger.getLog();
     // 拉取消息得请求同步阻塞队列
+    /**
+     * 拉取请求的队列
+     */
     private final LinkedBlockingQueue<PullRequest> pullRequestQueue = new LinkedBlockingQueue<PullRequest>();
     // MQClient实例
+    /**
+     * mq客户端实例
+     */
     private final MQClientInstance mQClientFactory;
     // 命名的单线程定时任务ExecutorService
+    /**
+     * 定时周期调度的service
+     */
     private final ScheduledExecutorService scheduledExecutorService = Executors
         .newSingleThreadScheduledExecutor(new ThreadFactory() {
             @Override
@@ -50,6 +61,9 @@ public class PullMessageService extends ServiceThread {
         this.mQClientFactory = mQClientFactory;
     }
     // 延迟拉取
+    /**
+     *  执行拉取请求的任务。带延迟
+     */
     public void executePullRequestLater(final PullRequest pullRequest, final long timeDelay) {
         if (!isStopped()) {
             this.scheduledExecutorService.schedule(new Runnable() {
@@ -70,7 +84,9 @@ public class PullMessageService extends ServiceThread {
             log.error("executePullRequestImmediately pullRequestQueue.put", e);
         }
     }
-    // 自定义处理规则
+    /**
+     * 稍后执行任务
+     */
     public void executeTaskLater(final Runnable r, final long timeDelay) {
         if (!isStopped()) {
             this.scheduledExecutorService.schedule(r, timeDelay, TimeUnit.MILLISECONDS);
@@ -83,12 +99,16 @@ public class PullMessageService extends ServiceThread {
         return scheduledExecutorService;
     }
 
+    /**
+     * 拉取消息
+     */
     private void pullMessage(final PullRequest pullRequest) {
         // 获取消费者组
         final MQConsumerInner consumer = this.mQClientFactory.selectConsumer(pullRequest.getConsumerGroup());
         if (consumer != null) {
             DefaultMQPushConsumerImpl impl = (DefaultMQPushConsumerImpl) consumer;
             // 消费者处理消息
+            //拉取请求
             impl.pullMessage(pullRequest);
         } else {
             log.warn("No matched consumer for the PullRequest {}, drop it", pullRequest);
@@ -106,6 +126,9 @@ public class PullMessageService extends ServiceThread {
                 // 阻塞获取
                 PullRequest pullRequest = this.pullRequestQueue.take();
                 // 处理请求
+                /**
+                 * 拉取消息
+                 */
                 this.pullMessage(pullRequest);
             } catch (InterruptedException ignored) {
             } catch (Exception e) {

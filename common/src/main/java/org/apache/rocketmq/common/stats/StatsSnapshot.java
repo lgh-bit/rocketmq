@@ -17,12 +17,24 @@
 
 package org.apache.rocketmq.common.stats;
 
+/**
+ * 状态监控快照
+ */
 public class StatsSnapshot {
+    /**
+     * 总和
+     */
     private long sum;
+    /**
+     * tps
+     */
     private double tps;
+    /**
+     * 平均rt
+     */
+    private double avgpt;
 
     private long times;
-    private double avgpt;
 
     public long getSum() {
         return sum;

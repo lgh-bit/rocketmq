@@ -22,13 +22,28 @@ import org.apache.rocketmq.remoting.annotation.CFNotNull;
 import org.apache.rocketmq.remoting.annotation.CFNullable;
 import org.apache.rocketmq.remoting.exception.RemotingCommandException;
 
+/**
+ * 直接消费信息 请求header
+ */
 public class ConsumeMessageDirectlyResultRequestHeader implements CommandCustomHeader {
+    /**
+     * 消费组
+     */
     @CFNotNull
     private String consumerGroup;
+    /**
+     * 客户端id
+     */
     @CFNullable
     private String clientId;
+    /**
+     * 消息id
+     */
     @CFNullable
     private String msgId;
+    /**
+     * brokerName
+     */
     @CFNullable
     private String brokerName;
 

@@ -24,20 +24,48 @@ import org.apache.rocketmq.remoting.CommandCustomHeader;
 import org.apache.rocketmq.remoting.annotation.CFNotNull;
 import org.apache.rocketmq.remoting.exception.RemotingCommandException;
 
+/**
+ * 注册broker的请求的Header
+ */
 public class RegisterBrokerRequestHeader implements CommandCustomHeader {
+    /**
+     * brokerName
+     */
     @CFNotNull
     private String brokerName;
+    /**
+     * broker地址
+     */
     @CFNotNull
     private String brokerAddr;
+    /**
+     * broker地址。当客户端连不上brokerAddr时，选择backUpBrokerAddr做连接
+     */
+    @CFNotNull
+    private String backUpBrokerAddr;
+
+    /**
+     * clustername，集群名称
+     */
     @CFNotNull
     private String clusterName;
+    /**
+     * slave的地址
+     */
     @CFNotNull
     private String haServerAddr;
+    /**
+     * brokerId
+     */
     @CFNotNull
     private Long brokerId;
-
+    /**
+     * 是否压缩
+     */
     private boolean compressed;
-
+    /**
+     * crc32校验和
+     */
     private Integer bodyCrc32 = 0;
 
     public void checkFields() throws RemotingCommandException {

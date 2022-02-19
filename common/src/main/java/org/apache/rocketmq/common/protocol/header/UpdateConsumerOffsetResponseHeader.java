@@ -23,6 +23,9 @@ package org.apache.rocketmq.common.protocol.header;
 import org.apache.rocketmq.remoting.CommandCustomHeader;
 import org.apache.rocketmq.remoting.exception.RemotingCommandException;
 
+/**
+ * 更新消费者偏移量响应header
+ */
 public class UpdateConsumerOffsetResponseHeader implements CommandCustomHeader {
     @Override
     public void checkFields() throws RemotingCommandException {

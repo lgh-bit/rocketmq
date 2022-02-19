@@ -24,6 +24,9 @@ import org.apache.rocketmq.remoting.CommandCustomHeader;
 import org.apache.rocketmq.remoting.annotation.CFNotNull;
 import org.apache.rocketmq.remoting.exception.RemotingCommandException;
 
+/**
+ * 注册顺序topic的请求header
+ */
 public class RegisterOrderTopicRequestHeader implements CommandCustomHeader {
     @CFNotNull
     private String topic;

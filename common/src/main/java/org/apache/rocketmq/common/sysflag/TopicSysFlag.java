@@ -16,6 +16,10 @@
  */
 package org.apache.rocketmq.common.sysflag;
 
+/**
+ * Topic的系统属性
+ * topic的标记位设置，没有特殊要求就填0就可以了。
+ */
 public class TopicSysFlag {
 
     private final static int FLAG_UNIT = 0x1 << 0;

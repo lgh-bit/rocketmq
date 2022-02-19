@@ -16,6 +16,9 @@
  */
 package org.apache.rocketmq.common.consumer;
 
+/**
+ * 消费者消费机制
+ */
 public enum ConsumeFromWhere {
     // 从队列的最大偏移量开始消费
     CONSUME_FROM_LAST_OFFSET,

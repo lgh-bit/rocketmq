@@ -33,7 +33,13 @@ public class KVConfigManager {
 
     private final NamesrvController namesrvController;
 
+    /**
+     * 读写锁
+     */
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
+    /**
+     * k,v 缓存
+     */
     private final HashMap<String/* Namespace */, HashMap<String/* Key */, String/* Value */>> configTable =
         new HashMap<String, HashMap<String, String>>();
 
@@ -41,6 +47,9 @@ public class KVConfigManager {
         this.namesrvController = namesrvController;
     }
 
+    /**
+     * 启动时load
+     */
     public void load() {
         String content = null;
         try {
@@ -49,6 +58,7 @@ public class KVConfigManager {
             log.warn("Load KV config table exception", e);
         }
         if (content != null) {
+            //从config.json中load出kvconfigSerializeWrapper对象，作为配置的项目
             KVConfigSerializeWrapper kvConfigSerializeWrapper =
                 KVConfigSerializeWrapper.fromJson(content, KVConfigSerializeWrapper.class);
             if (null != kvConfigSerializeWrapper) {
@@ -58,6 +68,10 @@ public class KVConfigManager {
         }
     }
 
+    /**
+     * put k.v config
+     * @param namespace namespace 命名空间
+     */
     public void putKVConfig(final String namespace, final String key, final String value) {
         try {
             this.lock.writeLock().lockInterruptibly();
@@ -87,6 +101,9 @@ public class KVConfigManager {
         this.persist();
     }
 
+    /**
+     * 序列化k,v config Manager直接到文件
+     */
     public void persist() {
         try {
             this.lock.readLock().lockInterruptibly();
@@ -96,6 +113,7 @@ public class KVConfigManager {
 
                 String content = kvConfigSerializeWrapper.toJson();
 
+                //直接把整个k,v config Manager 序列化到文件
                 if (null != content) {
                     MixAll.string2File(content, this.namesrvController.getNamesrvConfig().getKvConfigPath());
                 }
@@ -111,6 +129,11 @@ public class KVConfigManager {
 
     }
 
+    /**
+     * DeleteKVconfig，删除配置
+     * @param namespace namespace
+     * @param key key
+     */
     public void deleteKVConfig(final String namespace, final String key) {
         try {
             this.lock.writeLock().lockInterruptibly();
@@ -131,6 +154,11 @@ public class KVConfigManager {
         this.persist();
     }
 
+    /**
+     * 返回某个namespace 的 k,v table
+     * @param namespace namespace
+     * @return ;
+     */
     public byte[] getKVListByNamespace(final String namespace) {
         try {
             this.lock.readLock().lockInterruptibly();
@@ -151,6 +179,12 @@ public class KVConfigManager {
         return null;
     }
 
+    /**
+     * 获取k,v config
+     * @param namespace namespace
+     * @param key key
+     * @return ;
+     */
     public String getKVConfig(final String namespace, final String key) {
         try {
             this.lock.readLock().lockInterruptibly();
@@ -169,6 +203,10 @@ public class KVConfigManager {
         return null;
     }
 
+    /**
+     * 定时任务触发
+     * 其实就是打印一遍k,v table里的数据
+     */
     public void printAllPeriodically() {
         try {
             this.lock.readLock().lockInterruptibly();

@@ -24,8 +24,17 @@ import java.util.Set;
 import org.apache.rocketmq.common.protocol.route.BrokerData;
 import org.apache.rocketmq.remoting.protocol.RemotingSerializable;
 
+/**
+ * 集群信息
+ */
 public class ClusterInfo extends RemotingSerializable {
+    /**
+     * brokerName
+     */
     private HashMap<String/* brokerName */, BrokerData> brokerAddrTable;
+    /**
+     * clusterName,对应的所有的broker
+     */
     private HashMap<String/* clusterName */, Set<String/* brokerName */>> clusterAddrTable;
 
     public HashMap<String, BrokerData> getBrokerAddrTable() {
@@ -44,6 +53,9 @@ public class ClusterInfo extends RemotingSerializable {
         this.clusterAddrTable = clusterAddrTable;
     }
 
+    /**
+     * 获取一个集群下的所有的broker的地址
+     */
     public String[] retrieveAllAddrByCluster(String cluster) {
         List<String> addrs = new ArrayList<String>();
         if (clusterAddrTable.containsKey(cluster)) {
@@ -59,6 +71,9 @@ public class ClusterInfo extends RemotingSerializable {
         return addrs.toArray(new String[] {});
     }
 
+    /**
+     * 获取所有的集群名称
+     */
     public String[] retrieveAllClusterNames() {
         return clusterAddrTable.keySet().toArray(new String[] {});
     }

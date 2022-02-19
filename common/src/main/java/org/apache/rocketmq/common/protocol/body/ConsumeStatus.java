@@ -17,13 +17,33 @@
 
 package org.apache.rocketmq.common.protocol.body;
 
+/**
+ * 消费状态
+ */
 public class ConsumeStatus {
+    /**
+     * 拉取的平均rt
+     */
     private double pullRT;
+    /**
+     * 拉取的tps
+     */
     private double pullTPS;
+    /**
+     * 消费rt
+     */
     private double consumeRT;
+    /**
+     * 消息ok的tps
+     */
     private double consumeOKTPS;
+    /**
+     * 消费失败的tps
+     */
     private double consumeFailedTPS;
-
+    /**
+     * 消费失败的msg数量
+     */
     private long consumeFailedMsgs;
 
     public double getPullRT() {

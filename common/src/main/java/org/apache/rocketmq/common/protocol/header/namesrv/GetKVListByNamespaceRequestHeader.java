@@ -21,6 +21,9 @@ import org.apache.rocketmq.remoting.CommandCustomHeader;
 import org.apache.rocketmq.remoting.annotation.CFNotNull;
 import org.apache.rocketmq.remoting.exception.RemotingCommandException;
 
+/**
+ * 获取某个namespace下的所有kvlist
+ */
 public class GetKVListByNamespaceRequestHeader implements CommandCustomHeader {
     @CFNotNull
     private String namespace;

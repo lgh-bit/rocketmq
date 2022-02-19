@@ -19,8 +19,15 @@ package org.apache.rocketmq.client.producer;
 import org.apache.rocketmq.common.message.Message;
 import org.apache.rocketmq.common.message.MessageExt;
 
+/**
+ * 将来TransactionListener会代替执行本地事务和回查的两个类
+ * TransactionCheckListener
+ * LocalTransactionExecuter
+ */
 public interface TransactionListener {
     /**
+     * 执行本地事务
+     *
      * When send transactional prepare(half) message succeed, this method will be invoked to execute local transaction.
      *
      * @param msg Half(prepare) message
@@ -30,6 +37,8 @@ public interface TransactionListener {
     LocalTransactionState executeLocalTransaction(final Message msg, final Object arg);
 
     /**
+     * 回查
+     *
      * When no response to prepare(half) message. broker will send check message to check the transaction status, and this
      * method will be invoked to get local transaction status.
      *

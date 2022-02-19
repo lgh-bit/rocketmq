@@ -25,5 +25,10 @@ import java.lang.annotation.Target;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.LOCAL_VARIABLE})
+/**
+ * importantField 注解。
+ * 打印日志的时候，如果标注此注解，可以只打印这些注解的属性
+ * 在MixAll里面使用
+ */
 public @interface ImportantField {
 }

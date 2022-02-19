@@ -21,7 +21,13 @@ import org.apache.rocketmq.remoting.CommandCustomHeader;
 import org.apache.rocketmq.remoting.annotation.CFNotNull;
 import org.apache.rocketmq.remoting.exception.RemotingCommandException;
 
+/**
+ * 获取全部生产者的连接列表的请求header
+ */
 public class GetProducerConnectionListRequestHeader implements CommandCustomHeader {
+    /**
+     * 生产者group
+     */
     @CFNotNull
     private String producerGroup;
 

@@ -24,6 +24,9 @@ import org.apache.rocketmq.remoting.CommandCustomHeader;
 import org.apache.rocketmq.remoting.annotation.CFNotNull;
 import org.apache.rocketmq.remoting.exception.RemotingCommandException;
 
+/**
+ * 获取最早的消息存储的请求的header
+ */
 public class GetEarliestMsgStoretimeRequestHeader implements CommandCustomHeader {
     @CFNotNull
     private String topic;

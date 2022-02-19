@@ -21,9 +21,18 @@ import org.apache.rocketmq.remoting.CommandCustomHeader;
 import org.apache.rocketmq.remoting.annotation.CFNullable;
 import org.apache.rocketmq.remoting.exception.RemotingCommandException;
 
+/**
+ * 注册Broker的地址的请求header的response
+ */
 public class RegisterBrokerResponseHeader implements CommandCustomHeader {
+    /**
+     * slave节点的地址
+     */
     @CFNullable
     private String haServerAddr;
+    /**
+     * master节点的地址
+     */
     @CFNullable
     private String masterAddr;
 

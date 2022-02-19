@@ -44,6 +44,7 @@ import org.apache.rocketmq.srvutil.FileWatchService;
 public class NamesrvController {
     private static final InternalLogger log = InternalLoggerFactory.getLogger(LoggerName.NAMESRV_LOGGER_NAME);
 
+
     private final NamesrvConfig namesrvConfig;
 
     private final NettyServerConfig nettyServerConfig;
@@ -55,6 +56,9 @@ public class NamesrvController {
 
     private RemotingServer remotingServer;
 
+    /**
+     * broker 的心跳长连接保持器
+     */
     private BrokerHousekeepingService brokerHousekeepingService;
 
     private ExecutorService remotingExecutor;
@@ -62,19 +66,31 @@ public class NamesrvController {
     private Configuration configuration;
     private FileWatchService fileWatchService;
 
+    /**
+     * 初始化NameServerController
+     */
     public NamesrvController(NamesrvConfig namesrvConfig, NettyServerConfig nettyServerConfig) {
+        //文件配置集
         this.namesrvConfig = namesrvConfig;
         this.nettyServerConfig = nettyServerConfig;
+        // kv config管理器
         this.kvConfigManager = new KVConfigManager(this);
+        //路由管理器
         this.routeInfoManager = new RouteInfoManager();
+        //broker 的心跳长连接保持器,是一个ChannelEventListener
         this.brokerHousekeepingService = new BrokerHousekeepingService(this);
+        //配置集
         this.configuration = new Configuration(
             log,
             this.namesrvConfig, this.nettyServerConfig
         );
+        //设置配置集
         this.configuration.setStorePathFromConfig(this.namesrvConfig, "configStorePath");
     }
 
+    /**
+     * NameServerController的初始化函数
+     */
     public boolean initialize() {
         //加载KV配置
         this.kvConfigManager.load();
@@ -143,25 +159,36 @@ public class NamesrvController {
         return true;
     }
 
+    /**
+     * 注册Processor
+     */
     private void registerProcessor() {
         if (namesrvConfig.isClusterTest()) {
 
             this.remotingServer.registerDefaultProcessor(new ClusterTestRequestProcessor(this, namesrvConfig.getProductEnvName()),
                 this.remotingExecutor);
         } else {
-
+            //注册Default Processor
             this.remotingServer.registerDefaultProcessor(new DefaultRequestProcessor(this), this.remotingExecutor);
         }
     }
 
+    /**
+     * 启动远程通信模块
+     */
     public void start() throws Exception {
+        //NettyServer 启动
         this.remotingServer.start();
 
+        //ssl的文件监听器启动
         if (this.fileWatchService != null) {
             this.fileWatchService.start();
         }
     }
 
+    /**
+     * 关闭勾子
+     */
     public void shutdown() {
         this.remotingServer.shutdown();
         this.remotingExecutor.shutdown();

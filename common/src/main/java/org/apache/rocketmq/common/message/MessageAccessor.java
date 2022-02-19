@@ -19,8 +19,14 @@ package org.apache.rocketmq.common.message;
 
 import java.util.Map;
 
+/**
+ * 封装的和Message相关的操作类
+ */
 public class MessageAccessor {
 
+    /**
+     * clear 某个Message
+     */
     public static void clearProperty(final Message msg, final String name) {
         msg.clearProperty(name);
     }

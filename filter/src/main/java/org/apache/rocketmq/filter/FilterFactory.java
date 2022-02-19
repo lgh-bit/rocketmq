@@ -22,6 +22,8 @@ import java.util.Map;
 
 /**
  * Filter factory: support other filter to register.
+ *
+ * Filter工厂，用于注册FilterSPI的注册表
  */
 public class FilterFactory {
 

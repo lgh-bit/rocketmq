@@ -22,6 +22,9 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
 public class ChannelUtil {
+    /**
+     * 获取远程的ip地址
+     */
     public static String getRemoteIp(Channel channel) {
         InetSocketAddress inetSocketAddress = (InetSocketAddress) channel.remoteAddress();
         if (inetSocketAddress == null) {

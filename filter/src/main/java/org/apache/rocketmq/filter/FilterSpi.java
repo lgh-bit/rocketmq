@@ -22,10 +22,12 @@ import org.apache.rocketmq.filter.expression.MQFilterException;
 
 /**
  * Filter spi interface.
+ *  FilterSPi接口
  */
 public interface FilterSpi {
 
     /**
+     * 根据字符串编译成Expression类型
      * Compile.
      */
     Expression compile(final String expr) throws MQFilterException;

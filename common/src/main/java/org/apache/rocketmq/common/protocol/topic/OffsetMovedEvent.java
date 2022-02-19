@@ -20,10 +20,25 @@ package org.apache.rocketmq.common.protocol.topic;
 import org.apache.rocketmq.common.message.MessageQueue;
 import org.apache.rocketmq.remoting.protocol.RemotingSerializable;
 
+/**
+ * 偏移量移动的事件
+ */
 public class OffsetMovedEvent extends RemotingSerializable {
+    /**
+     * 消费组
+     */
     private String consumerGroup;
+    /**
+     * 队列信息
+     */
     private MessageQueue messageQueue;
+    /**
+     * 请求发起时队列的偏移量
+     */
     private long offsetRequest;
+    /**
+     * 最新的偏移量，即下次发起请求时的偏移量
+     */
     private long offsetNew;
 
     public String getConsumerGroup() {

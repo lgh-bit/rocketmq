@@ -24,6 +24,9 @@ import org.apache.rocketmq.remoting.CommandCustomHeader;
 import org.apache.rocketmq.remoting.annotation.CFNotNull;
 import org.apache.rocketmq.remoting.exception.RemotingCommandException;
 
+/**
+ * 查询请求响应header
+ */
 public class QueryMessageResponseHeader implements CommandCustomHeader {
     @CFNotNull
     private Long indexLastUpdateTimestamp;

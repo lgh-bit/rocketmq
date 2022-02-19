@@ -21,6 +21,9 @@ import org.apache.rocketmq.remoting.CommandCustomHeader;
 import org.apache.rocketmq.remoting.annotation.CFNotNull;
 import org.apache.rocketmq.remoting.exception.RemotingCommandException;
 
+/**
+ * FilterServer的地址
+ */
 public class RegisterFilterServerRequestHeader implements CommandCustomHeader {
     @CFNotNull
     private String filterServerAddr;

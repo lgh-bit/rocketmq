@@ -19,10 +19,22 @@ package org.apache.rocketmq.common.protocol.body;
 
 import org.apache.rocketmq.remoting.protocol.LanguageCode;
 
+/**
+ * 连接实例
+ */
 public class Connection {
+    /**
+     * 客户端id
+     */
     private String clientId;
+    /**
+     * 客户端地址
+     */
     private String clientAddr;
     private LanguageCode language;
+    /**
+     * version版本
+     */
     private int version;
 
     public String getClientId() {

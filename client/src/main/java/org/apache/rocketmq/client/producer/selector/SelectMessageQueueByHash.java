@@ -21,8 +21,17 @@ import org.apache.rocketmq.client.producer.MessageQueueSelector;
 import org.apache.rocketmq.common.message.Message;
 import org.apache.rocketmq.common.message.MessageQueue;
 
+/**
+ * 根据hash算法选择一个队列进行发送
+ */
 public class SelectMessageQueueByHash implements MessageQueueSelector {
 
+    /**
+     * 根据arg的hashcode取模
+     * @param mqs 队列列表
+     * @param msg msg 消息
+     * @param arg 参数
+     */
     @Override
     public MessageQueue select(List<MessageQueue> mqs, Message msg, Object arg) {
         int value = arg.hashCode() % mqs.size();

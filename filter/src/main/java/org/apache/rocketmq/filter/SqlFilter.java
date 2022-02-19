@@ -23,6 +23,8 @@ import org.apache.rocketmq.filter.expression.MQFilterException;
 import org.apache.rocketmq.filter.parser.SelectorParser;
 
 /**
+ * SQL92相关的filter实现类
+ *
  * SQL92 Filter, just a wrapper of {@link org.apache.rocketmq.filter.parser.SelectorParser}.
  * <p/>
  * <p>
@@ -36,6 +38,9 @@ public class SqlFilter implements FilterSpi {
         return SelectorParser.parse(expr);
     }
 
+    /**
+     * 类型是SQL92
+     */
     @Override
     public String ofType() {
         return ExpressionType.SQL92;

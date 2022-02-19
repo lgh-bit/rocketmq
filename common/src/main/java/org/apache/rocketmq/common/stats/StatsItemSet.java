@@ -26,10 +26,19 @@ import java.util.concurrent.TimeUnit;
 import org.apache.rocketmq.common.UtilAll;
 import org.apache.rocketmq.logging.InternalLogger;
 
+/**
+ * 监控项目集合
+ */
 public class StatsItemSet {
+    /**
+     * key，是statkey v是监控项目item
+     */
     private final ConcurrentMap<String/* key */, StatsItem> statsItemTable =
         new ConcurrentHashMap<String, StatsItem>(128);
 
+    /**
+     * 监控set名称
+     */
     private final String statsName;
     private final ScheduledExecutorService scheduledExecutorService;
     private final InternalLogger log;
@@ -43,6 +52,7 @@ public class StatsItemSet {
 
     public void init() {
 
+        //秒级
         this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {

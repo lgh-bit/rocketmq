@@ -16,6 +16,9 @@
  */
 package org.apache.rocketmq.common.running;
 
+/**
+ * 一些枚举，mqstore里面使用
+ */
 public enum RunningStats {
     commitLogMaxOffset,
     commitLogMinOffset,

@@ -18,6 +18,8 @@ package org.apache.rocketmq.common.consistenthash;
 
 /**
  * Hash String to long value
+ *
+ * 哈希算法扩展
  */
 public interface HashFunction {
     long hash(String key);

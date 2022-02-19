@@ -28,19 +28,39 @@ import java.util.Properties;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+/**
+ * 配置类
+ */
 public class Configuration {
 
     private final InternalLogger log;
 
+    /**
+     * 配置对象列表
+     */
     private List<Object> configObjectList = new ArrayList<Object>(4);
+    /**
+     * 消息存储的path
+     */
     private String storePath;
+    /**
+     * 从配置获取storepath
+     */
     private boolean storePathFromConfig = false;
     private Object storePathObject;
     private Field storePathField;
+    /**
+     * 数据版本
+     */
     private DataVersion dataVersion = new DataVersion();
+    /**
+     * 读写锁
+     */
     private ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
     /**
      * All properties include configs in object and extend properties.
+     *
+     * 所有的配置
      */
     private Properties allConfigs = new Properties();
 
@@ -64,6 +84,8 @@ public class Configuration {
     }
 
     /**
+     * 注册config对象
+     *
      * register config object
      *
      * @return the current Configuration object
@@ -89,6 +111,8 @@ public class Configuration {
     }
 
     /**
+     *  注册properties
+     *
      * register config properties
      *
      * @return the current Configuration object
@@ -114,6 +138,8 @@ public class Configuration {
     }
 
     /**
+     * 设置StorePath从config对象里，对象和字段
+     *
      * The store path will be gotten from the field of object.
      *
      * @throws java.lang.RuntimeException if the field of object is not exist.
@@ -142,6 +168,7 @@ public class Configuration {
         }
     }
 
+    // 获取storePath
     private String getStorePath() {
         String realStorePath = null;
         try {
@@ -171,6 +198,9 @@ public class Configuration {
         this.storePath = storePath;
     }
 
+    /**
+     * 更新配置
+     */
     public void update(Properties properties) {
         try {
             readWriteLock.writeLock().lockInterruptibly();
@@ -180,7 +210,8 @@ public class Configuration {
                 mergeIfExist(properties, this.allConfigs);
 
                 for (Object configObject : configObjectList) {
-                    // not allConfigs to update...
+                    // not allConfigs to update..
+                    //properties更新config对象.
                     MixAll.properties2Object(properties, configObject);
                 }
 
@@ -197,6 +228,9 @@ public class Configuration {
         persist();
     }
 
+    /**
+     * 将配置持久化到storeconfig
+     */
     public void persist() {
         try {
             readWriteLock.readLock().lockInterruptibly();
@@ -215,6 +249,9 @@ public class Configuration {
         }
     }
 
+    /**
+     * 获取全部配置的String版本
+     */
     public String getAllConfigsFormatString() {
         try {
             readWriteLock.readLock().lockInterruptibly();
@@ -233,10 +270,16 @@ public class Configuration {
         return null;
     }
 
+    /**
+     * 获取数据版本
+     */
     public String getDataVersionJson() {
         return this.dataVersion.toJson();
     }
 
+    /**
+     * 获取所有的配置
+     */
     public Properties getAllConfigs() {
         try {
             readWriteLock.readLock().lockInterruptibly();
@@ -275,6 +318,9 @@ public class Configuration {
         return stringBuilder.toString();
     }
 
+    /**
+     * 合并propertirs
+     */
     private void merge(Properties from, Properties to) {
         for (Object key : from.keySet()) {
             Object fromObj = from.get(key), toObj = to.get(key);

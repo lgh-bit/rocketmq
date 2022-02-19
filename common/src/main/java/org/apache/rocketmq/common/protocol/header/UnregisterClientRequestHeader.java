@@ -22,12 +22,23 @@ import org.apache.rocketmq.remoting.annotation.CFNotNull;
 import org.apache.rocketmq.remoting.annotation.CFNullable;
 import org.apache.rocketmq.remoting.exception.RemotingCommandException;
 
+/**
+ * 取消注册客户端的请求的header
+ */
 public class UnregisterClientRequestHeader implements CommandCustomHeader {
+    /**
+     * 客户端id
+     */
     @CFNotNull
     private String clientID;
-
+    /**
+     * 生产者group
+     */
     @CFNullable
     private String producerGroup;
+    /**
+     * 消费者group
+     */
     @CFNullable
     private String consumerGroup;
 

@@ -22,19 +22,31 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * 消息体
+ */
 public class Message implements Serializable {
     private static final long serialVersionUID = 8445773977080406428L;
 
+    /**
+     * topic
+     */
     private String topic;
     // 消息tag，用于消息过滤
     private int flag;
     /**
-     * 包含：
+     *  属性 包含：
      * waitStoreMsgOK
      * delayTimeLevel
      */
     private Map<String, String> properties;
+    /**
+     * body
+     */
     private byte[] body;
+    /**
+     * 事务id
+     */
     private String transactionId;
 
     public Message() {
@@ -70,6 +82,9 @@ public class Message implements Serializable {
         this.putProperty(MessageConst.PROPERTY_KEYS, keys);
     }
 
+    /**
+     * 添加properties
+     */
     void putProperty(final String name, final String value) {
         if (null == this.properties) {
             this.properties = new HashMap<String, String>();
@@ -78,13 +93,22 @@ public class Message implements Serializable {
         this.properties.put(name, value);
     }
 
+    /**
+     * 删除某个key的配置
+     */
     void clearProperty(final String name) {
         if (null != this.properties) {
             this.properties.remove(name);
         }
     }
 
+    /**
+     * 添加用户配置
+     */
     public void putUserProperty(final String name, final String value) {
+        /*
+         * 系统配置不允许添加
+         */
         if (MessageConst.STRING_HASH_SET.contains(name)) {
             throw new RuntimeException(String.format(
                 "The Property<%s> is used by system, input another please", name));
@@ -100,10 +124,16 @@ public class Message implements Serializable {
         this.putProperty(name, value);
     }
 
+    /**
+     * 获取用户的属性
+     */
     public String getUserProperty(final String name) {
         return this.getProperty(name);
     }
 
+    /**
+     * 获取property
+     */
     public String getProperty(final String name) {
         if (null == this.properties) {
             this.properties = new HashMap<String, String>();
@@ -132,6 +162,9 @@ public class Message implements Serializable {
         return this.getProperty(MessageConst.PROPERTY_KEYS);
     }
 
+    /**
+     * 添加keys
+     */
     public void setKeys(Collection<String> keys) {
         StringBuffer sb = new StringBuffer();
         for (String k : keys) {
@@ -142,6 +175,9 @@ public class Message implements Serializable {
         this.setKeys(sb.toString().trim());
     }
 
+    /**
+     * 获取延迟的timelevel
+     */
     public int getDelayTimeLevel() {
         String t = this.getProperty(MessageConst.PROPERTY_DELAY_TIME_LEVEL);
         if (t != null) {
@@ -150,7 +186,10 @@ public class Message implements Serializable {
 
         return 0;
     }
-    // 消息延迟级别，用于定时消息或消息重试
+
+    /**
+     * 设置消息延迟级别，用于定时消息或消息重试
+     */
     public void setDelayTimeLevel(int level) {
         this.putProperty(MessageConst.PROPERTY_DELAY_TIME_LEVEL, String.valueOf(level));
     }
@@ -162,7 +201,10 @@ public class Message implements Serializable {
 
         return Boolean.parseBoolean(result);
     }
-    // 消息发送时是否等到消息存储完成后再返回
+    /**
+     * 消息发送时是否等到消息存储完成后再返回
+     * @return 是否等待消息存储ok
+     */
     public void setWaitStoreMsgOK(boolean waitStoreMsgOK) {
         this.putProperty(MessageConst.PROPERTY_WAIT_STORE_MSG_OK, Boolean.toString(waitStoreMsgOK));
     }
@@ -203,6 +245,9 @@ public class Message implements Serializable {
         putProperty(MessageConst.PROPERTY_BUYER_ID, buyerId);
     }
 
+    /**
+     * 事务id
+     */
     public String getTransactionId() {
         return transactionId;
     }

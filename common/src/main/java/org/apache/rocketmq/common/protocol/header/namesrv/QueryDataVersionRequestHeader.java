@@ -21,6 +21,9 @@ import org.apache.rocketmq.remoting.CommandCustomHeader;
 import org.apache.rocketmq.remoting.annotation.CFNotNull;
 import org.apache.rocketmq.remoting.exception.RemotingCommandException;
 
+/**
+ * 查询某个broker节点的版本
+ */
 public class QueryDataVersionRequestHeader implements CommandCustomHeader {
     @CFNotNull
     private String brokerName;

@@ -20,8 +20,15 @@ import org.apache.rocketmq.common.message.Message;
 
 /**
  * This interface will be removed in the version 5.0.0, interface {@link TransactionListener} is recommended.
+ * 本地事务执行器。需要用户来实现。当prepare发送成功，会回调本地事务执行起
  */
 @Deprecated
 public interface LocalTransactionExecuter {
+    /**
+     * 执行本地事务
+     * @param msg 消息
+     * @param arg 参数
+     * @return ;
+     */
     LocalTransactionState executeLocalTransactionBranch(final Message msg, final Object arg);
 }

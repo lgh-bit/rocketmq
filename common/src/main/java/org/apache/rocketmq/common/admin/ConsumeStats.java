@@ -22,10 +22,22 @@ import java.util.Map.Entry;
 import org.apache.rocketmq.common.message.MessageQueue;
 import org.apache.rocketmq.remoting.protocol.RemotingSerializable;
 
+/**
+ * 消费状态
+ */
 public class ConsumeStats extends RemotingSerializable {
+    /**
+     * 队列的偏移量
+     */
     private HashMap<MessageQueue, OffsetWrapper> offsetTable = new HashMap<MessageQueue, OffsetWrapper>();
+    /**
+     * 消费的tps
+     */
     private double consumeTps = 0;
 
+    /**
+     * 计算偏移量，就是所有的broker的偏移量减去消费的offset
+     */
     public long computeTotalDiff() {
         long diffTotal = 0L;
 

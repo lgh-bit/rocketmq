@@ -20,12 +20,23 @@ import java.util.HashMap;
 import org.apache.rocketmq.remoting.protocol.RemotingSerializable;
 
 public class KVConfigSerializeWrapper extends RemotingSerializable {
+    /**
+     *  configtableds
+     */
     private HashMap<String/* Namespace */, HashMap<String/* Key */, String/* Value */>> configTable;
 
+    /**
+     *  返回结果集
+     * @return ;
+     */
     public HashMap<String, HashMap<String, String>> getConfigTable() {
         return configTable;
     }
 
+    /**
+     * 设置config table
+     * @param configTable ;
+     */
     public void setConfigTable(HashMap<String, HashMap<String, String>> configTable) {
         this.configTable = configTable;
     }

@@ -27,6 +27,9 @@ import org.apache.rocketmq.logging.InternalLoggerFactory;
 
 /**
  * thread safe
+ * 线程安全的并发 map
+ * 目前也无人使用
+ * @author ;
  */
 public class ConcurrentTreeMap<K, V> {
     private static final InternalLogger log = InternalLoggerFactory.getLogger(LoggerName.BROKER_LOGGER_NAME);

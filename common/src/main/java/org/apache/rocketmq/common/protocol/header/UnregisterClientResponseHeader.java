@@ -20,6 +20,9 @@ package org.apache.rocketmq.common.protocol.header;
 import org.apache.rocketmq.remoting.CommandCustomHeader;
 import org.apache.rocketmq.remoting.exception.RemotingCommandException;
 
+/**
+ * 取消注册客户端响应结果
+ */
 public class UnregisterClientResponseHeader implements CommandCustomHeader {
 
     @Override

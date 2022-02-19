@@ -28,11 +28,25 @@ import org.apache.rocketmq.logging.InternalLoggerFactory;
 public abstract class ServiceThread implements Runnable {
     private static final InternalLogger log = InternalLoggerFactory.getLogger(LoggerName.COMMON_LOGGER_NAME);
 
+    /**
+     * JoinTime,默认90秒
+     */
     private static final long JOIN_TIME = 90 * 1000;
-
+    /**
+     * 线程
+     */
     private Thread thread;
+    /**
+     * countdownlatch2
+     */
     protected final CountDownLatch2 waitPoint = new CountDownLatch2(1);
+    /**
+     * 是否已经通知
+     */
     protected volatile AtomicBoolean hasNotified = new AtomicBoolean(false);
+    /**
+     * 是否已经停止了
+     */
     protected volatile boolean stopped = false;
     protected boolean isDaemon = false;
 
@@ -43,6 +57,9 @@ public abstract class ServiceThread implements Runnable {
 
     }
 
+    /**
+     * 服务名称
+     */
     public abstract String getServiceName();
 
     public void start() {

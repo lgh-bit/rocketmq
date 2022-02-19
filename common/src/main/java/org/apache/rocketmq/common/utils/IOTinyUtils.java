@@ -33,19 +33,42 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.rocketmq.remoting.common.RemotingHelper;
 
+/**
+ * 小型IO工具类
+ */
 public class IOTinyUtils {
 
+    /**
+     * inputstream转换成string
+     * @param input input
+     * @param encoding encoding
+     * @return ;
+     * @throws IOException ;
+     */
     static public String toString(InputStream input, String encoding) throws IOException {
         return (null == encoding) ? toString(new InputStreamReader(input, RemotingHelper.DEFAULT_CHARSET)) : toString(new InputStreamReader(
             input, encoding));
     }
 
+    /**
+     * 将Reader的东西变成字符串
+     * @param reader reader
+     * @return ;
+     * @throws IOException ;
+     */
     static public String toString(Reader reader) throws IOException {
         CharArrayWriter sw = new CharArrayWriter();
         copy(reader, sw);
         return sw.toString();
     }
 
+    /**
+     * 拷贝input到output
+     * @param input ;
+     * @param output ;
+     * @return ;
+     * @throws IOException ;
+     */
     static public long copy(Reader input, Writer output) throws IOException {
         char[] buffer = new char[1 << 12];
         long count = 0;
@@ -56,6 +79,12 @@ public class IOTinyUtils {
         return count;
     }
 
+    /**
+     * readLine
+     * @param input input
+     * @return ;
+     * @throws IOException ;
+     */
     static public List<String> readLines(Reader input) throws IOException {
         BufferedReader reader = toBufferedReader(input);
         List<String> list = new ArrayList<String>();
@@ -71,10 +100,21 @@ public class IOTinyUtils {
         return list;
     }
 
+    /**
+     * 转换成BufferedReader
+     * @param reader reader
+     * @return ;
+     */
     static private BufferedReader toBufferedReader(Reader reader) {
         return reader instanceof BufferedReader ? (BufferedReader) reader : new BufferedReader(reader);
     }
 
+    /**
+     * 拷贝文件
+     * @param source ;
+     * @param target ;
+     * @throws IOException ;
+     */
     static public void copyFile(String source, String target) throws IOException {
         File sf = new File(source);
         if (!sf.exists()) {
@@ -102,6 +142,11 @@ public class IOTinyUtils {
         }
     }
 
+    /**
+     * 删除文件
+     * @param fileOrDir ;
+     * @throws IOException ;
+     */
     public static void delete(File fileOrDir) throws IOException {
         if (fileOrDir == null) {
             return;
@@ -114,6 +159,11 @@ public class IOTinyUtils {
         fileOrDir.delete();
     }
 
+    /**
+     * 清除目录文件夹
+     * @param directory ;
+     * @throws IOException ;
+     */
     public static void cleanDirectory(File directory) throws IOException {
         if (!directory.exists()) {
             String message = directory + " does not exist";
@@ -144,6 +194,13 @@ public class IOTinyUtils {
         }
     }
 
+    /**
+     * 字符串写到file文件
+     * @param file file
+     * @param data data
+     * @param encoding 编码
+     * @throws IOException ;
+     */
     public static void writeStringToFile(File file, String data, String encoding) throws IOException {
         OutputStream os = null;
         try {

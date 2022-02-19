@@ -21,6 +21,9 @@ import org.apache.rocketmq.remoting.CommandCustomHeader;
 import org.apache.rocketmq.remoting.annotation.CFNotNull;
 import org.apache.rocketmq.remoting.exception.RemotingCommandException;
 
+/**
+ * deletekvconfig的请求
+ */
 public class DeleteKVConfigRequestHeader implements CommandCustomHeader {
     @CFNotNull
     private String namespace;

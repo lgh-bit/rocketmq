@@ -26,31 +26,70 @@ import org.apache.rocketmq.logging.InternalLogger;
 import org.apache.rocketmq.logging.InternalLoggerFactory;
 import org.apache.rocketmq.remoting.common.RemotingUtil;
 
+/**
+ * broker的config
+ */
 public class BrokerConfig {
     private static final InternalLogger log = InternalLoggerFactory.getLogger(LoggerName.COMMON_LOGGER_NAME);
 
+    /**
+     * rocketmq的home
+     */
     private String rocketmqHome = System.getProperty(MixAll.ROCKETMQ_HOME_PROPERTY, System.getenv(MixAll.ROCKETMQ_HOME_ENV));
     @ImportantField
+    /**
+     * NameServer的地址
+     */
     private String namesrvAddr = System.getProperty(MixAll.NAMESRV_ADDR_PROPERTY, System.getenv(MixAll.NAMESRV_ADDR_ENV));
     @ImportantField
     private String brokerIP1 = RemotingUtil.getLocalAddress();
     private String brokerIP2 = RemotingUtil.getLocalAddress();
     @ImportantField
+    /**
+     * brokerName
+     */
     private String brokerName = localHostName();
     @ImportantField
+    /**
+     * Broker所属的集群的名称
+     */
     private String brokerClusterName = "DefaultCluster";
     @ImportantField
+    /**
+     * BrokerId，0代表Master
+     */
     private long brokerId = MixAll.MASTER_ID;
+    /**
+     * broker的权限，默认是读写
+     */
     private int brokerPermission = PermName.PERM_READ | PermName.PERM_WRITE;
+    /**
+     * 默认的队列的数量
+     */
     private int defaultTopicQueueNums = 8;
     @ImportantField
+    /**
+     * 是否可以自动创建topic
+     */
     private boolean autoCreateTopicEnable = true;
 
+    /**
+     * 是否启用集群topic
+     */
     private boolean clusterTopicEnable = true;
 
+    /**
+     * 是否启用brokerTopic
+     */
     private boolean brokerTopicEnable = true;
     @ImportantField
+    /**
+     * 是否允许Broker 自动创建订阅组，建议线下开启，线上关闭
+     */
     private boolean autoCreateSubscriptionGroup = true;
+    /**
+     * 消息存储插件
+     */
     private String messageStorePlugIn = "";
     @ImportantField
     private String msgTraceTopicName = TopicValidator.RMQ_SYS_TRACE_TOPIC;
@@ -58,46 +97,111 @@ public class BrokerConfig {
     private boolean traceTopicEnable = false;
     /**
      * thread numbers for send message thread pool.
+     * 发送消息的线程池数量
      */
     private int sendMessageThreadPoolNums = Math.min(Runtime.getRuntime().availableProcessors(), 4);
+    /**
+     * 拉取消息的线程池数量
+     */
     private int pullMessageThreadPoolNums = 16 + Runtime.getRuntime().availableProcessors() * 2;
     private int processReplyMessageThreadPoolNums = 16 + Runtime.getRuntime().availableProcessors() * 2;
+    /**
+     * 查询消息的线程池数量
+     */
     private int queryMessageThreadPoolNums = 8 + Runtime.getRuntime().availableProcessors();
 
+    /**
+     * adminBroker线程池数量
+     */
     private int adminBrokerThreadPoolNums = 16;
+    /**
+     * 客户端管理线程池线程数量
+     */
     private int clientManageThreadPoolNums = 32;
+    /**
+     * 消费管理线程池线程数量
+     */
     private int consumerManageThreadPoolNums = 32;
+    /**
+     * 发送心跳的线程池的线程的数量
+     */
     private int heartbeatThreadPoolNums = Math.min(32, Runtime.getRuntime().availableProcessors());
 
     /**
      * Thread numbers for EndTransactionProcessor
+     * 事务end处理的线程池线程数量
      */
     private int endTransactionThreadPoolNums = Math.max(8 + Runtime.getRuntime().availableProcessors() * 2,
             sendMessageThreadPoolNums * 4);
 
+    /**
+     *  flush消费端 文件偏移时间戳 默认5秒
+     */
     private int flushConsumerOffsetInterval = 1000 * 5;
 
+    /**
+     * flush消费端 历史文件偏移时间戳 默认1分钟
+     */
     private int flushConsumerOffsetHistoryInterval = 1000 * 60;
 
     @ImportantField
+    /**
+     * 拒绝事务Message
+     */
     private boolean rejectTransactionMessage = false;
     @ImportantField
+    /**
+     * 是否从地址服务器寻找Name Server地址，正式发布后，默认值为false
+     */
     private boolean fetchNamesrvAddrByAddressServer = false;
+    /**
+     * 发送线程池队列容量
+     */
     private int sendThreadPoolQueueCapacity = 10000;
+    /**
+     * 拉取线程池队列容量
+     */
     private int pullThreadPoolQueueCapacity = 100000;
     private int replyThreadPoolQueueCapacity = 10000;
+    /**
+     * 查询线程池队列容量
+     */
     private int queryThreadPoolQueueCapacity = 20000;
+    /**
+     * 客户端管理线程池队列的容量
+     */
     private int clientManagerThreadPoolQueueCapacity = 1000000;
+    /**
+     * 消费管理线程池队列容量
+     */
     private int consumerManagerThreadPoolQueueCapacity = 1000000;
+    /**
+     * 心跳管理线程池队列容量
+     */
     private int heartbeatThreadPoolQueueCapacity = 50000;
+    /**
+     * end事务线程池队列容量
+     */
     private int endTransactionPoolQueueCapacity = 100000;
 
+    /**
+     * 过滤服务器数量
+     */
     private int filterServerNums = 0;
 
+    /**
+     * Consumer订阅消息时，Broker是否开启长轮询
+     */
     private boolean longPollingEnable = true;
 
+    /**
+     * 如果是短轮询，服务器挂起时间
+     */
     private long shortPollingTimeMills = 1000;
 
+    /**
+     * notify consumerId changed 开关
+     */
     private boolean notifyConsumerIdsChangedEnable = true;
 
     private boolean highSpeedMode = false;
@@ -108,71 +212,146 @@ public class BrokerConfig {
     private int commercialBigCount = 1;
     private int commercialBaseCount = 1;
 
+    /**
+     * 消息传输是否使用堆内存
+     */
     private boolean transferMsgByHeap = true;
+    /**
+     * 最大延迟时间
+     */
     private int maxDelayTime = 40;
 
+    /**
+     * regionId。DEFAULT_TRACE_REGION_ID和消息追踪有关
+     */
     private String regionId = MixAll.DEFAULT_TRACE_REGION_ID;
+    /**
+     * 注册Broker超时时间
+     */
     private int registerBrokerTimeoutMills = 6000;
 
+    /**
+     * 从节点是否可读
+     */
     private boolean slaveReadEnable = false;
 
+    /**
+     * 如果消费组消息消费堆积是否禁用该消费组继续消费消息
+     */
     private boolean disableConsumeIfConsumerReadSlowly = false;
+    /**
+     * 消息消费堆积阈值默认16GB在disableConsumeifConsumeIfConsumerReadSlowly为true时生效
+     */
     private long consumerFallbehindThreshold = 1024L * 1024 * 1024 * 16;
 
+    /**
+     * 是否支持broker快速失败
+     * 如果为true表示会立即清除发送消息线程池，消息拉取线程池中排队任务 ，直接返回系统错误
+     */
     private boolean brokerFastFailureEnable = true;
+    /**
+     * 清除发送线程池任务队列的等待时间。
+     * 如果系统时间减去任务放入队列中的时间小于waitTimeMillsInSendQueue，本次请求任务暂时不移除该任务
+     */
     private long waitTimeMillsInSendQueue = 200;
+    /**
+     * 清除消息拉取线程池任务队列的等待时间。
+     * 如果系统时间减去任务放入队列中的时间小于waitTimeMillsInPullQueue，本次请求任务暂时不移除该任务
+     */
     private long waitTimeMillsInPullQueue = 5 * 1000;
+    /**
+     * 清理broker心跳线程等待时间
+     */
     private long waitTimeMillsInHeartbeatQueue = 31 * 1000;
+    /**
+     * 理提交和回滚消息线程队列等待时间
+     */
     private long waitTimeMillsInTransactionQueue = 3 * 1000;
 
     private long startAcceptSendRequestTimeStamp = 0L;
 
+    /**
+     * traceOn ,是否开启消息追踪
+     */
     private boolean traceOn = true;
 
     // Switch of filter bit map calculation.
     // If switch on:
     // 1. Calculate filter bit map when construct queue.
     // 2. Filter bit map will be saved to consume queue extend file if allowed.
+    /**
+     * 是否开启比特位映射
+     */
     private boolean enableCalcFilterBitMap = false;
 
+    /**
+     * 布隆过滤器参数
+     * Expect num of consumers will use filter.
+     */
     // Expect num of consumers will use filter.
     private int expectConsumerNumUseFilter = 32;
 
+    /**
+     * 布隆过滤器参数
+     * Error rate of bloom filter, 1~100.
+     */
     // Error rate of bloom filter, 1~100.
     private int maxErrorRateOfBloomFilter = 20;
 
+    /**
+     * 清除过滤数据的时间间隔
+     * how long to clean filter data after dead.Default: 24h
+     */
     //how long to clean filter data after dead.Default: 24h
     private long filterDataCleanTimeSpan = 24 * 3600 * 1000;
 
+    /**
+     * 消息过滤是否支持重试
+     * hether do filter when retry.
+     */
     // whether do filter when retry.
     private boolean filterSupportRetry = false;
+
+    /**
+     * 是否支持根据属性过滤 如果使用基于标准的sql92模式过滤消息则改参数必须设置为true
+     */
     private boolean enablePropertyFilter = false;
 
     private boolean compressedRegister = false;
 
+    /**
+     * 是否强制注册
+     */
     private boolean forceRegister = true;
 
     /**
      * This configurable item defines interval of topics registration of broker to name server. Allowing values are
      * between 10, 000 and 60, 000 milliseconds.
+     *
+     * broker注册频率 大于1分钟为1分钟小于10秒为10秒
      */
     private int registerNameServerPeriod = 1000 * 30;
 
     /**
      * The minimum time of the transactional message  to be checked firstly, one message only exceed this time interval
      * that can be checked.
+     * 事物回查超时时间
      */
     @ImportantField
     private long transactionTimeOut = 6 * 1000;
 
     /**
      * The maximum number of times the message was checked, if exceed this value, this message will be discarded.
+     *
+     * 物回查次数
      */
     @ImportantField
     private int transactionCheckMax = 15;
 
     /**
      * Transaction message check interval.
+     *
+     * 事物回查周期
      */
     @ImportantField
     private long transactionCheckInterval = 60 * 1000;

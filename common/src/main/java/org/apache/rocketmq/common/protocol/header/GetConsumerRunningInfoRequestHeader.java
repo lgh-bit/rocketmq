@@ -22,11 +22,23 @@ import org.apache.rocketmq.remoting.annotation.CFNotNull;
 import org.apache.rocketmq.remoting.annotation.CFNullable;
 import org.apache.rocketmq.remoting.exception.RemotingCommandException;
 
+/**
+ * 获取消费者运行时信息请求header
+ */
 public class GetConsumerRunningInfoRequestHeader implements CommandCustomHeader {
+    /**
+     * 消费组
+     */
     @CFNotNull
     private String consumerGroup;
+    /**
+     * 客户端id
+     */
     @CFNotNull
     private String clientId;
+    /**
+     * 是否jstack
+     */
     @CFNullable
     private boolean jstackEnable;
 

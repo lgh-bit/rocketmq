@@ -17,14 +17,36 @@
 
 package org.apache.rocketmq.common.filter.impl;
 
+/**
+ * 几个符号
+ */
 public class Operator extends Op {
 
+    /**
+     * 左括号
+     */
     public static final Operator LEFTPARENTHESIS = new Operator("(", 30, false);
+    /**
+     * 右括号
+     */
     public static final Operator RIGHTPARENTHESIS = new Operator(")", 30, false);
+    /**
+     * 并且
+     */
     public static final Operator AND = new Operator("&&", 20, true);
+    /**
+     * or
+     */
     public static final Operator OR = new Operator("||", 15, true);
 
+    /**
+     * 优先级
+     */
     private int priority;
+
+    /**
+     * 是否可排序
+     */
     private boolean compareable;
 
     private Operator(String symbol, int priority, boolean compareable) {
@@ -63,6 +85,9 @@ public class Operator extends Op {
             return -1;
     }
 
+    /**
+     * 是支持的操作
+     */
     public boolean isSpecifiedOp(String operator) {
         return this.getSymbol().equals(operator);
     }

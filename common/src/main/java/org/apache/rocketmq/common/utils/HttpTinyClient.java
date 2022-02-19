@@ -27,6 +27,9 @@ import java.util.List;
 import org.apache.rocketmq.common.MQVersion;
 import org.apache.rocketmq.common.MixAll;
 
+/**
+ * 一个小型的http客户端
+ */
 public class HttpTinyClient {
 
     static public HttpResult httpGet(String url, List<String> headers, List<String> paramValues,
@@ -59,6 +62,12 @@ public class HttpTinyClient {
         }
     }
 
+    /**
+     * 编码参数
+     * 讲paramesvalues变成get请求的kv
+     * @param paramValues 参数，kv顺序排列
+     * @param encoding 字符集
+     */
     static private String encodingParams(List<String> paramValues, String encoding)
         throws UnsupportedEncodingException {
         StringBuilder sb = new StringBuilder();
@@ -76,6 +85,12 @@ public class HttpTinyClient {
         return sb.toString();
     }
 
+    /**
+     * 设置请求头
+     * @param conn conn
+     * @param headers headers
+     * @param encoding 编码
+     */
     static private void setHeaders(HttpURLConnection conn, List<String> headers, String encoding) {
         if (null != headers) {
             for (Iterator<String> iter = headers.iterator(); iter.hasNext(); ) {
@@ -124,6 +139,11 @@ public class HttpTinyClient {
         }
     }
 
+    /**
+     * http请求的结果
+     * @author ;
+     * code和正文
+     */
     static public class HttpResult {
         final public int code;
         final public String content;

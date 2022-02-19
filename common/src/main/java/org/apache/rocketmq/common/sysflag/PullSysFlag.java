@@ -16,6 +16,9 @@
  */
 package org.apache.rocketmq.common.sysflag;
 
+/**
+ * 拉取消息系统参数
+ */
 public class PullSysFlag {
     // 表示从内存中读取的消费进度大于0
     private final static int FLAG_COMMIT_OFFSET = 0x1;

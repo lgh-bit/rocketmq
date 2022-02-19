@@ -16,8 +16,14 @@
  */
 package org.apache.rocketmq.common;
 
+/**
+ * 数据版本的封装
+ */
 public class MQVersion {
 
+    /**
+     * 当前版本
+     */
     public static final int CURRENT_VERSION = Version.V4_9_1.ordinal();
 
     public static String getVersionDesc(int value) {

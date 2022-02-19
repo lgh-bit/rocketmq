@@ -19,11 +19,29 @@ package org.apache.rocketmq.common.protocol.body;
 
 import org.apache.rocketmq.remoting.protocol.RemotingSerializable;
 
+/**
+ * 直接消费消息的结果
+ */
 public class ConsumeMessageDirectlyResult extends RemotingSerializable {
+    /**
+     * 是否是顺序消息
+     */
     private boolean order = false;
+    /**
+     * 是否自动提交
+     */
     private boolean autoCommit = true;
+    /**
+     * 结果
+     */
     private CMResult consumeResult;
+    /**
+     * 备注
+     */
     private String remark;
+    /**
+     * 花费的时间
+     */
     private long spentTimeMills;
 
     public boolean isOrder() {

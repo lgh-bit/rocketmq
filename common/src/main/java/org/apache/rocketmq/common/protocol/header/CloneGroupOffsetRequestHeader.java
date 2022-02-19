@@ -24,12 +24,27 @@ import org.apache.rocketmq.remoting.CommandCustomHeader;
 import org.apache.rocketmq.remoting.annotation.CFNotNull;
 import org.apache.rocketmq.remoting.exception.RemotingCommandException;
 
+/**
+ * 克隆消费族组的偏移量请求header
+ */
 public class CloneGroupOffsetRequestHeader implements CommandCustomHeader {
+    /**
+     * 原始组
+     */
     @CFNotNull
     private String srcGroup;
+    /**
+     * 目标组
+     */
     @CFNotNull
     private String destGroup;
+    /**
+     * 主题
+     */
     private String topic;
+    /**
+     * 是否离线
+     */
     private boolean offline;
 
     @Override

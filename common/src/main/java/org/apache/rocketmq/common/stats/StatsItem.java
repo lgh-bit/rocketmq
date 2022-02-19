@@ -24,18 +24,35 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.apache.rocketmq.common.UtilAll;
 import org.apache.rocketmq.logging.InternalLogger;
 
+/**
+ * 统计监控项
+ */
 public class StatsItem {
 
+    /**
+     * 统计值
+     */
     private final AtomicLong value = new AtomicLong(0);
-
+    /**
+     * 统计次数
+     */
     private final AtomicLong times = new AtomicLong(0);
-
+    /**
+     * 分钟级别的
+     */
     private final LinkedList<CallSnapshot> csListMinute = new LinkedList<CallSnapshot>();
-
+    /**
+     * 小时级别的
+     */
     private final LinkedList<CallSnapshot> csListHour = new LinkedList<CallSnapshot>();
-
+    /**
+     * 天级别的
+     */
     private final LinkedList<CallSnapshot> csListDay = new LinkedList<CallSnapshot>();
 
+    /**
+     * 初始化与成员变量
+     */
     private final String statsName;
     private final String statsKey;
     private final ScheduledExecutorService scheduledExecutorService;
@@ -49,6 +66,9 @@ public class StatsItem {
         this.log = log;
     }
 
+    /**
+     * 计算数据
+     */
     private static StatsSnapshot computeStatsData(final LinkedList<CallSnapshot> csList) {
         StatsSnapshot statsSnapshot = new StatsSnapshot();
         synchronized (csList) {
@@ -91,6 +111,7 @@ public class StatsItem {
 
     public void init() {
 
+        //秒级别监控
         this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
@@ -101,6 +122,7 @@ public class StatsItem {
             }
         }, 0, 10, TimeUnit.SECONDS);
 
+        //分钟级别监控
         this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
@@ -111,6 +133,7 @@ public class StatsItem {
             }
         }, 0, 10, TimeUnit.MINUTES);
 
+        //小时级别监控
         this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
@@ -121,6 +144,7 @@ public class StatsItem {
             }
         }, 0, 1, TimeUnit.HOURS);
 
+        //打印
         this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
@@ -131,6 +155,7 @@ public class StatsItem {
             }
         }, Math.abs(UtilAll.computeNextMinutesTimeMillis() - System.currentTimeMillis()), 1000 * 60, TimeUnit.MILLISECONDS);
 
+        //打印
         this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
@@ -141,6 +166,7 @@ public class StatsItem {
             }
         }, Math.abs(UtilAll.computeNextHourTimeMillis() - System.currentTimeMillis()), 1000 * 60 * 60, TimeUnit.MILLISECONDS);
 
+        //打印
         this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {

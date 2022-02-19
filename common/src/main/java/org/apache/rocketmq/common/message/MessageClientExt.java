@@ -16,6 +16,9 @@
  */
 package org.apache.rocketmq.common.message;
 
+/**
+ * 客户端消息扩展
+ */
 public class MessageClientExt extends MessageExt {
 
     public String getOffsetMsgId() {
@@ -26,6 +29,9 @@ public class MessageClientExt extends MessageExt {
         super.setMsgId(offsetMsgId);
     }
 
+    /**
+     * 消息ID，先取UNIQ_KEY 取不到就用getOffsetMsgId
+     */
     @Override
     public String getMsgId() {
         String uniqID = MessageClientIDSetter.getUniqID(this);

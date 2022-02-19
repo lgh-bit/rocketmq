@@ -22,6 +22,8 @@ import java.util.Queue;
 
 /**
  * not thread safe
+ * 非线程安全的队列
+ * @author ;
  */
 public class RoundQueue<E> {
 
@@ -37,6 +39,7 @@ public class RoundQueue<E> {
         boolean ok = false;
         if (!queue.contains(e)) {
             if (queue.size() >= capacity) {
+                //超限了就丢弃最以前的
                 queue.poll();
             }
             queue.add(e);

@@ -29,6 +29,14 @@ import org.apache.rocketmq.logging.InternalLogger;
 import org.apache.rocketmq.logging.InternalLoggerFactory;
 import org.apache.rocketmq.common.utils.HttpTinyClient;
 
+/**
+ * Http端点的方式来指定NameServer的方式
+ * 如果您没有使用前面提到的方法指定名称服务器地址列表，Apache RocketMQ将以每2分钟访问以下HTTP端点以获取和更新名称服务器地址列表，初始延迟10秒。
+ * 默认情况下，终点是：
+ * http://jmenv.tbsite.net:8080/rocketmq/nsaddr
+ * 你可以使用这个Java选项：rocketmq.namesrv.domain 覆盖 jmenv.tbsite.net ，你也可以使用这个Java选项 rocketmq.namesrv.domain.subgroup 覆盖 nsaddr 部分
+ * @author ;
+ */
 public class TopAddressing {
     private static final InternalLogger log = InternalLoggerFactory.getLogger(LoggerName.COMMON_LOGGER_NAME);
 

@@ -20,6 +20,9 @@ import java.util.HashMap;
 import org.apache.rocketmq.common.message.MessageQueue;
 import org.apache.rocketmq.remoting.protocol.RemotingSerializable;
 
+/**
+ * 所有的topic的状态表
+ */
 public class TopicStatsTable extends RemotingSerializable {
     private HashMap<MessageQueue, TopicOffset> offsetTable = new HashMap<MessageQueue, TopicOffset>();
 

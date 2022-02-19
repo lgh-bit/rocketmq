@@ -24,10 +24,22 @@ import org.apache.rocketmq.remoting.CommandCustomHeader;
 import org.apache.rocketmq.remoting.annotation.CFNotNull;
 import org.apache.rocketmq.remoting.exception.RemotingCommandException;
 
+/**
+ * @author ;
+ */
 public class QueryCorrectionOffsetHeader implements CommandCustomHeader {
+    /**
+     * 排除的groups
+     */
     private String filterGroups;
+    /**
+     * 需要差的group
+     */
     @CFNotNull
     private String compareGroup;
+    /**
+     * 主题
+     */
     @CFNotNull
     private String topic;
 

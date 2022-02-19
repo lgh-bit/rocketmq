@@ -20,12 +20,30 @@ package org.apache.rocketmq.common.protocol.header;
 import org.apache.rocketmq.remoting.CommandCustomHeader;
 import org.apache.rocketmq.remoting.exception.RemotingCommandException;
 
+/**
+ * 查询消费队列请求的header
+ */
 public class QueryConsumeQueueRequestHeader implements CommandCustomHeader {
 
+    /**
+     * topic
+     */
     private String topic;
+    /**
+     * 队列id
+     */
     private int queueId;
+    /**
+     * 索引
+     */
     private long index;
+    /**
+     * count
+     */
     private int count;
+    /**
+     * 消费组
+     */
     private String consumerGroup;
 
     public String getTopic() {

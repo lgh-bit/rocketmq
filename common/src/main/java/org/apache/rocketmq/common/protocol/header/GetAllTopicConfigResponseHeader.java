@@ -23,6 +23,9 @@ package org.apache.rocketmq.common.protocol.header;
 import org.apache.rocketmq.remoting.CommandCustomHeader;
 import org.apache.rocketmq.remoting.exception.RemotingCommandException;
 
+/**
+ * 获取全部请求配置的响应的header
+ */
 public class GetAllTopicConfigResponseHeader implements CommandCustomHeader {
 
     @Override

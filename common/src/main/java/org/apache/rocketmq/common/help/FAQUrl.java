@@ -16,6 +16,9 @@
  */
 package org.apache.rocketmq.common.help;
 
+/**
+ * FAQ相关常量
+ */
 public class FAQUrl {
 
     public static final String APPLY_TOPIC_URL =

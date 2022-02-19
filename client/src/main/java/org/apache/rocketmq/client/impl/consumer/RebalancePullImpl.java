@@ -26,9 +26,17 @@ import org.apache.rocketmq.common.message.MessageQueue;
 import org.apache.rocketmq.common.protocol.heartbeat.ConsumeType;
 import org.apache.rocketmq.common.protocol.heartbeat.MessageModel;
 
+/**
+ * RelalancePullImpl
+ * Pull模式实际上无需负载消息队列
+ * 这里的实现都无用
+ */
 public class RebalancePullImpl extends RebalanceImpl {
     private final DefaultMQPullConsumerImpl defaultMQPullConsumerImpl;
 
+    /**
+     * 构造函数，RebalancePullImpl把所有参数都指定为了null
+     */
     public RebalancePullImpl(DefaultMQPullConsumerImpl defaultMQPullConsumerImpl) {
         this(null, null, null, null, defaultMQPullConsumerImpl);
     }
@@ -40,6 +48,10 @@ public class RebalancePullImpl extends RebalanceImpl {
         this.defaultMQPullConsumerImpl = defaultMQPullConsumerImpl;
     }
 
+    /**
+     * 触发messageQueueListener。空不执行。默认的pullRequest为空
+     * @param mqDivided 被选中的
+     */
     @Override
     public void messageQueueChanged(String topic, Set<MessageQueue> mqAll, Set<MessageQueue> mqDivided) {
         MessageQueueListener messageQueueListener = this.defaultMQPullConsumerImpl.getDefaultMQPullConsumer().getMessageQueueListener();
@@ -52,6 +64,9 @@ public class RebalancePullImpl extends RebalanceImpl {
         }
     }
 
+    /**
+     * 移除多余的队列偏移量
+     */
     @Override
     public boolean removeUnnecessaryMessageQueue(MessageQueue mq, ProcessQueue pq) {
         this.defaultMQPullConsumerImpl.getOffsetStore().persist(mq);

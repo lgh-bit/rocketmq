@@ -38,6 +38,10 @@ public class NamesrvConfig {
     // 默认配置文件路径
     private String configStorePath = System.getProperty("user.home") + File.separator + "namesrv" + File.separator + "namesrv.properties";
     private String productEnvName = "center";
+    /**
+     * clusterTest为true时work
+     * 用于构造ClusterTestRequestProcessor
+     */
     private boolean clusterTest = false;
     //是否支持顺序消息
     private boolean orderMessageEnable = false;

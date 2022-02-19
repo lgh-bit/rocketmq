@@ -25,6 +25,9 @@ import org.apache.rocketmq.remoting.annotation.CFNotNull;
 import org.apache.rocketmq.remoting.annotation.CFNullable;
 import org.apache.rocketmq.remoting.exception.RemotingCommandException;
 
+/**
+ * Consumer发起的拉取消息的请求Header
+ */
 public class PullMessageRequestHeader implements CommandCustomHeader {
     // 消费者组名
     @CFNotNull

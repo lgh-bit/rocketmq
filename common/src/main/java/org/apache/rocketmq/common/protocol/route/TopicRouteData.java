@@ -25,6 +25,9 @@ import java.util.HashMap;
 import java.util.List;
 import org.apache.rocketmq.remoting.protocol.RemotingSerializable;
 
+/**
+ * 一个Topic的路由信息
+ */
 public class TopicRouteData extends RemotingSerializable {
     // 顺序消息
     private String orderTopicConf;

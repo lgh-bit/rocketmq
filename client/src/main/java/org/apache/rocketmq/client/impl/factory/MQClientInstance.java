@@ -86,21 +86,33 @@ import org.apache.rocketmq.remoting.protocol.RemotingCommand;
 
 /**
  * MQ 的客户端实例
+ *
+ * 客户端实例管理器
  */
 public class MQClientInstance {
     private final static long LOCK_TIMEOUT_MILLIS = 3000;
     private final InternalLogger log = ClientLogger.getLog();
     // 客服端配置
     private final ClientConfig clientConfig;
-    // index
+    /**
+     * 实例index
+     */
     private final int instanceIndex;
     // 唯一标识 ip + name
     private final String clientId;
-    // 启动时间
+    /**
+     * 启动时间戳
+     */
     private final long bootTimestamp = System.currentTimeMillis();
     // 生产者
+    /**
+     * key:group mqBroducerInner
+     */
     private final ConcurrentMap<String/* group */, MQProducerInner> producerTable = new ConcurrentHashMap<String, MQProducerInner>();
     // 消费者
+    /**
+     * key:group  MQConsumerInner
+     */
     private final ConcurrentMap<String/* group */, MQConsumerInner> consumerTable = new ConcurrentHashMap<String, MQConsumerInner>();
     // admin
     private final ConcurrentMap<String/* group */, MQAdminExtInner> adminExtTable = new ConcurrentHashMap<String, MQAdminExtInner>();
@@ -143,22 +155,34 @@ public class MQClientInstance {
     private final AtomicLong sendHeartbeatTimesTotal = new AtomicLong(0);
     // 状态
     private ServiceState serviceState = ServiceState.CREATE_JUST;
+    /**
+     * 随机数
+     */
     private Random random = new Random();
 
     public MQClientInstance(ClientConfig clientConfig, int instanceIndex, String clientId) {
         this(clientConfig, instanceIndex, clientId, null);
     }
 
+    /**
+     * 实例化mqclientinstance
+     * @param clientConfig 客户端config
+     * @param instanceIndex 实例index
+     * @param clientId 客户端id
+     * @param rpcHook rpc勾子
+     */
     public MQClientInstance(ClientConfig clientConfig, int instanceIndex, String clientId, RPCHook rpcHook) {
         this.clientConfig = clientConfig;
         this.instanceIndex = instanceIndex;
         this.nettyClientConfig = new NettyClientConfig();
+        //设置了一下setClientCallbackExecutorThreads
         this.nettyClientConfig.setClientCallbackExecutorThreads(clientConfig.getClientCallbackExecutorThreads());
         this.nettyClientConfig.setUseTLS(clientConfig.isUseTLS());
         this.clientRemotingProcessor = new ClientRemotingProcessor(this);
         this.mQClientAPIImpl = new MQClientAPIImpl(this.nettyClientConfig, this.clientRemotingProcessor, rpcHook, clientConfig);
 
         if (this.clientConfig.getNamesrvAddr() != null) {
+            //设置NameServer的地址
             this.mQClientAPIImpl.updateNameServerAddressList(this.clientConfig.getNamesrvAddr());
             log.info("user specified name server address: {}", this.clientConfig.getNamesrvAddr());
         }
@@ -183,6 +207,9 @@ public class MQClientInstance {
             MQVersion.getVersionDesc(MQVersion.CURRENT_VERSION), RemotingCommand.getSerializeTypeConfigInThisServer());
     }
 
+    /**
+     * topicRouteInfo转为TopicPublishInfo
+     */
     public static TopicPublishInfo topicRouteData2TopicPublishInfo(final String topic, final TopicRouteData route) {
         TopicPublishInfo info = new TopicPublishInfo();
         info.setTopicRouteData(route);
@@ -190,6 +217,7 @@ public class MQClientInstance {
             String[] brokers = route.getOrderTopicConf().split(";");
             for (String broker : brokers) {
                 String[] item = broker.split(":");
+                //item[0]：brokerName  item[1]：队列数量
                 int nums = Integer.parseInt(item[1]);
                 for (int i = 0; i < nums; i++) {
                     MessageQueue mq = new MessageQueue(topic, item[0], i);
@@ -215,6 +243,7 @@ public class MQClientInstance {
                         continue;
                     }
 
+                    //如果没有 masterId，忽略
                     if (!brokerData.getBrokerAddrs().containsKey(MixAll.MASTER_ID)) {
                         continue;
                     }
@@ -232,6 +261,9 @@ public class MQClientInstance {
         return info;
     }
 
+    /**
+     * topicRoute转化成TopicSubscribeInfo
+     */
     public static Set<MessageQueue> topicRouteData2TopicSubscribeInfo(final String topic, final TopicRouteData route) {
         Set<MessageQueue> mqList = new HashSet<MessageQueue>();
         List<QueueData> qds = route.getQueueDatas();
@@ -247,6 +279,9 @@ public class MQClientInstance {
         return mqList;
     }
 
+    /**
+     * 启动MqClientInstance
+     */
     public void start() throws MQClientException {
 
         synchronized (this) {
@@ -284,6 +319,9 @@ public class MQClientInstance {
         }
     }
 
+    /**
+     * 启定时任务
+     */
     private void startScheduledTask() {
         if (null == this.clientConfig.getNamesrvAddr()) {
             // 两分钟一次 寻找nameServer
@@ -354,6 +392,9 @@ public class MQClientInstance {
         return clientId;
     }
 
+    /**
+     * 定时从nameServer上获取路由
+     */
     public void updateTopicRouteInfoFromNameServer() {
         Set<String> topicList = new HashSet<String>();
 
@@ -459,6 +500,10 @@ public class MQClientInstance {
         }
     }
 
+    /**
+     * 在broker端检查客户端。
+     * @throws MQClientException ;
+     */
     public void checkClientInBroker() throws MQClientException {
         Iterator<Entry<String, MQConsumerInner>> it = this.consumerTable.entrySet().iterator();
 
@@ -497,6 +542,10 @@ public class MQClientInstance {
         }
     }
 
+
+    /**
+     * 向所有的Broker发送心跳
+     */
     public void sendHeartbeatToAllBrokerWithLock() {
         if (this.lockHeartbeat.tryLock()) {
             try {
@@ -512,6 +561,9 @@ public class MQClientInstance {
         }
     }
 
+    /**
+     * 持久化消费偏移量
+     */
     private void persistAllConsumerOffset() {
         Iterator<Entry<String, MQConsumerInner>> it = this.consumerTable.entrySet().iterator();
         while (it.hasNext()) {
@@ -538,6 +590,9 @@ public class MQClientInstance {
         }
     }
 
+    /**
+     * 先从NameServer获取topicInfo
+     */
     public boolean updateTopicRouteInfoFromNameServer(final String topic) {
         return updateTopicRouteInfoFromNameServer(topic, false, null);
     }
@@ -560,6 +615,9 @@ public class MQClientInstance {
         return false;
     }
 
+    /**
+     * 向所有的producer发送心跳
+     */
     private void sendHeartbeatToAllBroker() {
         final HeartbeatData heartbeatData = this.prepareHeartbeatData();
         final boolean producerEmpty = heartbeatData.getProducerDataSet().isEmpty();
@@ -569,7 +627,11 @@ public class MQClientInstance {
             return;
         }
 
+        /*
+         * 如果所有的brokerAddrtable不为空
+         */
         if (!this.brokerAddrTable.isEmpty()) {
+            //心跳次数+1
             long times = this.sendHeartbeatTimesTotal.getAndIncrement();
             Iterator<Entry<String, HashMap<Long, String>>> it = this.brokerAddrTable.entrySet().iterator();
             while (it.hasNext()) {
@@ -582,16 +644,21 @@ public class MQClientInstance {
                         String addr = entry1.getValue();
                         if (addr != null) {
                             if (consumerEmpty) {
-                                if (id != MixAll.MASTER_ID)
+                                //producer只和master心跳
+                                if (id != MixAll.MASTER_ID) {
                                     continue;
+                                }
                             }
 
                             try {
+                                //发送心跳
                                 int version = this.mQClientAPIImpl.sendHearbeat(addr, heartbeatData, 3000);
                                 if (!this.brokerVersionTable.containsKey(brokerName)) {
                                     this.brokerVersionTable.put(brokerName, new HashMap<String, Integer>(4));
                                 }
+                                //地址的版本
                                 this.brokerVersionTable.get(brokerName).put(addr, version);
+                                //每心跳20次打印日志
                                 if (times % 20 == 0) {
                                     log.info("send heart beat to broker[{} {} {}] success", brokerName, id, addr);
                                     log.info(heartbeatData.toString());
@@ -611,11 +678,15 @@ public class MQClientInstance {
         }
     }
 
+    /**
+     * 上传FilterClass源码
+     */
     private void uploadFilterClassSource() {
         Iterator<Entry<String, MQConsumerInner>> it = this.consumerTable.entrySet().iterator();
         while (it.hasNext()) {
             Entry<String, MQConsumerInner> next = it.next();
             MQConsumerInner consumer = next.getValue();
+            //如果消费模型是push模型
             if (ConsumeType.CONSUME_PASSIVELY == consumer.consumeType()) {
                 Set<SubscriptionData> subscriptions = consumer.subscriptions();
                 for (SubscriptionData sub : subscriptions) {
@@ -635,6 +706,12 @@ public class MQClientInstance {
         }
     }
 
+    /**
+     * 更新topic路由信息从NameServer
+     * @param topic topic
+     * @param isDefault 是否默认
+     * @param defaultMQProducer 默认mqproducer
+     */
     public boolean updateTopicRouteInfoFromNameServer(final String topic, boolean isDefault,
         DefaultMQProducer defaultMQProducer) {
         try {
@@ -647,26 +724,32 @@ public class MQClientInstance {
                         if (topicRouteData != null) {
                             for (QueueData data : topicRouteData.getQueueDatas()) {
                                 int queueNums = Math.min(defaultMQProducer.getDefaultTopicQueueNums(), data.getReadQueueNums());
+                                //重新设置类队列数为客户端的
                                 data.setReadQueueNums(queueNums);
                                 data.setWriteQueueNums(queueNums);
                             }
                         }
                     } else {
+                        //获取topicRouteInfo
                         topicRouteData = this.mQClientAPIImpl.getTopicRouteInfoFromNameServer(topic, 1000 * 3);
                     }
                     if (topicRouteData != null) {
                         TopicRouteData old = this.topicRouteTable.get(topic);
                         boolean changed = topicRouteDataIsChange(old, topicRouteData);
                         if (!changed) {
+                            //未更新
                             changed = this.isNeedUpdateTopicRouteInfo(topic);
                         } else {
                             log.info("the topic[{}] route info changed, old[{}] ,new[{}]", topic, old, topicRouteData);
                         }
 
+                        //如果路由信息发生了更新
                         if (changed) {
                             TopicRouteData cloneTopicRouteData = topicRouteData.cloneTopicRouteData();
 
                             for (BrokerData bd : topicRouteData.getBrokerDatas()) {
+                                //broker地址里添加broker地址
+                                //这里添加nameServer并更新了地址
                                 this.brokerAddrTable.put(bd.getBrokerName(), bd.getBrokerAddrs());
                             }
 
@@ -679,6 +762,7 @@ public class MQClientInstance {
                                     Entry<String, MQProducerInner> entry = it.next();
                                     MQProducerInner impl = entry.getValue();
                                     if (impl != null) {
+                                        //更新所有的topicPublishInfo
                                         impl.updateTopicPublishInfo(topic, publishInfo);
                                     }
                                 }
@@ -692,6 +776,7 @@ public class MQClientInstance {
                                     Entry<String, MQConsumerInner> entry = it.next();
                                     MQConsumerInner impl = entry.getValue();
                                     if (impl != null) {
+                                        //cousumer相关
                                         impl.updateTopicSubscribeInfo(topic, subscribeInfo);
                                     }
                                 }
@@ -723,6 +808,9 @@ public class MQClientInstance {
         return false;
     }
 
+    /**
+     * 准备一次发送心跳包的数据
+     */
     private HeartbeatData prepareHeartbeatData() {
         HeartbeatData heartbeatData = new HeartbeatData();
 
@@ -775,6 +863,7 @@ public class MQClientInstance {
     }
 
     /**
+     * 传FilterClassToAllFilterServer去所有的FilterServer
      * This method will be removed in the version 5.0.0,because filterServer was removed,and method
      * <code>subscribe(final String topic, final MessageSelector messageSelector)</code> is recommended.
      */
@@ -802,6 +891,7 @@ public class MQClientInstance {
                 List<String> value = next.getValue();
                 for (final String fsAddr : value) {
                     try {
+                        //遍历注册MessageFilterClass给所有的FilterServertable
                         this.mQClientAPIImpl.registerMessageFilterClass(fsAddr, consumerGroup, topic, fullClassName, classCRC, classBody,
                             5000);
 
@@ -819,6 +909,11 @@ public class MQClientInstance {
         }
     }
 
+    /**
+     * topicRouteData是否发生了改变
+     * @param olddata   oldtopic信息
+     * @param nowdata x新的topic信息
+     */
     private boolean topicRouteDataIsChange(TopicRouteData olddata, TopicRouteData nowdata) {
         if (olddata == null || nowdata == null)
             return true;
@@ -832,6 +927,9 @@ public class MQClientInstance {
 
     }
 
+    /**
+     * 是否需要更新topic路由信息
+     */
     private boolean isNeedUpdateTopicRouteInfo(final String topic) {
         boolean result = false;
         {
@@ -896,6 +994,10 @@ public class MQClientInstance {
         }
     }
 
+
+    /**
+     * 注册consumerGroup
+     */
     public synchronized boolean registerConsumer(final String group, final MQConsumerInner consumer) {
         if (null == group || null == consumer) {
             return false;
@@ -942,6 +1044,9 @@ public class MQClientInstance {
         }
     }
 
+    /**
+     * 注册Producer
+     */
     public synchronized boolean registerProducer(final String group, final DefaultMQProducerImpl producer) {
         if (null == group || null == producer) {
             return false;
@@ -983,11 +1088,15 @@ public class MQClientInstance {
         this.rebalanceService.wakeup();
     }
 
+    /**
+     * 定时被调用的rebalance操作
+     */
     public void doRebalance() {
         for (Map.Entry<String, MQConsumerInner> entry : this.consumerTable.entrySet()) {
             MQConsumerInner impl = entry.getValue();
             if (impl != null) {
                 try {
+                    //调用具体consumer的rebalance操作
                     impl.doRebalance();
                 } catch (Throwable e) {
                     log.error("doRebalance exception", e);
@@ -1004,6 +1113,9 @@ public class MQClientInstance {
         return this.consumerTable.get(group);
     }
 
+    /**
+     * 从本地的brokerAddrTable find一个Broker
+     */
     public FindBrokerResult findBrokerAddressInAdmin(final String brokerName) {
         String brokerAddr = null;
         boolean slave = false;
@@ -1034,15 +1146,25 @@ public class MQClientInstance {
         return null;
     }
 
+    /**
+     * 从BrokerName里找到对应的Broker的地址
+     */
     public String findBrokerAddressInPublish(final String brokerName) {
         HashMap<Long/* brokerId */, String/* address */> map = this.brokerAddrTable.get(brokerName);
         if (map != null && !map.isEmpty()) {
+            //返回master的地址，producer只和master通信
             return map.get(MixAll.MASTER_ID);
         }
 
         return null;
     }
 
+    /**
+     * 查询broker的地址
+     * @param brokerName broker的地址
+     * @param brokerId brokerId
+     * @param onlyThisBroker 是否就这个broker
+     */
     public FindBrokerResult findBrokerAddressInSubscribe(
         final String brokerName,
         final long brokerId,
@@ -1088,7 +1210,13 @@ public class MQClientInstance {
         return 0;
     }
 
+    /**
+     * 获取某一个topic下某个group的所有的CID
+     */
     public List<String> findConsumerIdList(final String topic, final String group) {
+        /*
+         * 随便找一个broker的master
+         */
         String brokerAddr = this.findBrokerAddrByTopic(topic);
         if (null == brokerAddr) {
             this.updateTopicRouteInfoFromNameServer(topic);
@@ -1106,6 +1234,9 @@ public class MQClientInstance {
         return null;
     }
 
+    /**
+     * findBroker地址根据topic。随便找一个Broker，选择
+     */
     public String findBrokerAddrByTopic(final String topic) {
         TopicRouteData topicRouteData = this.topicRouteTable.get(topic);
         if (topicRouteData != null) {
@@ -1120,6 +1251,9 @@ public class MQClientInstance {
         return null;
     }
 
+    /**
+     * 重置topic的group的队列的偏移量
+     */
     public synchronized void resetOffset(String topic, String group, Map<MessageQueue, Long> offsetTable) {
         DefaultMQPushConsumerImpl consumer = null;
         try {
@@ -1130,6 +1264,7 @@ public class MQClientInstance {
                 log.info("[reset-offset] consumer dose not exist. group={}", group);
                 return;
             }
+            //挂起
             consumer.suspend();
 
             ConcurrentMap<MessageQueue, ProcessQueue> processQueueTable = consumer.getRebalanceImpl().getProcessQueueTable();
@@ -1213,6 +1348,9 @@ public class MQClientInstance {
         return topicRouteTable;
     }
 
+    /**
+     * 直接消费消息
+     */
     public ConsumeMessageDirectlyResult consumeMessageDirectly(final MessageExt msg,
         final String consumerGroup,
         final String brokerName) {
@@ -1227,6 +1365,9 @@ public class MQClientInstance {
         return null;
     }
 
+    /**
+     * 消费者运行时信息
+     */
     public ConsumerRunningInfo consumerRunningInfo(final String consumerGroup) {
         MQConsumerInner mqConsumerInner = this.consumerTable.get(consumerGroup);
         if (mqConsumerInner == null) {

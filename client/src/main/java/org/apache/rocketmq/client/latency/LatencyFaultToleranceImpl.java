@@ -23,13 +23,24 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.rocketmq.client.common.ThreadLocalIndex;
-
+/**
+ * broker队列选择的容错策略选择器
+ */
 public class LatencyFaultToleranceImpl implements LatencyFaultTolerance<String> {
     // 记录不可用的Broker
+    /**
+     * key：brokerName,value：broker下次可用的时间，与延迟的相关记录
+     */
     private final ConcurrentHashMap<String, FaultItem> faultItemTable = new ConcurrentHashMap<String, FaultItem>(16);
     // 取可用列表中前面一半的指针
     private final ThreadLocalIndex whichItemWorst = new ThreadLocalIndex();
 
+    /**
+     * 更新
+     * @param name brokerName
+     * @param currentLatency 当前延迟时间
+     * @param notAvailableDuration 下次可用时间
+     */
     @Override
     public void updateFaultItem(final String name, final long currentLatency, final long notAvailableDuration) {
         // 看是否存在
@@ -39,6 +50,7 @@ public class LatencyFaultToleranceImpl implements LatencyFaultTolerance<String> 
             final FaultItem faultItem = new FaultItem(name);
             faultItem.setCurrentLatency(currentLatency);
             // 设置再次可用时间
+            //设置startTimesStamp为下次可用的时间。当前时间+不可用周期
             faultItem.setStartTimestamp(System.currentTimeMillis() + notAvailableDuration);
 
             old = this.faultItemTable.putIfAbsent(name, faultItem);
@@ -53,6 +65,9 @@ public class LatencyFaultToleranceImpl implements LatencyFaultTolerance<String> 
         }
     }
 
+    /**
+     * 某个broker是否可用
+     */
     @Override
     public boolean isAvailable(final String name) {
         final FaultItem faultItem = this.faultItemTable.get(name);
@@ -69,6 +84,9 @@ public class LatencyFaultToleranceImpl implements LatencyFaultTolerance<String> 
         this.faultItemTable.remove(name);
     }
 
+    /**
+     * 找到一个至少可用的BrokerName
+     */
     @Override
     public String pickOneAtLeast() {
         final Enumeration<FaultItem> elements = this.faultItemTable.elements();
@@ -147,6 +165,9 @@ public class LatencyFaultToleranceImpl implements LatencyFaultTolerance<String> 
             return 0;
         }
 
+        /**
+         * 是否可用，当前时间已经大于startTimestamp就可用
+         */
         public boolean isAvailable() {
             // 如果当前时间大于再次可用时间，认为可用
             return (System.currentTimeMillis() - startTimestamp) >= 0;

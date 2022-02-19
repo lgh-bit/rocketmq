@@ -44,6 +44,9 @@ import org.apache.rocketmq.common.help.FAQUrl;
 import org.apache.rocketmq.logging.InternalLogger;
 import org.apache.rocketmq.logging.InternalLoggerFactory;
 
+/**
+ * MixAll工具类。
+ */
 public class MixAll {
     public static final String ROCKETMQ_HOME_ENV = "ROCKETMQ_HOME";
     public static final String ROCKETMQ_HOME_PROPERTY = "rocketmq.home.dir";
@@ -57,23 +60,41 @@ public class MixAll {
     //public static final String WS_ADDR = "http://" + WS_DOMAIN_NAME + ":8080/rocketmq/" + WS_DOMAIN_SUBGROUP;
     public static final String DEFAULT_PRODUCER_GROUP = "DEFAULT_PRODUCER";
     public static final String DEFAULT_CONSUMER_GROUP = "DEFAULT_CONSUMER";
+    /**
+     * ToolsConsumer
+     */
     public static final String TOOLS_CONSUMER_GROUP = "TOOLS_CONSUMER";
+    /**
+     * FilterServer消费组
+     */
     public static final String FILTERSRV_CONSUMER_GROUP = "FILTERSRV_CONSUMER";
     public static final String MONITOR_CONSUMER_GROUP = "__MONITOR_CONSUMER";
     public static final String CLIENT_INNER_PRODUCER_GROUP = "CLIENT_INNER_PRODUCER";
     public static final String SELF_TEST_PRODUCER_GROUP = "SELF_TEST_P_GROUP";
+    /**
+     * 自测消费组
+     */
     public static final String SELF_TEST_CONSUMER_GROUP = "SELF_TEST_C_GROUP";
     public static final String ONS_HTTP_PROXY_GROUP = "CID_ONS-HTTP-PROXY";
     public static final String CID_ONSAPI_PERMISSION_GROUP = "CID_ONSAPI_PERMISSION";
     public static final String CID_ONSAPI_OWNER_GROUP = "CID_ONSAPI_OWNER";
     public static final String CID_ONSAPI_PULL_GROUP = "CID_ONSAPI_PULL";
+    /**
+     * 系统消费组
+     */
     public static final String CID_RMQ_SYS_PREFIX = "CID_RMQ_SYS_";
     public static final List<String> LOCAL_INET_ADDRESS = getLocalInetAddress();
     public static final String LOCALHOST = localhost();
     public static final String DEFAULT_CHARSET = "UTF-8";
     public static final long MASTER_ID = 0L;
     public static final long CURRENT_JVM_PID = getPID();
+    /**
+     * 重试的topic的前缀
+     */
     public static final String RETRY_GROUP_TOPIC_PREFIX = "%RETRY%";
+    /**
+     * 死信队列前缀
+     */
     public static final String DLQ_GROUP_TOPIC_PREFIX = "%DLQ%";
     public static final String REPLY_TOPIC_POSTFIX = "REPLY_TOPIC";
     public static final String UNIQUE_MSG_QUERY_FLAG = "_UNIQUE_KEY_QUERY";
@@ -84,6 +105,9 @@ public class MixAll {
     public static final String REPLY_MESSAGE_FLAG = "reply";
     private static final InternalLogger log = InternalLoggerFactory.getLogger(LoggerName.COMMON_LOGGER_NAME);
 
+    /**
+     * 获取NameServer的http端点
+     */
     public static String getWSAddr() {
         String wsDomainName = System.getProperty("rocketmq.namesrv.domain", DEFAULT_NAMESRV_ADDR_LOOKUP);
         String wsDomainSubgroup = System.getProperty("rocketmq.namesrv.domain.subgroup", "nsaddr");
@@ -94,6 +118,9 @@ public class MixAll {
         return wsAddr;
     }
 
+    /**
+     * 获取重试队列的队列名称
+     */
     public static String getRetryTopic(final String consumerGroup) {
         return RETRY_GROUP_TOPIC_PREFIX + consumerGroup;
     }
@@ -102,6 +129,10 @@ public class MixAll {
         return clusterName + "_" + REPLY_TOPIC_POSTFIX;
     }
 
+
+    /**
+     * 是否是系统消费组
+     */
     public static boolean isSysConsumerGroup(final String consumerGroup) {
         return consumerGroup.startsWith(CID_RMQ_SYS_PREFIX);
     }
@@ -110,6 +141,11 @@ public class MixAll {
         return DLQ_GROUP_TOPIC_PREFIX + consumerGroup;
     }
 
+    /**
+     * Broker的VIP通道，端口-2
+     * @param isChange 是否改动
+     * @param brokerAddr brokder地址
+     */
     public static String brokerVIPChannel(final boolean isChange, final String brokerAddr) {
         if (isChange) {
             int split = brokerAddr.lastIndexOf(":");
@@ -122,6 +158,9 @@ public class MixAll {
         }
     }
 
+    /**
+     * 获取进程PID
+     */
     public static long getPID() {
         String processName = java.lang.management.ManagementFactory.getRuntimeMXBean().getName();
         if (processName != null && processName.length() > 0) {
@@ -135,24 +174,35 @@ public class MixAll {
         return 0;
     }
 
+    /**
+     * 将字符串存储到文件。并将之前的文件存储成bak
+     * @param fileName 文件名
+     */
     public static void string2File(final String str, final String fileName) throws IOException {
 
+        //临时文件
         String tmpFile = fileName + ".tmp";
         string2FileNotSafe(str, tmpFile);
 
+        //备份文件
         String bakFile = fileName + ".bak";
         String prevContent = file2String(fileName);
         if (prevContent != null) {
             string2FileNotSafe(prevContent, bakFile);
         }
 
+        //删除filename
         File file = new File(fileName);
         file.delete();
 
+        //将临时文件重命名为fileName
         file = new File(tmpFile);
         file.renameTo(new File(fileName));
     }
 
+    /**
+     * 字符串变成文件，主要是创建parent
+     */
     public static void string2FileNotSafe(final String str, final String fileName) throws IOException {
         File file = new File(fileName);
         File fileParent = file.getParentFile();
@@ -173,11 +223,19 @@ public class MixAll {
         }
     }
 
+    /**
+     * 文件变成字符串
+     * @param fileName 文件名
+     */
     public static String file2String(final String fileName) throws IOException {
         File file = new File(fileName);
         return file2String(file);
     }
 
+    /**
+     * 文件变成字符串
+     * @param file 文件
+     */
     public static String file2String(final File file) throws IOException {
         if (file.exists()) {
             byte[] data = new byte[(int) file.length()];
@@ -201,6 +259,9 @@ public class MixAll {
         return null;
     }
 
+    /**
+     * 文件变成字符串
+     */
     public static String file2String(final URL url) {
         InputStream in = null;
         try {
@@ -224,10 +285,17 @@ public class MixAll {
         return null;
     }
 
+    /**
+     * 打印对象的属性
+     */
     public static void printObjectProperties(final InternalLogger logger, final Object object) {
         printObjectProperties(logger, object, false);
     }
 
+    /**
+     * 打印对象的属性
+     * @param onlyImportantField 是否只打印onlyImportantField的文件
+     */
     public static void printObjectProperties(final InternalLogger logger, final Object object,
         final boolean onlyImportantField) {
         Field[] fields = object.getClass().getDeclaredFields();
@@ -262,6 +330,9 @@ public class MixAll {
         }
     }
 
+    /**
+     *properties变成字符串
+     */
     public static String properties2String(final Properties properties) {
         StringBuilder sb = new StringBuilder();
         for (Map.Entry<Object, Object> entry : properties.entrySet()) {
@@ -272,6 +343,9 @@ public class MixAll {
         return sb.toString();
     }
 
+    /**
+     * 字符串变成properties
+     */
     public static Properties string2Properties(final String str) {
         Properties properties = new Properties();
         try {
@@ -285,6 +359,9 @@ public class MixAll {
         return properties;
     }
 
+    /**
+     * 对象变成properties
+     */
     public static Properties object2Properties(final Object object) {
         Properties properties = new Properties();
 
@@ -311,6 +388,9 @@ public class MixAll {
         return properties;
     }
 
+    /**
+     * 反射的方式，properties变成对象
+     */
     public static void properties2Object(final Properties p, final Object object) {
         Method[] methods = object.getClass().getMethods();
         for (Method method : methods) {
@@ -351,10 +431,16 @@ public class MixAll {
         }
     }
 
+    /**
+     * properties 是否相等
+     */
     public static boolean isPropertiesEqual(final Properties p1, final Properties p2) {
         return p1.equals(p2);
     }
 
+    /**
+     * 获取本地网络地址getLocalInetAddress列表
+     */
     public static List<String> getLocalInetAddress() {
         List<String> inetAddressList = new ArrayList<String>();
         try {
@@ -373,6 +459,9 @@ public class MixAll {
         return inetAddressList;
     }
 
+    /**
+     * 获取localhost
+     */
     private static String localhost() {
         try {
             return InetAddress.getLocalHost().getHostAddress();
@@ -389,7 +478,10 @@ public class MixAll {
         }
     }
 
-    //Reverse logic comparing to RemotingUtil method, consider refactor in RocketMQ 5.0
+    /**
+     * 通过网卡获取localhost
+     * Reverse logic comparing to RemotingUtil method, consider refactor in RocketMQ 5.0
+     */
     public static String getLocalhostByNetworkInterface() throws SocketException {
         List<String> candidatesHost = new ArrayList<String>();
         Enumeration<NetworkInterface> enumeration = NetworkInterface.getNetworkInterfaces();
@@ -421,6 +513,9 @@ public class MixAll {
         return null;
     }
 
+    /**
+     * 比较并且简单的增长target的value
+     */
     public static boolean compareAndIncreaseOnly(final AtomicLong target, final long value) {
         long prev = target.get();
         while (value > prev) {

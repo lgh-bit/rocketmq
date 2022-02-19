@@ -20,12 +20,20 @@ import java.net.URL;
 import org.apache.rocketmq.common.protocol.heartbeat.SubscriptionData;
 
 public class FilterAPI {
+    /**
+     * 获取指定className的.java文件，转换为URI
+     * @param className 类名
+     */
     public static URL classFile(final String className) {
         final String javaSource = simpleClassName(className) + ".java";
         URL url = FilterAPI.class.getClassLoader().getResource(javaSource);
         return url;
     }
 
+    /**
+     * 获取全类路径的类的简称
+     * @param className 类名
+     */
     public static String simpleClassName(final String className) {
         String simple = className;
         int index = className.lastIndexOf(".");
@@ -36,6 +44,11 @@ public class FilterAPI {
         return simple;
     }
 
+    /**
+     * 构造SubscriptionData集合
+     * @param topic topic
+     * @param subString tag表达式
+     */
     public static SubscriptionData buildSubscriptionData(String topic, String subString) throws Exception {
         SubscriptionData subscriptionData = new SubscriptionData();
         subscriptionData.setTopic(topic);

@@ -27,9 +27,17 @@ import java.util.TreeMap;
  * To hash Node objects to a hash ring with a certain amount of virtual node.
  * Method routeNode will return a Node instance which the object key should be allocated to according to consistent hash
  * algorithm
+ *
+ * 一致性哈希实现路由算法
  */
 public class ConsistentHashRouter<T extends Node> {
+    /**
+     * 虚拟节点列表
+     */
     private final SortedMap<Long, VirtualNode<T>> ring = new TreeMap<Long, VirtualNode<T>>();
+    /**
+     * 哈希算法
+     */
     private final HashFunction hashFunction;
 
     public ConsistentHashRouter(Collection<T> pNodes, int vNodeCount) {
@@ -37,9 +45,9 @@ public class ConsistentHashRouter<T extends Node> {
     }
 
     /**
-     * @param pNodes collections of physical nodes
-     * @param vNodeCount amounts of virtual nodes
-     * @param hashFunction hash Function to hash Node instances
+     * @param pNodes collections of physical nodes 物理节点
+     * @param vNodeCount amounts of virtual nodes 虚拟节点个数
+     * @param hashFunction hash Function to hash Node instances 哈希函数
      */
     public ConsistentHashRouter(Collection<T> pNodes, int vNodeCount, HashFunction hashFunction) {
         if (hashFunction == null) {
@@ -54,6 +62,8 @@ public class ConsistentHashRouter<T extends Node> {
     }
 
     /**
+     * 添加节点
+     *
      * add physic node to the hash ring with some virtual nodes
      *
      * @param pNode physical node needs added to hash ring
@@ -71,6 +81,8 @@ public class ConsistentHashRouter<T extends Node> {
 
     /**
      * remove the physical node from the hash ring
+     *
+     * 移除物理节点
      */
     public void removeNode(T pNode) {
         Iterator<Long> it = ring.keySet().iterator();
@@ -84,6 +96,8 @@ public class ConsistentHashRouter<T extends Node> {
     }
 
     /**
+     * 路由到一个物理节点
+     *
      * with a specified key, route the nearest Node instance in the current hash ring
      *
      * @param objectKey the object key to find a nearest Node
@@ -98,6 +112,9 @@ public class ConsistentHashRouter<T extends Node> {
         return ring.get(nodeHashVal).getPhysicalNode();
     }
 
+    /**
+     * 获取存在的虚拟节点的数量
+     */
     public int getExistingReplicas(T pNode) {
         int replicas = 0;
         for (VirtualNode<T> vNode : ring.values()) {
@@ -108,6 +125,9 @@ public class ConsistentHashRouter<T extends Node> {
         return replicas;
     }
 
+    /**
+     * 默认的哈希算法，即MD5
+     */
     //default hash function
     private static class MD5Hash implements HashFunction {
         MessageDigest instance;

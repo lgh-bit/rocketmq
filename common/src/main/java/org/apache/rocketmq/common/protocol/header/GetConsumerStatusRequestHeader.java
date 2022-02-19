@@ -22,11 +22,23 @@ import org.apache.rocketmq.remoting.annotation.CFNotNull;
 import org.apache.rocketmq.remoting.annotation.CFNullable;
 import org.apache.rocketmq.remoting.exception.RemotingCommandException;
 
+/**
+ * 获取消费者状态的请求
+ */
 public class GetConsumerStatusRequestHeader implements CommandCustomHeader {
+    /**
+     * topic
+     */
     @CFNotNull
     private String topic;
+    /**
+     * group
+     */
     @CFNotNull
     private String group;
+    /**
+     * 客户端地址
+     */
     @CFNullable
     private String clientAddr;
 

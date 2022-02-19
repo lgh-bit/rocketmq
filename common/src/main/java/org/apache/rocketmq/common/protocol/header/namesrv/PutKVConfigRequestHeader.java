@@ -21,6 +21,9 @@ import org.apache.rocketmq.remoting.CommandCustomHeader;
 import org.apache.rocketmq.remoting.annotation.CFNotNull;
 import org.apache.rocketmq.remoting.exception.RemotingCommandException;
 
+/**
+ * PutKVConfig的请求Handler
+ */
 public class PutKVConfigRequestHeader implements CommandCustomHeader {
     @CFNotNull
     private String namespace;

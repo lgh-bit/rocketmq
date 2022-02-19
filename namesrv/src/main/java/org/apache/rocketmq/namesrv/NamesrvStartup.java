@@ -47,6 +47,9 @@ public class NamesrvStartup {
     private static Properties properties = null;
     private static CommandLine commandLine = null;
 
+    /**
+     * NameServer 程序启动的入口
+     */
     public static void main(String[] args) {
         main0(args);
     }

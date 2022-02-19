@@ -49,11 +49,20 @@ import org.apache.rocketmq.remoting.common.RemotingHelper;
 public class UtilAll {
     private static final InternalLogger log = InternalLoggerFactory.getLogger(LoggerName.COMMON_LOGGER_NAME);
 
+    /**
+     * 日期格式化相关变量
+     */
     public static final String YYYY_MM_DD_HH_MM_SS = "yyyy-MM-dd HH:mm:ss";
     public static final String YYYY_MM_DD_HH_MM_SS_SSS = "yyyy-MM-dd#HH:mm:ss:SSS";
     public static final String YYYYMMDDHHMMSS = "yyyyMMddHHmmss";
+    /**
+     * 16进制数组
+     */
     final static char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
 
+    /**
+     * 获取进程PID
+     */
     public static int getPid() {
         RuntimeMXBean runtime = ManagementFactory.getRuntimeMXBean();
         String name = runtime.getName(); // format: "pid@hostname"
@@ -76,6 +85,9 @@ public class UtilAll {
 
     }
 
+    /**
+     * 当前的线程堆栈
+     */
     public static String currentStackTrace() {
         StringBuilder sb = new StringBuilder();
         StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
@@ -87,14 +99,22 @@ public class UtilAll {
         return sb.toString();
     }
 
+    /**
+     * offset格式化
+     */
     public static String offset2FileName(final long offset) {
         final NumberFormat nf = NumberFormat.getInstance();
+        //设置整数最少显示位数
         nf.setMinimumIntegerDigits(20);
+        //设置数值的【小数部分】允许的最大位数
         nf.setMaximumFractionDigits(0);
         nf.setGroupingUsed(false);
         return nf.format(offset);
     }
 
+    /**
+     * 计算耗时
+     */
     public static long computeElapsedTimeMilliseconds(final long beginTime) {
         return System.currentTimeMillis() - beginTime;
     }
@@ -118,6 +138,9 @@ public class UtilAll {
         return timeMillisToHumanString(System.currentTimeMillis());
     }
 
+    /**
+     * 返回格式化字符串
+     */
     public static String timeMillisToHumanString(final long t) {
         Calendar cal = Calendar.getInstance();
         cal.setTimeInMillis(t);
@@ -126,6 +149,9 @@ public class UtilAll {
             cal.get(Calendar.MILLISECOND));
     }
 
+    /**
+     * 计算下一个天的毫秒值
+     */
     public static long computeNextMorningTimeMillis() {
         Calendar cal = Calendar.getInstance();
         cal.setTimeInMillis(System.currentTimeMillis());
@@ -138,6 +164,9 @@ public class UtilAll {
         return cal.getTimeInMillis();
     }
 
+    /**
+     * 计算下一个分钟的毫秒值
+     */
     public static long computeNextMinutesTimeMillis() {
         Calendar cal = Calendar.getInstance();
         cal.setTimeInMillis(System.currentTimeMillis());
@@ -150,6 +179,9 @@ public class UtilAll {
         return cal.getTimeInMillis();
     }
 
+    /**
+     * 计算下一个小时的毫秒值
+     */
     public static long computeNextHourTimeMillis() {
         Calendar cal = Calendar.getInstance();
         cal.setTimeInMillis(System.currentTimeMillis());
@@ -174,6 +206,9 @@ public class UtilAll {
         return cal.getTimeInMillis();
     }
 
+    /**
+     * 格式化日期2
+     */
     public static String timeMillisToHumanString2(final long t) {
         Calendar cal = Calendar.getInstance();
         cal.setTimeInMillis(t);
@@ -187,6 +222,9 @@ public class UtilAll {
             cal.get(Calendar.MILLISECOND));
     }
 
+    /**
+     * 格式化日期3
+     */
     public static String timeMillisToHumanString3(final long t) {
         Calendar cal = Calendar.getInstance();
         cal.setTimeInMillis(t);
@@ -199,6 +237,9 @@ public class UtilAll {
             cal.get(Calendar.SECOND));
     }
 
+    /**
+     * 获取每一个磁盘的空间利用率
+     */
     public static double getDiskPartitionSpaceUsedPercent(final String path) {
         if (null == path || path.isEmpty()) {
             log.error("Error when measuring disk space usage, path is null or empty, path : {}", path);
@@ -231,6 +272,10 @@ public class UtilAll {
         return -1;
     }
 
+    /**
+     * 进行字节数组的crc32校验和
+     * @param array 数组
+     */
     public static int crc32(byte[] array) {
         if (array != null) {
             return crc32(array, 0, array.length);
@@ -239,12 +284,19 @@ public class UtilAll {
         return 0;
     }
 
+    /**
+     * 进行字节数组的指定位置的crc32校验和
+     * @param array 数组
+     */
     public static int crc32(byte[] array, int offset, int length) {
         CRC32 crc32 = new CRC32();
         crc32.update(array, offset, length);
         return (int) (crc32.getValue() & 0x7FFFFFFF);
     }
 
+    /**
+     * 字节数组变成String
+     */
     public static String bytes2string(byte[] src) {
         char[] hexChars = new char[src.length * 2];
         for (int j = 0; j < src.length; j++) {
@@ -274,6 +326,9 @@ public class UtilAll {
         return (byte) "0123456789ABCDEF".indexOf(c);
     }
 
+    /**
+     * 解压缩
+     */
     public static byte[] uncompress(final byte[] src) throws IOException {
         byte[] result = src;
         byte[] uncompressData = new byte[src.length];
@@ -314,6 +369,9 @@ public class UtilAll {
         return result;
     }
 
+    /**
+     * 压缩
+     */
     public static byte[] compress(final byte[] src, final int level) throws IOException {
         byte[] result = src;
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(src.length);
@@ -396,6 +454,9 @@ public class UtilAll {
         return true;
     }
 
+    /**
+     * 获取全部的stackTraces
+     */
     public static String jstack() {
         return jstack(Thread.getAllStackTraces());
     }
@@ -424,6 +485,9 @@ public class UtilAll {
         return result.toString();
     }
 
+    /**
+     * 是否是常用ip地址
+     */
     public static boolean isInternalIP(byte[] ip) {
         if (ip.length != 4) {
             throw new RuntimeException("illegal ipv4 bytes");
@@ -475,6 +539,9 @@ public class UtilAll {
         return validator.isValidInet6Address(ipToIPv6Str(ip));
     }
 
+    /**
+     * ip变成ipv4字符串
+     */
     public static String ipToIPv4Str(byte[] ip) {
         if (ip.length != 4) {
             return null;
@@ -546,6 +613,9 @@ public class UtilAll {
         }
     }
 
+    /**
+     * 递归删除文件
+     */
     public static void deleteFile(File file) {
         if (!file.exists()) {
             return;

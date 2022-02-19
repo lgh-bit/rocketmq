@@ -16,10 +16,23 @@
  */
 package org.apache.rocketmq.common.admin;
 
+/**
+ * 偏移量包装类
+ */
 public class OffsetWrapper {
+    /**
+     * broker的offset
+     */
     private long brokerOffset;
+
+    /**
+     * 消费端的偏移量offset
+     */
     private long consumerOffset;
 
+    /**
+     * 最后的更新日期
+     */
     private long lastTimestamp;
 
     public long getBrokerOffset() {

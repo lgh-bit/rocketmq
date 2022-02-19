@@ -16,6 +16,9 @@
  */
 package org.apache.rocketmq.common.constant;
 
+/**
+ * 日志级别的常量
+ */
 public class LoggerName {
     public static final String FILTERSRV_LOGGER_NAME = "RocketmqFiltersrv";
     public static final String NAMESRV_LOGGER_NAME = "RocketmqNamesrv";

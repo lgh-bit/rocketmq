@@ -24,27 +24,60 @@ import java.nio.ByteBuffer;
 import org.apache.rocketmq.common.TopicFilterType;
 import org.apache.rocketmq.common.sysflag.MessageSysFlag;
 
+/**
+ * Messgae的扩展
+ */
 public class MessageExt extends Message {
     private static final long serialVersionUID = 5720810158625748049L;
 
     private String brokerName;
 
+    /**
+     * 队列id
+     */
     private int queueId;
 
+    /**
+     * 存储大小
+     */
     private int storeSize;
 
+    /**
+     * 队列偏移量
+     */
     private long queueOffset;
+
+    /**
+     * 系统flag
+     */
     private int sysFlag;
     private long bornTimestamp;
     private SocketAddress bornHost;
 
     private long storeTimestamp;
     private SocketAddress storeHost;
+
+    /**
+     * 消息id
+     */
     private String msgId;
+    /**
+     * commitlog的偏移量
+     */
     private long commitLogOffset;
+    /**
+     * body的crc32校验和
+     */
     private int bodyCRC;
+
+    /**
+     * 重新消费的次数
+     */
     private int reconsumeTimes;
 
+    /**
+     * 预发送的事务消息的偏移量
+     */
     private long preparedTransactionOffset;
 
     public MessageExt() {
@@ -60,6 +93,9 @@ public class MessageExt extends Message {
         this.msgId = msgId;
     }
 
+    /**
+     * 解析topicFilter的flagType
+     */
     public static TopicFilterType parseTopicFilterType(final int sysFlag) {
         if ((sysFlag & MessageSysFlag.MULTI_TAGS_FLAG) == MessageSysFlag.MULTI_TAGS_FLAG) {
             return TopicFilterType.MULTI_TAG;
@@ -68,6 +104,11 @@ public class MessageExt extends Message {
         return TopicFilterType.SINGLE_TAG;
     }
 
+    /**
+     * 将socket地址写进Bytebuffer
+     * @param socketAddress socket地址
+     * @param byteBuffer bytebuffer
+     */
     public static ByteBuffer socketAddress2ByteBuffer(final SocketAddress socketAddress, final ByteBuffer byteBuffer) {
         InetSocketAddress inetSocketAddress = (InetSocketAddress) socketAddress;
         InetAddress address = inetSocketAddress.getAddress();
@@ -97,6 +138,9 @@ public class MessageExt extends Message {
         return socketAddress2ByteBuffer(this.bornHost);
     }
 
+    /**
+     * 获取burnHost
+     */
     public ByteBuffer getBornHostBytes(ByteBuffer byteBuffer) {
         return socketAddress2ByteBuffer(this.bornHost, byteBuffer);
     }

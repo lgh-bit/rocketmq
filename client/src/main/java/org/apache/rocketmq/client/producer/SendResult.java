@@ -19,14 +19,38 @@ package org.apache.rocketmq.client.producer;
 import com.alibaba.fastjson.JSON;
 import org.apache.rocketmq.common.message.MessageQueue;
 
+/**
+ * 发送结果
+ */
 public class SendResult {
+    /**
+     * 发送结果
+     */
     private SendStatus sendStatus;
+    /**
+     * 消息id
+     */
     private String msgId;
+    /**
+     * 队列
+     */
     private MessageQueue messageQueue;
+    /**
+     * 队列偏移量
+     */
     private long queueOffset;
+    /**
+     * 事务id
+     */
     private String transactionId;
+    /**
+     * offsetmsgid
+     */
     private String offsetMsgId;
     private String regionId;
+    /**
+     * 是否消息追踪
+     */
     private boolean traceOn = true;
 
     public SendResult() {

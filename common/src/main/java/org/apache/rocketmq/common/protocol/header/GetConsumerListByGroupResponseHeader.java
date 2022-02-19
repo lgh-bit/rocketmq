@@ -20,6 +20,9 @@ package org.apache.rocketmq.common.protocol.header;
 import org.apache.rocketmq.remoting.CommandCustomHeader;
 import org.apache.rocketmq.remoting.exception.RemotingCommandException;
 
+/**
+ * 根据group获取消费者列表响应header
+ */
 public class GetConsumerListByGroupResponseHeader implements CommandCustomHeader {
 
     @Override

@@ -24,11 +24,23 @@ import org.apache.rocketmq.remoting.CommandCustomHeader;
 import org.apache.rocketmq.remoting.annotation.CFNotNull;
 import org.apache.rocketmq.remoting.exception.RemotingCommandException;
 
+/**
+ * 查询偏移量请求header
+ */
 public class SearchOffsetRequestHeader implements CommandCustomHeader {
+    /**
+     * topic
+     */
     @CFNotNull
     private String topic;
+    /**
+     * 队列id
+     */
     @CFNotNull
     private Integer queueId;
+    /**
+     * 时间戳
+     */
     @CFNotNull
     private Long timestamp;
 

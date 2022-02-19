@@ -17,9 +17,19 @@
 
 package org.apache.rocketmq.common.protocol.body;
 
+/**
+ * 消费的队列的数据
+ */
 public class ConsumeQueueData {
 
+    /**
+     * 物理偏移量
+     */
     private long physicOffset;
+
+    /**
+     * 物理大小
+     */
     private int physicSize;
     private long tagsCode;
     private String extendDataJson;

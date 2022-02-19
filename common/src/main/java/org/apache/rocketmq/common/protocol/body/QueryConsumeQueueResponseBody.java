@@ -22,12 +22,27 @@ import org.apache.rocketmq.remoting.protocol.RemotingSerializable;
 
 import java.util.List;
 
+/**
+ * 查询消费者队列响应
+ */
 public class QueryConsumeQueueResponseBody extends RemotingSerializable {
 
+    /**
+     * tag数据
+     */
     private SubscriptionData subscriptionData;
     private String filterData;
+    /**
+     * 消费的队列的数据
+     */
     private List<ConsumeQueueData> queueData;
+    /**
+     * 最大队列索引
+     */
     private long maxQueueIndex;
+    /**
+     * 最小队列索引
+     */
     private long minQueueIndex;
 
     public SubscriptionData getSubscriptionData() {

@@ -20,6 +20,10 @@ import org.apache.rocketmq.remoting.CommandCustomHeader;
 import org.apache.rocketmq.remoting.annotation.CFNotNull;
 import org.apache.rocketmq.remoting.exception.RemotingCommandException;
 
+/**
+ * 去除该broker所有的topic的写权限
+ * @author ;
+ */
 public class WipeWritePermOfBrokerRequestHeader implements CommandCustomHeader {
     @CFNotNull
     private String brokerName;

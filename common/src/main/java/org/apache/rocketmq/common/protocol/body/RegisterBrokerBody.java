@@ -38,18 +38,28 @@ import org.apache.rocketmq.logging.InternalLogger;
 import org.apache.rocketmq.logging.InternalLoggerFactory;
 import org.apache.rocketmq.remoting.protocol.RemotingSerializable;
 
+/**
+ * 注册Broker的Body
+ * 包装了TopicConfigSerializeWrapper，并多加了filterServerList
+ */
 public class RegisterBrokerBody extends RemotingSerializable {
 
     private static final InternalLogger LOGGER = InternalLoggerFactory.getLogger(LoggerName.COMMON_LOGGER_NAME);
     private TopicConfigSerializeWrapper topicConfigSerializeWrapper = new TopicConfigSerializeWrapper();
     private List<String> filterServerList = new ArrayList<String>();
 
+    /**
+     * 重写了encode，主要是处理压缩相关的功能
+     * 其实就是顺序的gzip压缩
+     * @param compress 是否压缩
+     */
     public byte[] encode(boolean compress) {
 
         if (!compress) {
             return super.encode();
         }
         long start = System.currentTimeMillis();
+        //启动了zip压缩
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         DeflaterOutputStream outputStream = new DeflaterOutputStream(byteArrayOutputStream, new Deflater(Deflater.BEST_COMPRESSION));
         DataVersion dataVersion = topicConfigSerializeWrapper.getDataVersion();
@@ -141,6 +151,9 @@ public class RegisterBrokerBody extends RemotingSerializable {
         return registerBrokerBody;
     }
 
+    /**
+     * 把长度转为byte[] 数组
+     */
     private static byte[] convertIntToByteArray(int n) {
         ByteBuffer byteBuffer = ByteBuffer.allocate(4);
         byteBuffer.putInt(n);
@@ -183,6 +196,9 @@ public class RegisterBrokerBody extends RemotingSerializable {
         this.filterServerList = filterServerList;
     }
 
+    /**
+     * 克隆topicconfigtable
+     */
     public static ConcurrentMap<String, TopicConfig> cloneTopicConfigTable(
         ConcurrentMap<String, TopicConfig> topicConfigConcurrentMap) {
         ConcurrentHashMap<String, TopicConfig> result = new ConcurrentHashMap<String, TopicConfig>();

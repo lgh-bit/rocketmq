@@ -17,10 +17,16 @@
 package org.apache.rocketmq.client.producer;
 
 import org.apache.rocketmq.common.message.MessageExt;
+
 /**
  * This interface will be removed in the version 5.0.0, interface {@link TransactionListener} is recommended.
+ * 事务回查客户端Listener。需要用户来实现
+ * @author ;
  */
 @Deprecated
 public interface TransactionCheckListener {
+    /**
+     * 回查事务消息
+     */
     LocalTransactionState checkLocalTransactionState(final MessageExt msg);
 }

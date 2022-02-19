@@ -21,6 +21,9 @@ import org.apache.rocketmq.remoting.CommandCustomHeader;
 import org.apache.rocketmq.remoting.annotation.CFNotNull;
 import org.apache.rocketmq.remoting.exception.RemotingCommandException;
 
+/**
+ * 注册FilterServer response
+ */
 public class RegisterFilterServerResponseHeader implements CommandCustomHeader {
     @CFNotNull
     private String brokerName;

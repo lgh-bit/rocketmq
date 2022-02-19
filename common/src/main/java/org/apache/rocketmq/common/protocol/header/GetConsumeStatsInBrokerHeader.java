@@ -21,7 +21,13 @@ import org.apache.rocketmq.remoting.CommandCustomHeader;
 import org.apache.rocketmq.remoting.annotation.CFNotNull;
 import org.apache.rocketmq.remoting.exception.RemotingCommandException;
 
+/**
+ * 获取消费者状态header
+ */
 public class GetConsumeStatsInBrokerHeader implements CommandCustomHeader {
+    /**
+     * 是否顺序
+     */
     @CFNotNull
     private boolean isOrder;
 

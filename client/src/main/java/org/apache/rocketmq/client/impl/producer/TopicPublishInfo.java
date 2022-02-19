@@ -23,9 +23,15 @@ import org.apache.rocketmq.common.message.MessageQueue;
 import org.apache.rocketmq.common.protocol.route.QueueData;
 import org.apache.rocketmq.common.protocol.route.TopicRouteData;
 
+/**
+ * topicPushLigo
+ */
 public class TopicPublishInfo {
     // 是否为顺序消息
     private boolean orderTopic = false;
+    /**
+     * 存在topic的路由信息？
+     */
     private boolean haveTopicRouterInfo = false;
     // 消息队列
     private List<MessageQueue> messageQueueList = new ArrayList<MessageQueue>();
@@ -70,6 +76,10 @@ public class TopicPublishInfo {
         this.haveTopicRouterInfo = haveTopicRouterInfo;
     }
 
+    /**
+     * 随机选取一个队列，但排除某个brokerName
+     * @param lastBrokerName ;
+     */
     public MessageQueue selectOneMessageQueue(final String lastBrokerName) {
         if (lastBrokerName == null) {
             return selectOneMessageQueue();
@@ -80,6 +90,7 @@ public class TopicPublishInfo {
                 if (pos < 0)
                     pos = 0;
                 MessageQueue mq = this.messageQueueList.get(pos);
+                //如果不是lastBrokerName，才返回这个队列。选取另外一个队列重试
                 if (!mq.getBrokerName().equals(lastBrokerName)) {
                     return mq;
                 }
@@ -88,6 +99,9 @@ public class TopicPublishInfo {
         }
     }
 
+    /**
+     * 随机选取一个队列
+     */
     public MessageQueue selectOneMessageQueue() {
         int index = this.sendWhichQueue.incrementAndGet();
         int pos = Math.abs(index) % this.messageQueueList.size();

@@ -19,6 +19,9 @@ package org.apache.rocketmq.common.message;
 
 import java.nio.ByteBuffer;
 
+/**
+ * 扩展Message的Batch类型
+ */
 public class MessageExtBatch extends MessageExt {
 
     private static final long serialVersionUID = -2353110995348498537L;
@@ -28,6 +31,9 @@ public class MessageExtBatch extends MessageExt {
         return ByteBuffer.wrap(getBody(), 0, getBody().length);
     }
 
+    /**
+     * 编码以后的Bytebuffer
+     */
     private ByteBuffer encodedBuff;
 
     public ByteBuffer getEncodedBuff() {
