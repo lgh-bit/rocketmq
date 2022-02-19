@@ -21,6 +21,9 @@ import org.apache.rocketmq.common.message.MessageExt;
 import org.apache.rocketmq.common.message.MessageQueue;
 import org.apache.rocketmq.common.protocol.body.ConsumeMessageDirectlyResult;
 
+/**
+ * 消费Message的接口
+ */
 public interface ConsumeMessageService {
     void start();
 
@@ -28,6 +31,9 @@ public interface ConsumeMessageService {
 
     void updateCorePoolSize(int corePoolSize);
 
+    /**
+     * 增加核心线程数
+     */
     void incCorePoolSize();
 
     void decCorePoolSize();

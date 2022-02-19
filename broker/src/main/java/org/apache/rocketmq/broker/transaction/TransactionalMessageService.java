@@ -22,6 +22,9 @@ import org.apache.rocketmq.store.MessageExtBrokerInner;
 import org.apache.rocketmq.store.PutMessageResult;
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * 事务消息的处理Service
+ */
 public interface TransactionalMessageService {
 
     /**
@@ -42,6 +45,7 @@ public interface TransactionalMessageService {
 
     /**
      * Delete prepare message when this message has been committed or rolled back.
+     * 删除prePare的消息
      *
      * @param messageExt
      */
@@ -49,6 +53,7 @@ public interface TransactionalMessageService {
 
     /**
      * Invoked to process commit prepare message.
+     * 提交事务
      *
      * @param requestHeader Commit message request header.
      * @return Operate result contains prepare message and relative error code.
@@ -57,6 +62,7 @@ public interface TransactionalMessageService {
 
     /**
      * Invoked to roll back prepare message.
+     * 回滚事务
      *
      * @param requestHeader Prepare message request header.
      * @return Operate result contains prepare message and relative error code.
@@ -66,6 +72,7 @@ public interface TransactionalMessageService {
     /**
      * Traverse uncommitted/unroll back half message and send check back request to producer to obtain transaction
      * status.
+     *  查询事务消息
      *
      * @param transactionTimeout The minimum time of the transactional message to be checked firstly, one message only
      * exceed this time interval that can be checked.
@@ -78,6 +85,7 @@ public interface TransactionalMessageService {
 
     /**
      * Open transaction service.
+     * 打开事务消息服务
      *
      * @return If open success, return true.
      */
@@ -85,6 +93,7 @@ public interface TransactionalMessageService {
 
     /**
      * Close transaction service.
+     * 关闭事务消费服务
      */
     void close();
 }

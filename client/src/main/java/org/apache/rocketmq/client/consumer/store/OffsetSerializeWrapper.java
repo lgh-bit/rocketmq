@@ -24,6 +24,7 @@ import org.apache.rocketmq.remoting.protocol.RemotingSerializable;
 
 /**
  * Wrapper class for offset serialization
+ * 更新偏移量的wapper。目的是为了持久化到本地硬盘
  */
 public class OffsetSerializeWrapper extends RemotingSerializable {
     private ConcurrentMap<MessageQueue, AtomicLong> offsetTable =

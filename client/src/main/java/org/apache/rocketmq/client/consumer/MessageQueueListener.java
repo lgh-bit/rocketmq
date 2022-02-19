@@ -20,6 +20,8 @@ import java.util.Set;
 import org.apache.rocketmq.common.message.MessageQueue;
 
 /**
+ *  消费队列变化监听器
+ *
  * A MessageQueueListener is implemented by the application and may be specified when a message queue changed
  */
 public interface MessageQueueListener {

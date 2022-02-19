@@ -16,6 +16,9 @@
  */
 package org.apache.rocketmq.client.hook;
 
+/**
+ * 发送消息的勾子
+ */
 public interface SendMessageHook {
     String hookName();
 

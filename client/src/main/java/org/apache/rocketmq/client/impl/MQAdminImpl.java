@@ -57,6 +57,9 @@ import org.apache.rocketmq.remoting.exception.RemotingException;
 import org.apache.rocketmq.remoting.netty.ResponseFuture;
 import org.apache.rocketmq.remoting.protocol.RemotingCommand;
 
+/**
+ * 主要是查询一下admin相关的接口
+ */
 public class MQAdminImpl {
 
     private final InternalLogger log = ClientLogger.getLog();
@@ -79,6 +82,14 @@ public class MQAdminImpl {
         createTopic(key, newTopic, queueNum, 0);
     }
 
+    /**
+     * 创建topic
+     * @param key 老的topic
+     * @param newTopic 新的topic
+     * @param queueNum 队列数
+     * @param topicSysFlag 系统flag
+     * @throws MQClientException mqclient异常
+     */
     public void createTopic(String key, String newTopic, int queueNum, int topicSysFlag) throws MQClientException {
         try {
             Validators.checkTopic(newTopic);
@@ -135,6 +146,9 @@ public class MQAdminImpl {
         }
     }
 
+    /**
+     * 根据topic获取Publish的消息的队列详情
+     */
     public List<MessageQueue> fetchPublishMessageQueues(String topic) throws MQClientException {
         try {
             TopicRouteData topicRouteData = this.mQClientFactory.getMQClientAPIImpl().getTopicRouteInfoFromNameServer(topic, timeoutMillis);
@@ -161,6 +175,9 @@ public class MQAdminImpl {
         return resultQueues;
     }
 
+    /**
+     * 获取消费者的队列
+     */
     public Set<MessageQueue> fetchSubscribeMessageQueues(String topic) throws MQClientException {
         try {
             TopicRouteData topicRouteData = this.mQClientFactory.getMQClientAPIImpl().getTopicRouteInfoFromNameServer(topic, timeoutMillis);
@@ -181,6 +198,11 @@ public class MQAdminImpl {
         throw new MQClientException("Unknow why, Can not find Message Queue for this topic, " + topic, null);
     }
 
+    /**
+     * 查询某个队列的偏移量
+     * @param mq mq
+     * @param timestamp 时间戳
+     */
     public long searchOffset(MessageQueue mq, long timestamp) throws MQClientException {
         String brokerAddr = this.mQClientFactory.findBrokerAddressInPublish(mq.getBrokerName());
         if (null == brokerAddr) {
@@ -200,6 +222,9 @@ public class MQAdminImpl {
         throw new MQClientException("The broker[" + mq.getBrokerName() + "] not exist", null);
     }
 
+    /**
+     * 查询某个队列的最大的偏移量
+     */
     public long maxOffset(MessageQueue mq) throws MQClientException {
         String brokerAddr = this.mQClientFactory.findBrokerAddressInPublish(mq.getBrokerName());
         if (null == brokerAddr) {
@@ -218,6 +243,9 @@ public class MQAdminImpl {
         throw new MQClientException("The broker[" + mq.getBrokerName() + "] not exist", null);
     }
 
+    /**
+     * 查询一个队列最小的偏移量
+     */
     public long minOffset(MessageQueue mq) throws MQClientException {
         String brokerAddr = this.mQClientFactory.findBrokerAddressInPublish(mq.getBrokerName());
         if (null == brokerAddr) {
@@ -236,6 +264,9 @@ public class MQAdminImpl {
         throw new MQClientException("The broker[" + mq.getBrokerName() + "] not exist", null);
     }
 
+    /**
+     * 查询某个队列消息存储的最早时间
+     */
     public long earliestMsgStoreTime(MessageQueue mq) throws MQClientException {
         String brokerAddr = this.mQClientFactory.findBrokerAddressInPublish(mq.getBrokerName());
         if (null == brokerAddr) {
@@ -255,6 +286,9 @@ public class MQAdminImpl {
         throw new MQClientException("The broker[" + mq.getBrokerName() + "] not exist", null);
     }
 
+    /**
+     * 根据msgId查询消息
+     */
     public MessageExt viewMessage(
         String msgId) throws RemotingException, MQBrokerException, InterruptedException, MQClientException {
 
@@ -268,12 +302,18 @@ public class MQAdminImpl {
             messageId.getOffset(), timeoutMillis);
     }
 
+    /**
+     * 根据范围查询消息
+     */
     public QueryResult queryMessage(String topic, String key, int maxNum, long begin, long end)
         throws MQClientException, InterruptedException {
 
         return queryMessage(topic, key, maxNum, begin, end, false);
     }
 
+    /**
+     * 根据唯一key查询一条Message
+     */
     public QueryResult queryMessageByUniqKey(String topic, String uniqKey, int maxNum, long begin, long end)
         throws MQClientException, InterruptedException {
 
@@ -292,6 +332,9 @@ public class MQAdminImpl {
         }
     }
 
+    /**
+     * queryMessage实现
+     */
     protected QueryResult queryMessage(String topic, String key, int maxNum, long begin, long end,
         boolean isUniqKey) throws MQClientException,
         InterruptedException {

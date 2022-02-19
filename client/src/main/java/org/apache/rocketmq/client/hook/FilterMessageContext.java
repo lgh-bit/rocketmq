@@ -21,7 +21,13 @@ import org.apache.rocketmq.common.message.MessageExt;
 import org.apache.rocketmq.common.message.MessageQueue;
 
 public class FilterMessageContext {
+    /**
+     * 消费组
+     */
     private String consumerGroup;
+    /**
+     * 消息列表
+     */
     private List<MessageExt> msgList;
     private MessageQueue mq;
     private Object arg;

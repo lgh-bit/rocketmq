@@ -19,11 +19,29 @@ package org.apache.rocketmq.client.consumer;
 import java.util.List;
 import org.apache.rocketmq.common.message.MessageExt;
 
+/**
+ * 拉取结果
+ */
 public class PullResult {
+    /**
+     * 拉取状态
+     */
     private final PullStatus pullStatus;
+    /**
+     * 下一个开始的偏移量
+     */
     private final long nextBeginOffset;
+    /**
+     * 最小偏移
+     */
     private final long minOffset;
+    /**
+     * 最大偏移
+     */
     private final long maxOffset;
+    /**
+     * 找到的消息列
+     */
     private List<MessageExt> msgFoundList;
 
     public PullResult(PullStatus pullStatus, long nextBeginOffset, long minOffset, long maxOffset,

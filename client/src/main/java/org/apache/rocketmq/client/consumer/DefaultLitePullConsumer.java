@@ -37,6 +37,9 @@ import org.apache.rocketmq.common.protocol.heartbeat.MessageModel;
 import org.apache.rocketmq.logging.InternalLogger;
 import org.apache.rocketmq.remoting.RPCHook;
 
+/**
+ * Pull模式。客户端需要保证偏移量
+ */
 public class DefaultLitePullConsumer extends ClientConfig implements LitePullConsumer {
 
     private final InternalLogger log = ClientLogger.getLog();
@@ -50,27 +53,37 @@ public class DefaultLitePullConsumer extends ClientConfig implements LitePullCon
      * message would be consumed by one consumer of the group only. When multiple consumer groups exist, the flow of the
      * data consumption model aligns with the traditional publish-subscribe model. The messages are broadcast to all
      * consumer groups.
+     *
+     * 消费组
      */
     private String consumerGroup;
 
     /**
      * Long polling mode, the Consumer connection max suspend time, it is not recommended to modify
+     *
+     * broker挂起最大时间
      */
     private long brokerSuspendMaxTimeMillis = 1000 * 20;
 
     /**
      * Long polling mode, the Consumer connection timeout(must greater than brokerSuspendMaxTimeMillis), it is not
      * recommended to modify
+     *
+     * 消息超时时间当挂起时.30分钟
      */
     private long consumerTimeoutMillisWhenSuspend = 1000 * 30;
 
     /**
      * The socket timeout in milliseconds
+     *
+     *  消费长轮询超时时间。10 秒
      */
     private long consumerPullTimeoutMillis = 1000 * 10;
 
     /**
      * Consumption pattern,default is clustering
+     *
+     * 消费模式：集群消费
      */
     private MessageModel messageModel = MessageModel.CLUSTERING;
     /**
@@ -79,11 +92,15 @@ public class DefaultLitePullConsumer extends ClientConfig implements LitePullCon
     private MessageQueueListener messageQueueListener;
     /**
      * Offset Storage
+     *
+     * 消费者端的偏移量存储
      */
     private OffsetStore offsetStore;
 
     /**
      * Queue allocation algorithm
+     *
+     * 队列分配算法
      */
     private AllocateMessageQueueStrategy allocateMessageQueueStrategy = new AllocateMessageQueueAveragely();
     /**
@@ -219,6 +236,7 @@ public class DefaultLitePullConsumer extends ClientConfig implements LitePullCon
     public DefaultLitePullConsumer(final String namespace, final String consumerGroup, RPCHook rpcHook) {
         this.namespace = namespace;
         this.consumerGroup = consumerGroup;
+        // 底层使用的仍然是defaultMQPullConsumerImpl
         defaultLitePullConsumerImpl = new DefaultLitePullConsumerImpl(this, rpcHook);
     }
 

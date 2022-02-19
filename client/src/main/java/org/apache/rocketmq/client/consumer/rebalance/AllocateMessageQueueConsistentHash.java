@@ -29,11 +29,19 @@ import org.apache.rocketmq.common.message.MessageQueue;
 
 /**
  * Consistent Hashing queue algorithm
+ *
+ * 采用一致性哈希的分配侧策略
  */
 public class AllocateMessageQueueConsistentHash implements AllocateMessageQueueStrategy {
     private final InternalLogger log = ClientLogger.getLog();
 
+    /**
+     * 虚拟节点个数
+     */
     private final int virtualNodeCnt;
+    /**
+     * 哈希算法函数
+     */
     private final HashFunction customHashFunction;
 
     public AllocateMessageQueueConsistentHash() {
@@ -84,9 +92,11 @@ public class AllocateMessageQueueConsistentHash implements AllocateMessageQueueS
         if (customHashFunction != null) {
             router = new ConsistentHashRouter<ClientNode>(cidNodes, virtualNodeCnt, customHashFunction);
         } else {
+            //cid是一致性哈希槽上的环
             router = new ConsistentHashRouter<ClientNode>(cidNodes, virtualNodeCnt);
         }
 
+        //进行一致性哈希，获取key为currentKey的节点
         List<MessageQueue> results = new ArrayList<MessageQueue>();
         for (MessageQueue mq : mqAll) {
             ClientNode clientNode = router.routeNode(mq.toString());
@@ -104,6 +114,9 @@ public class AllocateMessageQueueConsistentHash implements AllocateMessageQueueS
         return "CONSISTENT_HASH";
     }
 
+    /**
+     * 客户端节点
+     */
     private static class ClientNode implements Node {
         private final String clientID;
 

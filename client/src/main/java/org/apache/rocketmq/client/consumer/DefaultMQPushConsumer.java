@@ -46,6 +46,8 @@ import org.apache.rocketmq.remoting.RPCHook;
 import org.apache.rocketmq.remoting.exception.RemotingException;
 
 /**
+ * 默认的Push消费方式
+ *
  * In most scenarios, this is the mostly recommended class to consume messages.
  * </p>
  *
@@ -66,6 +68,7 @@ public class DefaultMQPushConsumer extends ClientConfig implements MQPushConsume
 
     /**
      * Internal implementation. Most of the functions herein are delegated to it.
+     * 真正实现类
      */
     protected final transient DefaultMQPushConsumerImpl defaultMQPushConsumerImpl;
 
@@ -174,6 +177,8 @@ public class DefaultMQPushConsumer extends ClientConfig implements MQPushConsume
 
     /**
      * Threshold for dynamic adjustment of the number of thread pool
+     *
+     * 动态扩线程核数的消费堆积阈值	1000
      */
     private long adjustThreadPoolNumsThreshold = 100000;
 
@@ -186,6 +191,10 @@ public class DefaultMQPushConsumer extends ClientConfig implements MQPushConsume
     /**
      * Flow control threshold on queue level, each message queue will cache at most 1000 messages by default,
      * Consider the {@code pullBatchSize}, the instantaneous value may exceed the limit
+     * onsume queue流控的阈值	1000
+     * 每条consume queue的消息拉取下来后会缓存到本地，消费结束会删除。
+     * 用于topic级别的流量控制,当累积达到一个阈值后，会触发该consume queue的流控。
+     * 是拉消息本地队列缓存消息最大数，用于topic级别的流量控制，控制单位为消息个数，取值范围都是 [1, 65535]，默认是1000。如果设置了pullThresholdForTopic，就是限制了topic级别的消息缓存数（通常没有），那么会将本地每个queue的缓存数更新为pullThresholdForTopic / currentQueueCount 限制总数 / 队列数。
      */
     private int pullThresholdForQueue = 1000;
 
@@ -194,7 +203,11 @@ public class DefaultMQPushConsumer extends ClientConfig implements MQPushConsume
      * Consider the {@code pullBatchSize}, the instantaneous value may exceed the limit
      *
      * <p>
+     *
      * The size of a message only measured by message body, so it's not accurate
+     *
+     * 是 topic级别缓存大小限制，取值范围 [1, 1024]，默认是100Mib,如果设置了这个参数，
+     * queue的缓存大小更新为pullThresholdSizeForTopic / currentQueueCount 限制总大小 / 队列数
      */
     private int pullThresholdSizeForQueue = 100;
 
@@ -206,6 +219,8 @@ public class DefaultMQPushConsumer extends ClientConfig implements MQPushConsume
      * <p>
      * For example, if the value of pullThresholdForTopic is 1000 and 10 message queues are assigned to this consumer,
      * then pullThresholdForQueue will be set to 100
+     *
+     * 为每个topic在本地缓存最多的消息条数,取值范围[1, 6553500]，默认的-1。
      */
     private int pullThresholdForTopic = -1;
 
@@ -217,23 +232,32 @@ public class DefaultMQPushConsumer extends ClientConfig implements MQPushConsume
      * <p>
      * For example, if the value of pullThresholdSizeForTopic is 1000 MiB and 10 message queues are
      * assigned to this consumer, then pullThresholdSizeForQueue will be set to 100 MiB
+     *
+     * 是在topic级别限制了消息缓存的大小，单位为Mib，取值范围[1, 102400]，默认为-1
      */
     private int pullThresholdSizeForTopic = -1;
 
     /**
      * Message pull Interval
+     *
+     * 检查拉取消息的间隔时间，由于是长轮询，所以为 0，
+     * 但是如果应用为了流控，也可以设置大于 0 的值，单位毫秒，取值范围: [0, 65535]
      */
     // 推模式下拉取任务的间隔
     private long pullInterval = 0;
 
     /**
      * Batch consumption size
+     *
+     *  批量消费最大消息条数，取值范围: [1, 1024]。默认是1
      */
     // 消息并发消费时一次消费的条数
     private int consumeMessageBatchMaxSize = 1;
 
     /**
      * Batch pull size
+     *
+     * 消费者去broker拉取消息时，一次拉取多少条。取值范围: [1, 1024]。默认是32 。可选配置
      */
     // 每次拉取消息得条数
     private int pullBatchSize = 32;
@@ -255,18 +279,24 @@ public class DefaultMQPushConsumer extends ClientConfig implements MQPushConsume
      * In orderly mode, -1 means Integer.MAX_VALUE.
      *
      * If messages are re-consumed more than {@link #maxReconsumeTimes} before success.
+     *
+     * 最大重试消费次数，-1代表16次
      */
     // 最大消费重试次数
     private int maxReconsumeTimes = -1;
 
     /**
      * Suspending pulling time for cases requiring slow pulling like flow-control scenario.
+     *
+     * 流控参数，挂起当前队列超时时间
      */
     // 延迟队列将该队列的消息提交到消费者线程的等待时间
     private long suspendCurrentQueueTimeMillis = 1000;
 
     /**
      * Maximum amount of time in minutes a message may block the consuming thread.
+     *
+     * 消费超时：默认值：15，单位分钟
      */
     // 消息消费超时时间
     private long consumeTimeout = 15;
@@ -422,6 +452,7 @@ public class DefaultMQPushConsumer extends ClientConfig implements MQPushConsume
     }
 
     /**
+     * 创建一个topic
      * This method will be removed in a certain version after April 5, 2020, so please do not use this method.
      */
     @Deprecated
@@ -677,6 +708,9 @@ public class DefaultMQPushConsumer extends ClientConfig implements MQPushConsume
     }
 
     /**
+     *
+     * 将消息发回broker
+     *
      * Send message back to the broker whose name is <code>brokerName</code> and the message will be re-delivered in
      * future.
      *
@@ -763,6 +797,9 @@ public class DefaultMQPushConsumer extends ClientConfig implements MQPushConsume
     }
 
     /**
+     *
+     * 订阅某个topic
+     *
      * Subscribe a topic to consuming subscription.
      *
      * @param topic topic to subscribe.
@@ -788,6 +825,8 @@ public class DefaultMQPushConsumer extends ClientConfig implements MQPushConsume
     }
 
     /**
+     * 订阅某个主题，通过MessageSelector过滤消息，tag or sql92
+     *
      * Subscribe a topic by message selector.
      *
      * @param topic topic to consume.
@@ -801,6 +840,8 @@ public class DefaultMQPushConsumer extends ClientConfig implements MQPushConsume
     }
 
     /**
+     * 取消订阅某个topic
+     *
      * Un-subscribe the specified topic from subscription.
      *
      * @param topic message topic
@@ -811,6 +852,8 @@ public class DefaultMQPushConsumer extends ClientConfig implements MQPushConsume
     }
 
     /**
+     * 更新消费线程的corepoolsize
+     *
      * Update the message consuming thread core pool size.
      *
      * @param corePoolSize new core pool size.
@@ -821,6 +864,8 @@ public class DefaultMQPushConsumer extends ClientConfig implements MQPushConsume
     }
 
     /**
+     * 挂起消费
+     *
      * Suspend pulling new messages.
      */
     @Override
@@ -829,6 +874,8 @@ public class DefaultMQPushConsumer extends ClientConfig implements MQPushConsume
     }
 
     /**
+     * 恢复消费
+     *
      * Resume pulling.
      */
     @Override

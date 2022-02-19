@@ -24,6 +24,8 @@ import org.apache.rocketmq.common.message.MessageQueue;
 import org.apache.rocketmq.remoting.exception.RemotingException;
 
 /**
+ *  MqPullConsumer。拉取消费
+ *
  * Pulling consumer interface
  */
 public interface MQPullConsumer extends MQConsumer {
@@ -39,10 +41,13 @@ public interface MQPullConsumer extends MQConsumer {
 
     /**
      * Register the message queue listener
+     *
+     * 注册MessageQueueListener
      */
     void registerMessageQueueListener(final String topic, final MessageQueueListener listener);
 
     /**
+     * 拉取消息
      * Pulling the messages,not blocking
      *
      * @param mq from which message queue
@@ -58,6 +63,7 @@ public interface MQPullConsumer extends MQConsumer {
         InterruptedException;
 
     /**
+     * 拉取消息
      * Pulling the messages in the specified timeout
      *
      * @return The resulting {@code PullRequest}
@@ -100,6 +106,8 @@ public interface MQPullConsumer extends MQConsumer {
         InterruptedException;
 
     /**
+     * 异步拉取消息，在pullCallback里运行
+     *
      * Pulling the messages in a async. way
      */
     void pull(final MessageQueue mq, final String subExpression, final long offset, final int maxNums,
@@ -107,6 +115,8 @@ public interface MQPullConsumer extends MQConsumer {
         InterruptedException;
 
     /**
+     *  异步拉取消息，在pullCallback里运行。带超时时间
+     *
      * Pulling the messages in a async. way
      */
     void pull(final MessageQueue mq, final String subExpression, final long offset, final int maxNums,
@@ -128,6 +138,8 @@ public interface MQPullConsumer extends MQConsumer {
         InterruptedException;
 
     /**
+     * 拉取消息，如果没有，就阻塞
+     *
      * Pulling the messages,if no message arrival,blocking some time
      *
      * @return The resulting {@code PullRequest}
@@ -144,11 +156,15 @@ public interface MQPullConsumer extends MQConsumer {
         InterruptedException;
 
     /**
+     *  更新消费偏移量
+     *
      * Update the offset
      */
     void updateConsumeOffset(final MessageQueue mq, final long offset) throws MQClientException;
 
     /**
+     * 拉取消费者偏移量
+     *
      * Fetch the offset
      *
      * @return The fetched offset of given queue
@@ -156,6 +172,8 @@ public interface MQPullConsumer extends MQConsumer {
     long fetchConsumeOffset(final MessageQueue mq, final boolean fromStore) throws MQClientException;
 
     /**
+     * 拉取消息的队列inbalance
+     *
      * Fetch the message queues according to the topic
      *
      * @param topic message topic
@@ -164,6 +182,8 @@ public interface MQPullConsumer extends MQConsumer {
     Set<MessageQueue> fetchMessageQueuesInBalance(final String topic) throws MQClientException;
 
     /**
+     * 消息失败发回broker
+     *
      * If consuming failure,message will be send back to the broker,and delay consuming in some time later.<br>
      * Mind! message can only be consumed in the same group.
      */

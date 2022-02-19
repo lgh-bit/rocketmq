@@ -56,6 +56,9 @@ import org.apache.rocketmq.remoting.netty.AsyncNettyRequestProcessor;
 import org.apache.rocketmq.remoting.netty.NettyRequestProcessor;
 import org.apache.rocketmq.remoting.protocol.RemotingCommand;
 
+/**
+ * 客户端远程处理器
+ */
 public class ClientRemotingProcessor extends AsyncNettyRequestProcessor implements NettyRequestProcessor {
     private final InternalLogger log = ClientLogger.getLog();
     private final MQClientInstance mqClientFactory;
@@ -69,18 +72,33 @@ public class ClientRemotingProcessor extends AsyncNettyRequestProcessor implemen
         RemotingCommand request) throws RemotingCommandException {
         switch (request.getCode()) {
             case RequestCode.CHECK_TRANSACTION_STATE:
+                /*
+                 * 回查事务状态
+                 */
                 return this.checkTransactionState(ctx, request);
             case RequestCode.NOTIFY_CONSUMER_IDS_CHANGED:
+                /*
+                 * 通知消费者ids列表变化
+                 */
                 return this.notifyConsumerIdsChanged(ctx, request);
             case RequestCode.RESET_CONSUMER_CLIENT_OFFSET:
+                /*
+                 * 重置消费者偏移量
+                 */
                 return this.resetOffset(ctx, request);
             case RequestCode.GET_CONSUMER_STATUS_FROM_CLIENT:
                 return this.getConsumeStatus(ctx, request);
 
             case RequestCode.GET_CONSUMER_RUNNING_INFO:
+                /*
+                 * 从客户端获取运行时信息
+                 */
                 return this.getConsumerRunningInfo(ctx, request);
 
             case RequestCode.CONSUME_MESSAGE_DIRECTLY:
+                /*
+                 * 直接消费消息
+                 */
                 return this.consumeMessageDirectly(ctx, request);
 
             case RequestCode.PUSH_REPLY_MESSAGE_TO_CLIENT:
@@ -96,6 +114,9 @@ public class ClientRemotingProcessor extends AsyncNettyRequestProcessor implemen
         return false;
     }
 
+    /**
+     * 回查事务状态
+     */
     public RemotingCommand checkTransactionState(ChannelHandlerContext ctx,
         RemotingCommand request) throws RemotingCommandException {
         final CheckTransactionStateRequestHeader requestHeader =
@@ -107,6 +128,7 @@ public class ClientRemotingProcessor extends AsyncNettyRequestProcessor implemen
                 messageExt.setTopic(NamespaceUtil
                     .withoutNamespace(messageExt.getTopic(), this.mqClientFactory.getClientConfig().getNamespace()));
             }
+            //事务id
             String transactionId = messageExt.getProperty(MessageConst.PROPERTY_UNIQ_CLIENT_MESSAGE_ID_KEYIDX);
             if (null != transactionId && !"".equals(transactionId)) {
                 messageExt.setTransactionId(transactionId);

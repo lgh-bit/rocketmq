@@ -18,11 +18,23 @@ package org.apache.rocketmq.broker.transaction;
 
 import org.apache.rocketmq.common.message.MessageExt;
 
+/**
+ * 操作结果
+ */
 public class OperationResult {
+    /**
+     * 原先的prepareMessage
+     */
     private MessageExt prepareMessage;
 
+    /**
+     * 响应码
+     */
     private int responseCode;
 
+    /**
+     * 响应的remark
+     */
     private String responseRemark;
 
     public MessageExt getPrepareMessage() {

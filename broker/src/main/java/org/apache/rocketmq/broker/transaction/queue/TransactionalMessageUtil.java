@@ -21,18 +21,35 @@ import org.apache.rocketmq.common.topic.TopicValidator;
 
 import java.nio.charset.Charset;
 
+/**
+ * 事务消息工具类
+ */
 public class TransactionalMessageUtil {
+    /**
+     * 移除tag：d
+     */
     public static final String REMOVETAG = "d";
     public static Charset charset = Charset.forName("utf-8");
 
+    /**
+     * 删除预处理消息(prepare)，
+     * 其实是将消息存储在主题为：RMQ_SYS_TRANS_OP_HALF_TOPIC的主题中，代表这些消息已经被处理（提交或回滚）
+     */
     public static String buildOpTopic() {
         return TopicValidator.RMQ_SYS_TRANS_OP_HALF_TOPIC;
     }
 
+    /**
+     * 第一次提交事务消息，会存在这个主题里
+     */
     public static String buildHalfTopic() {
         return TopicValidator.RMQ_SYS_TRANS_HALF_TOPIC;
     }
 
+    /**
+     * Half Topic消费进度，默认消费者是CID_RMQ_SYS_TRANS
+     * 每次取prepare消息判断回查时，从该消费进度开始依次获取消息。
+     */
     public static String buildConsumerGroup() {
         return MixAll.CID_SYS_RMQ_TRANS;
     }

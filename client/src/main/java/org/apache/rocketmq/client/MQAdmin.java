@@ -23,10 +23,12 @@ import org.apache.rocketmq.common.message.MessageQueue;
 import org.apache.rocketmq.remoting.exception.RemotingException;
 
 /**
+ * Mq的admin管理台
  * Base interface for MQ management
  */
 public interface MQAdmin {
     /**
+     * 创建topic
      * Creates an topic
      *
      * @param key accesskey
@@ -37,6 +39,7 @@ public interface MQAdmin {
         throws MQClientException;
 
     /**
+     * 创建topic
      * Creates an topic
      *
      * @param key accesskey
@@ -48,6 +51,7 @@ public interface MQAdmin {
         throws MQClientException;
 
     /**
+     * 查询队列的偏移量
      * Gets the message queue offset according to some time in milliseconds<br>
      * be cautious to call because of more IO overhead
      *
@@ -58,6 +62,7 @@ public interface MQAdmin {
     long searchOffset(final MessageQueue mq, final long timestamp) throws MQClientException;
 
     /**
+     * 最大的偏移量
      * Gets the max offset
      *
      * @param mq Instance of MessageQueue
@@ -66,6 +71,8 @@ public interface MQAdmin {
     long maxOffset(final MessageQueue mq) throws MQClientException;
 
     /**
+     * 最小的偏移量
+     *
      * Gets the minimum offset
      *
      * @param mq Instance of MessageQueue
@@ -74,6 +81,8 @@ public interface MQAdmin {
     long minOffset(final MessageQueue mq) throws MQClientException;
 
     /**
+     * 最早的消息存储时间
+     *
      * Gets the earliest stored message time
      *
      * @param mq Instance of MessageQueue
@@ -82,6 +91,8 @@ public interface MQAdmin {
     long earliestMsgStoreTime(final MessageQueue mq) throws MQClientException;
 
     /**
+     * 根据offsetMsgid查询一条消息
+     *
      * Query message according to message id
      *
      * @param offsetMsgId message id
@@ -91,6 +102,8 @@ public interface MQAdmin {
         InterruptedException, MQClientException;
 
     /**
+     * 批量查询Messages
+     *
      * Query messages
      *
      * @param topic message topic
@@ -104,6 +117,8 @@ public interface MQAdmin {
         final long end) throws MQClientException, InterruptedException;
 
     /**
+     *  根据msgId 查询msg
+     *
      * @return The {@code MessageExt} of given msgId
      */
     MessageExt viewMessage(String topic,

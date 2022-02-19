@@ -25,8 +25,14 @@ import org.apache.rocketmq.client.log.ClientLogger;
 import org.apache.rocketmq.logging.InternalLogger;
 import org.apache.rocketmq.remoting.RPCHook;
 
+/**
+ * mq客户端管理器
+ */
 public class MQClientManager {
     private final static InternalLogger log = ClientLogger.getLog();
+    /**
+     * 客户端管理器
+     */
     private static MQClientManager instance = new MQClientManager();
     private AtomicInteger factoryIndexGenerator = new AtomicInteger();
     // 同一个clientId只会创建一个MQClientInstance
@@ -45,6 +51,12 @@ public class MQClientManager {
         return getOrCreateMQClientInstance(clientConfig, null);
     }
 
+    /**
+     * 获取，如果没有，就创建客户端实例
+     * @param clientConfig 客户端配置
+     * @param rpcHook rpcHook
+     * @return  {@link MQClientInstance}
+     */
     public MQClientInstance getOrCreateMQClientInstance(final ClientConfig clientConfig, RPCHook rpcHook) {
         String clientId = clientConfig.buildMQClientId();
         MQClientInstance instance = this.factoryTable.get(clientId);

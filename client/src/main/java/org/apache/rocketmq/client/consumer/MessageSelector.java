@@ -20,6 +20,8 @@ package org.apache.rocketmq.client.consumer;
 import org.apache.rocketmq.common.filter.ExpressionType;
 
 /**
+ * 客户端消息过滤。MessageSelector 。基于tag或者sql92
+ *
  * Message selector: select message at server.
  * <p>
  * Now, support:

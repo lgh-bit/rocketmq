@@ -16,6 +16,9 @@
  */
 package org.apache.rocketmq.client.impl;
 
+/**
+ * 查询Broker的Result
+ */
 public class FindBrokerResult {
     // broker地址
     private final String brokerAddr;

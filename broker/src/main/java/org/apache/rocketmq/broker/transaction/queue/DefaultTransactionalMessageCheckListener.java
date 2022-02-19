@@ -29,7 +29,9 @@ import org.apache.rocketmq.logging.InternalLoggerFactory;
 import org.apache.rocketmq.store.MessageExtBrokerInner;
 import org.apache.rocketmq.store.PutMessageResult;
 import org.apache.rocketmq.store.PutMessageStatus;
-
+/**
+ * 默认的消息回查服务
+ */
 public class DefaultTransactionalMessageCheckListener extends AbstractTransactionalMessageCheckListener {
     private static final InternalLogger log = InternalLoggerFactory.getLogger(LoggerName.TRANSACTION_LOGGER_NAME);
 

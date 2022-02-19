@@ -27,11 +27,18 @@ import org.apache.rocketmq.common.protocol.ResponseCode;
 import org.apache.rocketmq.common.topic.TopicValidator;
 
 /**
+ * 通用校验
  * Common Validator
  */
 public class Validators {
+    /**
+     * 大小写字母数字下划线
+     */
     public static final String VALID_PATTERN_STR = "^[%|a-zA-Z0-9_-]+$";
     public static final Pattern PATTERN = Pattern.compile(VALID_PATTERN_STR);
+    /**
+     * 组名最大不能超过255个字符
+     */
     public static final int CHARACTER_MAX_LENGTH = 255;
     public static final int TOPIC_MAX_LENGTH = 127;
 
@@ -48,6 +55,7 @@ public class Validators {
     }
 
     /**
+     * 检查组名
      * Validate group
      */
     public static void checkGroup(String group) throws MQClientException {
@@ -68,6 +76,7 @@ public class Validators {
     }
 
     /**
+     * 是否match
      * @return <tt>true</tt> if, and only if, the entire origin sequence matches this matcher's pattern
      */
     public static boolean regularExpressionMatcher(String origin, Pattern pattern) {
@@ -78,6 +87,9 @@ public class Validators {
         return matcher.matches();
     }
 
+    /**
+     * 校验消息的合法性
+     */
     public static void checkMessage(Message msg, DefaultMQProducer defaultMQProducer)
         throws MQClientException {
         if (null == msg) {
@@ -104,11 +116,15 @@ public class Validators {
         }
     }
 
+    /**
+     * 校验topic
+     */
     public static void checkTopic(String topic) throws MQClientException {
         if (UtilAll.isBlank(topic)) {
             throw new MQClientException("The specified topic is blank", null);
         }
 
+        // 不能和系统topic冲突
         if (!regularExpressionMatcher(topic, PATTERN)) {
             throw new MQClientException(String.format(
                 "The specified topic[%s] contains illegal characters, allowing only %s", topic,

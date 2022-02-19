@@ -30,37 +30,66 @@ import org.apache.rocketmq.remoting.netty.TlsSystemConfig;
 import org.apache.rocketmq.remoting.protocol.LanguageCode;
 
 /**
+ * 客户端的配置
  * Client Common configuration
  */
 public class ClientConfig {
+    /**
+     * 是否使用vipchannel发送消息的key
+     */
     public static final String SEND_MESSAGE_WITH_VIP_CHANNEL_PROPERTY = "com.rocketmq.sendMessageWithVIPChannel";
+    /**
+     * nameServer地址，可以使用环境变量或者properties指定
+     */
     private String namesrvAddr = NameServerAddressUtils.getNameServerAddresses();
+    /**
+     * 客户端ip
+     */
     private String clientIP = RemotingUtil.getLocalAddress();
+    /**
+     * 实例名称，默认是default
+     */
     private String instanceName = System.getProperty("rocketmq.client.name", "DEFAULT");
+    /**
+     * 客户端callback线程池数量
+     */
     private int clientCallbackExecutorThreads = Runtime.getRuntime().availableProcessors();
     protected String namespace;
     protected AccessChannel accessChannel = AccessChannel.LOCAL;
 
     /**
+     * 拉取NamseServer的周期
      * Pulling topic information interval from the named server
      */
     private int pollNameServerInterval = 1000 * 30;
     /**
+     * broker的心跳的周期
      * Heartbeat interval in microseconds with message broker
      */
     private int heartbeatBrokerInterval = 1000 * 30;
     /**
+     * 持久化消费偏移量的周期，默认5秒
      * Offset persistent interval for consumer
      */
     private int persistConsumerOffsetInterval = 1000 * 5;
     private long pullTimeDelayMillsWhenException = 1000;
     private boolean unitMode = false;
     private String unitName;
+    /**
+     * 是否开启vip通道，默认true
+     */
     private boolean vipChannelEnabled = Boolean.parseBoolean(System.getProperty(SEND_MESSAGE_WITH_VIP_CHANNEL_PROPERTY, "false"));
 
+    /**
+     * 是否使用tsl
+     */
     private boolean useTLS = TlsSystemConfig.tlsEnable;
 
     private LanguageCode language = LanguageCode.JAVA;
+
+    /**
+     * 构造Mq客户端id 客户端ip@实例名称@unitName
+     */
     // ClientId = ip + instanceName
     public String buildMQClientId() {
         StringBuilder sb = new StringBuilder();
@@ -92,6 +121,9 @@ public class ClientConfig {
         this.instanceName = instanceName;
     }
 
+    /**
+     * 改变实例名称为进程id：pid+"#"+nanoTime
+     */
     public void changeInstanceNameToPID() {
         if (this.instanceName.equals("DEFAULT")) {
             this.instanceName = UtilAll.getPid() + "#" + System.nanoTime();
@@ -141,6 +173,9 @@ public class ClientConfig {
         return queues;
     }
 
+    /**
+     * 重置客户端配置
+     */
     public void resetClientConfig(final ClientConfig cc) {
         this.namesrvAddr = cc.namesrvAddr;
         this.clientIP = cc.clientIP;
@@ -158,6 +193,9 @@ public class ClientConfig {
         this.language = cc.language;
     }
 
+    /**
+     * 克隆一份儿配置
+     */
     public ClientConfig cloneClientConfig() {
         ClientConfig cc = new ClientConfig();
         cc.namesrvAddr = namesrvAddr;

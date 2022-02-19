@@ -33,11 +33,25 @@ import org.apache.rocketmq.logging.InternalLogger;
  * If any consumer is alive in a machine room, the message queue of the broker which is deployed in the same machine
  * should only be allocated to those. Otherwise, those message queues can be shared along all consumers since there are
  * no alive consumer to monopolize them.
+ *
+ * 同机房分配策略，首先统计消费者与broker所在机房，
+ * 保证broker中的消息优先被同机房的消费者消费，
+ * 如果机房中没有消费者，则有其他机房消费者消费。
+ * 实际的队列分配（同机房或跨机房）可以是指定其他算法。
+ * 假设有三个机房，实际负载策略使用算法1，机房1和机房3中存在消费者，
+ * 机房2没有消费者。机房1、机房3中的队列会分配给各自机房中的消费者，机房2的队列会被虽有的消费者平均分配。
+ *
  */
 public class AllocateMachineRoomNearby implements AllocateMessageQueueStrategy {
     private final InternalLogger log = ClientLogger.getLog();
 
+    /**
+     * 实际的分配策略。被委派的。actual allocate strategy
+     */
     private final AllocateMessageQueueStrategy allocateMessageQueueStrategy;//actual allocate strategy
+    /**
+     * 机房解析器
+     */
     private final MachineRoomResolver machineRoomResolver;
 
     public AllocateMachineRoomNearby(AllocateMessageQueueStrategy allocateMessageQueueStrategy,
@@ -135,10 +149,14 @@ public class AllocateMachineRoomNearby implements AllocateMessageQueueStrategy {
      * AllocateMachineRoomNearby will use the results to group the message queues and clients by machine room.
      *
      * The result returned from the implemented method CANNOT be null.
+     *
+     * 机房解析
      */
     public interface MachineRoomResolver {
+        // 解析生产者所在的机房
         String brokerDeployIn(MessageQueue messageQueue);
 
+        // 解析消费者所在的机房
         String consumerDeployIn(String clientID);
     }
 }

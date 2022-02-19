@@ -33,6 +33,9 @@ import org.apache.rocketmq.logging.InternalLogger;
 import org.apache.rocketmq.remoting.RPCHook;
 
 /**
+ *  周期性调度的服务forPullConsumer
+ *  让我们实现pull模式下的负载均衡
+ *
  * Schedule service for pull consumer.
  * This Consumer will be removed in 2022, and a better implementation {@link
  * DefaultLitePullConsumer} is recommend to use in the scenario of actively pulling messages.

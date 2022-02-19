@@ -20,6 +20,7 @@ import java.util.List;
 import org.apache.rocketmq.common.message.MessageExt;
 
 /**
+ * 顺序消费，一个队列只会使用一个线程来消费
  * A MessageListenerOrderly object is used to receive messages orderly. One queue by one thread
  */
 public interface MessageListenerOrderly extends MessageListener {

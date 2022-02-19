@@ -18,6 +18,9 @@ package org.apache.rocketmq.broker.util;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * 相对的PositiveAtomicCounter，最大值为MASK
+ */
 public class PositiveAtomicCounter {
     private static final int MASK = 0x7FFFFFFF;
     private final AtomicInteger atom;

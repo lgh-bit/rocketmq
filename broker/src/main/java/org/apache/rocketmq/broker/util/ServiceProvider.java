@@ -18,20 +18,29 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * serviceProvider
+ * SPI支持
+ */
 public class ServiceProvider {
 
     private final static Logger LOG = LoggerFactory
         .getLogger(ServiceProvider.class);
     /**
+     * 加载本类的classLoader
      * A reference to the classloader that loaded this class. It's more efficient to compute it once and cache it here.
      */
     private static ClassLoader thisClassLoader;
 
     /**
+     * 事务服务id
      * JDK1.3+ <a href= "http://java.sun.com/j2se/1.3/docs/guide/jar/jar.html#Service%20Provider" > 'Service Provider' specification</a>.
      */
     public static final String TRANSACTION_SERVICE_ID = "META-INF/service/org.apache.rocketmq.broker.transaction.TransactionalMessageService";
 
+    /**
+     * 事务消息LisneterID
+     */
     public static final String TRANSACTION_LISTENER_ID = "META-INF/service/org.apache.rocketmq.broker.transaction.AbstractTransactionalMessageCheckListener";
 
 
@@ -43,10 +52,14 @@ public class ServiceProvider {
 
 
     static {
+        /*
+         * 对象classloader
+         */
         thisClassLoader = getClassLoader(ServiceProvider.class);
     }
 
     /**
+     * 对象的ObjectId
      * Returns a string that uniquely identifies the specified object, including its class.
      * <p>
      * The returned string is of form "classname@hashcode", ie is the same as the return value of the Object.toString() method, but works even when the specified object's class has overidden the toString method.
@@ -62,6 +75,9 @@ public class ServiceProvider {
         }
     }
 
+    /**
+     * 获取一个对象的类加载器
+     */
     protected static ClassLoader getClassLoader(Class<?> clazz) {
         try {
             return clazz.getClassLoader();
@@ -72,6 +88,9 @@ public class ServiceProvider {
         }
     }
 
+    /**
+     * 获取当前的上下文类加载器
+     */
     protected static ClassLoader getContextClassLoader() {
         ClassLoader classLoader = null;
         try {
@@ -86,6 +105,9 @@ public class ServiceProvider {
         return classLoader;
     }
 
+    /**
+     * 获取资源AsStream
+     */
     protected static InputStream getResourceAsStream(ClassLoader loader, String name) {
         if (loader != null) {
             return loader.getResourceAsStream(name);
@@ -131,6 +153,9 @@ public class ServiceProvider {
         return services;
     }
 
+    /**
+     * 加载一个类
+     */
     public static <T> T loadClass(String name, Class<?> clazz) {
         final InputStream is = getResourceAsStream(getContextClassLoader(), name);
         if (is != null) {
@@ -156,6 +181,9 @@ public class ServiceProvider {
         return null;
     }
 
+    /**
+     * 初始化一个类
+     */
     protected static <T> T initService(ClassLoader classLoader, String serviceName, Class<?> clazz) {
         Class<?> serviceClazz = null;
         try {

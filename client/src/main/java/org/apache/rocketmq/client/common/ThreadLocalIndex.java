@@ -19,10 +19,16 @@ package org.apache.rocketmq.client.common;
 
 import java.util.Random;
 
+/**
+ * ThreadLocalIndex，自增索引
+ */
 public class ThreadLocalIndex {
     private final ThreadLocal<Integer> threadLocalIndex = new ThreadLocal<Integer>();
     private final Random random = new Random();
 
+    /**
+     * GET并且自增
+     */
     public int incrementAndGet() {
         Integer index = this.threadLocalIndex.get();
         if (null == index) {

@@ -32,11 +32,14 @@ import org.apache.rocketmq.common.subscription.SubscriptionGroupConfig;
 import org.apache.rocketmq.remoting.protocol.RemotingSerializable;
 
 /**
- * 订阅组管理者
+ * Consumer订阅信息管理器
  */
 public class SubscriptionGroupManager extends ConfigManager {
     private static final InternalLogger log = InternalLoggerFactory.getLogger(LoggerName.BROKER_LOGGER_NAME);
 
+    /**
+     * key:consumerGroup,value:SubscriptionGroupConfig,订阅信息
+     */
     private final ConcurrentMap<String, SubscriptionGroupConfig> subscriptionGroupTable =
         new ConcurrentHashMap<String, SubscriptionGroupConfig>(1024);
     private final DataVersion dataVersion = new DataVersion();
@@ -51,6 +54,9 @@ public class SubscriptionGroupManager extends ConfigManager {
         this.init();
     }
 
+    /**
+     * 初始化一些默认的消费组
+     */
     private void init() {
         {
             SubscriptionGroupConfig subscriptionGroupConfig = new SubscriptionGroupConfig();
@@ -99,6 +105,9 @@ public class SubscriptionGroupManager extends ConfigManager {
         }
     }
 
+    /**
+     * 更新消费组的消费信息，并持久化
+     */
     public void updateSubscriptionGroupConfig(final SubscriptionGroupConfig config) {
         SubscriptionGroupConfig old = this.subscriptionGroupTable.put(config.getGroupName(), config);
         if (old != null) {
@@ -112,6 +121,9 @@ public class SubscriptionGroupManager extends ConfigManager {
         this.persist();
     }
 
+    /**
+     * 禁用消费组
+     */
     public void disableConsume(final String groupName) {
         SubscriptionGroupConfig old = this.subscriptionGroupTable.get(groupName);
         if (old != null) {
@@ -120,6 +132,9 @@ public class SubscriptionGroupManager extends ConfigManager {
         }
     }
 
+    /**
+     * 找到一个消费组，包含自动创建的逻辑;
+     */
     public SubscriptionGroupConfig findSubscriptionGroupConfig(final String group) {
         SubscriptionGroupConfig subscriptionGroupConfig = this.subscriptionGroupTable.get(group);
         if (null == subscriptionGroupConfig) {
@@ -181,6 +196,9 @@ public class SubscriptionGroupManager extends ConfigManager {
         return dataVersion;
     }
 
+    /**
+     * 删除消费组
+     */
     public void deleteSubscriptionGroupConfig(final String groupName) {
         SubscriptionGroupConfig old = this.subscriptionGroupTable.remove(groupName);
         if (old != null) {

@@ -22,6 +22,8 @@ import org.apache.rocketmq.client.consumer.listener.MessageListenerOrderly;
 import org.apache.rocketmq.client.exception.MQClientException;
 
 /**
+ * Push的方式消息的cousumer
+ *
  * Push consumer
  */
 public interface MQPushConsumer extends MQConsumer {
