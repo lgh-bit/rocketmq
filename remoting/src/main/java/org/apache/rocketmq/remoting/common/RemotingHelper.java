@@ -29,12 +29,20 @@ import org.apache.rocketmq.remoting.exception.RemotingSendRequestException;
 import org.apache.rocketmq.remoting.exception.RemotingTimeoutException;
 import org.apache.rocketmq.remoting.protocol.RemotingCommand;
 
+/**
+ * 远程通信工具类
+ */
 public class RemotingHelper {
     public static final String ROCKETMQ_REMOTING = "RocketmqRemoting";
     public static final String DEFAULT_CHARSET = "UTF-8";
 
     private static final InternalLogger log = InternalLoggerFactory.getLogger(ROCKETMQ_REMOTING);
 
+    /**
+     * 生成一个对异常的简单的字符串描述
+     * @param e 异常
+     * @return 异常的摘要
+     */
     public static String exceptionSimpleDesc(final Throwable e) {
         StringBuffer sb = new StringBuffer();
         if (e != null) {
@@ -51,6 +59,9 @@ public class RemotingHelper {
         return sb.toString();
     }
 
+    /**
+     * 将字符串转化为InetSocketAddress
+     */
     public static SocketAddress string2SocketAddress(final String addr) {
         int split = addr.lastIndexOf(":");
         String host = addr.substring(0, split);
@@ -59,6 +70,12 @@ public class RemotingHelper {
         return isa;
     }
 
+    /**
+     * 同步执行远程调用
+     * @param addr 地址
+     * @param request 请求
+     * @param timeoutMillis 超时时间
+     */
     public static RemotingCommand invokeSync(final String addr, final RemotingCommand request,
         final long timeoutMillis) throws InterruptedException, RemotingConnectException,
         RemotingSendRequestException, RemotingTimeoutException {
@@ -66,15 +83,17 @@ public class RemotingHelper {
         SocketAddress socketAddress = RemotingUtil.string2SocketAddress(addr);
         SocketChannel socketChannel = RemotingUtil.connect(socketAddress);
         if (socketChannel != null) {
+            //请求是否发送成功
             boolean sendRequestOK = false;
 
             try {
-
+                //阻塞的方式
                 socketChannel.configureBlocking(true);
 
                 //bugfix  http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4614802
                 socketChannel.socket().setSoTimeout((int) timeoutMillis);
 
+                //发送
                 ByteBuffer byteBufferRequest = request.encode();
                 while (byteBufferRequest.hasRemaining()) {
                     int length = socketChannel.write(byteBufferRequest);
@@ -94,6 +113,7 @@ public class RemotingHelper {
 
                 sendRequestOK = true;
 
+                //申请一个byteBuffer，读取前四个字节为int,代表后面可以读取多少自己的数据。做了超时控制
                 ByteBuffer byteBufferSize = ByteBuffer.allocate(4);
                 while (byteBufferSize.hasRemaining()) {
                     int length = socketChannel.read(byteBufferSize);
@@ -111,8 +131,10 @@ public class RemotingHelper {
                     Thread.sleep(1);
                 }
 
+                //申请size大小的bytebuffer
                 int size = byteBufferSize.getInt(0);
                 ByteBuffer byteBufferBody = ByteBuffer.allocate(size);
+                //只要有剩余容量，就一直读
                 while (byteBufferBody.hasRemaining()) {
                     int length = socketChannel.read(byteBufferBody);
                     if (length > 0) {
@@ -128,12 +150,14 @@ public class RemotingHelper {
 
                     Thread.sleep(1);
                 }
-
+                //使得Buffer可以从头开始遍历
                 byteBufferBody.flip();
+                //解码
                 return RemotingCommand.decode(byteBufferBody);
             } catch (IOException e) {
                 log.error("invokeSync failure", e);
 
+                //如果发送成功了，那一定是后面超时了
                 if (sendRequestOK) {
                     throw new RemotingTimeoutException(addr, timeoutMillis);
                 } else {
@@ -151,6 +175,9 @@ public class RemotingHelper {
         }
     }
 
+    /**
+     * 从Channel中获取远程连接地址
+     */
     public static String parseChannelRemoteAddr(final Channel channel) {
         if (null == channel) {
             return "";
@@ -170,6 +197,9 @@ public class RemotingHelper {
         return "";
     }
 
+    /**
+     * 从SocketAddress里面解析出字符串的地址
+     */
     public static String parseSocketAddressAddr(SocketAddress socketAddress) {
         if (socketAddress != null) {
             final String addr = socketAddress.toString();

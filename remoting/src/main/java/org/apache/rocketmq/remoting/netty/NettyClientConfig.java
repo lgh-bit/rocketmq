@@ -16,28 +16,64 @@
  */
 package org.apache.rocketmq.remoting.netty;
 
+/**
+ * NettyClient 的配置
+ * @author ;
+ */
 public class NettyClientConfig {
     /**
-     * Worker thread number
+     * Worker thread number 线程数
      */
     private int clientWorkerThreads = NettySystemConfig.clientWorkerSize;
+    /**
+     * 客户端callback线程池Thread数 默认 cpu核数
+     */
     private int clientCallbackExecutorThreads = Runtime.getRuntime().availableProcessors();
+    /**
+     * 客户端执行oneway发送的信号量的个数，默认65535
+     */
     private int clientOnewaySemaphoreValue = NettySystemConfig.CLIENT_ONEWAY_SEMAPHORE_VALUE;
+    /**
+     * 客户端执行异步发送的信号量个数，默认 65535
+     */
     private int clientAsyncSemaphoreValue = NettySystemConfig.CLIENT_ASYNC_SEMAPHORE_VALUE;
+    /**
+     * 连接超时事时间，默认3秒
+     */
     private int connectTimeoutMillis = NettySystemConfig.connectTimeoutMillis;
+    /**
+     * 连接不再活跃的周期，默认60秒，即1分钟
+     */
     private long channelNotActiveInterval = 1000 * 60;
 
     /**
      * IdleStateEvent will be triggered when neither read nor write was performed for
      * the specified period of this time. Specify {@code 0} to disable
+     * 客户端channel 最大空闲时常，默认2秒
      */
     private int clientChannelMaxIdleTimeSeconds = NettySystemConfig.clientChannelMaxIdleTimeSeconds;
 
+    /**
+     * sendBufferSize 默认65535
+     */
     private int clientSocketSndBufSize = NettySystemConfig.socketSndbufSize;
+    /**
+     * receiveBufferSize 默认65535
+     */
     private int clientSocketRcvBufSize = NettySystemConfig.socketRcvbufSize;
+
+    /**
+     * 客户端是否可以申请池化的bytebuffer，默认是false
+     */
     private boolean clientPooledByteBufAllocatorEnable = false;
+    /**
+     * 客户端close socket 如果超时， 默认false
+     */
     private boolean clientCloseSocketIfTimeout = NettySystemConfig.clientCloseSocketIfTimeout;
 
+    /**
+     * 是否useTSL
+     */
     private boolean useTLS;
 
     public boolean isClientCloseSocketIfTimeout() {

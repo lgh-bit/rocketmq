@@ -22,11 +22,14 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+/**
+ * RocketMq序列化
+ */
 public class RocketMQSerializable {
     private static final Charset CHARSET_UTF8 = Charset.forName("UTF-8");
 
     public static byte[] rocketMQProtocolEncode(RemotingCommand cmd) {
-        // String remark
+        // String remark,备注字段
         byte[] remarkBytes = null;
         int remarkLen = 0;
         if (cmd.getRemark() != null && cmd.getRemark().length() > 0) {
@@ -34,7 +37,7 @@ public class RocketMQSerializable {
             remarkLen = remarkBytes.length;
         }
 
-        // HashMap<String, String> extFields
+        // HashMap<String, String> extFields 扩展字段
         byte[] extFieldsBytes = null;
         int extLen = 0;
         if (cmd.getExtFields() != null && !cmd.getExtFields().isEmpty()) {
@@ -42,6 +45,7 @@ public class RocketMQSerializable {
             extLen = extFieldsBytes.length;
         }
 
+        //提前申请好总长度
         int totalLen = calTotalLen(remarkLen, extLen);
 
         ByteBuffer headerBuffer = ByteBuffer.allocate(totalLen);
@@ -73,6 +77,9 @@ public class RocketMQSerializable {
         return headerBuffer.array();
     }
 
+    /**
+     * 序列化map
+     */
     public static byte[] mapSerialize(HashMap<String, String> map) {
         // keySize+key+valSize+val
         if (null == map || map.isEmpty())
@@ -133,6 +140,9 @@ public class RocketMQSerializable {
         return length;
     }
 
+    /**
+     * rocketmq协议的解码
+     */
     public static RemotingCommand rocketMQProtocolDecode(final byte[] headerArray) {
         RemotingCommand cmd = new RemotingCommand();
         ByteBuffer headerBuffer = ByteBuffer.wrap(headerArray);
@@ -164,6 +174,9 @@ public class RocketMQSerializable {
         return cmd;
     }
 
+    /**
+     * 反序列化map
+     */
     public static HashMap<String, String> mapDeserialize(byte[] bytes) {
         if (bytes == null || bytes.length <= 0)
             return null;

@@ -63,20 +63,51 @@ import org.apache.rocketmq.remoting.exception.RemotingTimeoutException;
 import org.apache.rocketmq.remoting.exception.RemotingTooMuchRequestException;
 import org.apache.rocketmq.remoting.protocol.RemotingCommand;
 
+/**
+ * Netty的远程Server端
+ * 可以启动一个Server服务
+ * @author ;
+ */
 public class NettyRemotingServer extends NettyRemotingAbstract implements RemotingServer {
     private static final InternalLogger log = InternalLoggerFactory.getLogger(RemotingHelper.ROCKETMQ_REMOTING);
+    /**
+     * ServerBoptStrap
+     */
     private final ServerBootstrap serverBootstrap;
+    /**
+     * EventLoopgroup
+     */
     private final EventLoopGroup eventLoopGroupSelector;
+    /**
+     * bossEventLoopgroup
+     */
     private final EventLoopGroup eventLoopGroupBoss;
+    /**
+     * NettyServer端配置
+     */
     private final NettyServerConfig nettyServerConfig;
 
+    /**
+     * 公共线程池
+     */
     private final ExecutorService publicExecutor;
+    /**
+     * channel事件监听器
+     */
     private final ChannelEventListener channelEventListener;
 
+    /**
+     * Server端维持连接的定时器
+     */
     private final Timer timer = new Timer("ServerHouseKeepingService", true);
+    /**
+     * Netty的业务线程池
+     */
     private DefaultEventExecutorGroup defaultEventExecutorGroup;
 
-
+    /**
+     * 端口
+     */
     private int port = 0;
 
     private static final String HANDSHAKE_HANDLER_NAME = "handshakeHandler";
@@ -100,6 +131,10 @@ public class NettyRemotingServer extends NettyRemotingAbstract implements Remoti
         this.nettyServerConfig = nettyServerConfig;
         this.channelEventListener = channelEventListener;
 
+
+        /*
+         *  构造publicExecutor，默认4个线程构成的线程池
+         */
         int publicThreadNums = nettyServerConfig.getServerCallbackExecutorThreads();
         if (publicThreadNums <= 0) {
             publicThreadNums = 4;
@@ -114,7 +149,13 @@ public class NettyRemotingServer extends NettyRemotingAbstract implements Remoti
             }
         });
 
+        /*
+         * 默认使用3个线程的IO线程池
+         */
         if (useEpoll()) {
+            /*
+             * NettyServer端，只需要一个线程的accept连接的线程池eventloopgroup
+             */
             this.eventLoopGroupBoss = new EpollEventLoopGroup(1, new ThreadFactory() {
                 private AtomicInteger threadIndex = new AtomicInteger(0);
 
@@ -173,6 +214,12 @@ public class NettyRemotingServer extends NettyRemotingAbstract implements Remoti
         }
     }
 
+
+    /**
+     * 是否使用Epoll模型
+     * 默认是false
+     * @return ;
+     */
     private boolean useEpoll() {
         return RemotingUtil.isLinuxPlatform()
             && nettyServerConfig.isUseEpollNativeSelector()
@@ -184,6 +231,9 @@ public class NettyRemotingServer extends NettyRemotingAbstract implements Remoti
      */
     @Override
     public void start() {
+        /*
+         * 构造业务线程池
+         */
         this.defaultEventExecutorGroup = new DefaultEventExecutorGroup(
             nettyServerConfig.getServerWorkerThreads(),
             new ThreadFactory() {
@@ -223,6 +273,9 @@ public class NettyRemotingServer extends NettyRemotingAbstract implements Remoti
                     }
                 });
 
+        /*
+         *  是否可以持用池化的bytebuffer
+         */
         if (nettyServerConfig.isServerPooledByteBufAllocatorEnable()) {
             childHandler.childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
         }
@@ -239,6 +292,9 @@ public class NettyRemotingServer extends NettyRemotingAbstract implements Remoti
             this.nettyEventExecutor.start();
         }
 
+        /*
+         * 扫描 response tables
+         */
         this.timer.scheduleAtFixedRate(new TimerTask() {
 
             @Override
@@ -421,6 +477,9 @@ public class NettyRemotingServer extends NettyRemotingAbstract implements Remoti
         }
     }
 
+    /**
+     * Netty的ServerHandler
+     */
     @ChannelHandler.Sharable
     class NettyServerHandler extends SimpleChannelInboundHandler<RemotingCommand> {
 
@@ -431,6 +490,9 @@ public class NettyRemotingServer extends NettyRemotingAbstract implements Remoti
         }
     }
 
+    /**
+     * Netty连接管理器
+     */
     @ChannelHandler.Sharable
     class NettyConnectManageHandler extends ChannelDuplexHandler {
         @Override

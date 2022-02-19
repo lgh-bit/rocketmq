@@ -24,6 +24,9 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
+/**
+ * 命令行相关的工具utils
+ */
 public class ServerUtil {
 
     public static Options buildCommandlineOptions(final Options options) {

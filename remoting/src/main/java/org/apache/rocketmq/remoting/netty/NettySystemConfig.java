@@ -17,6 +17,11 @@
 
 package org.apache.rocketmq.remoting.netty;
 
+/**
+ * Netty的系统配置集
+ * 是否可以申请池化内存，接收和发送队列大小
+ * 信号量的大小
+ */
 public class NettySystemConfig {
     public static final String COM_ROCKETMQ_REMOTING_NETTY_POOLED_BYTE_BUF_ALLOCATOR_ENABLE =
         "com.rocketmq.remoting.nettyPooledByteBufAllocatorEnable";

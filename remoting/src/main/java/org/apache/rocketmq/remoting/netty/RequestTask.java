@@ -20,11 +20,29 @@ package org.apache.rocketmq.remoting.netty;
 import io.netty.channel.Channel;
 import org.apache.rocketmq.remoting.protocol.RemotingCommand;
 
+/**
+ * 请求Task，被封装成了task
+ */
 public class RequestTask implements Runnable {
+    /**
+     * 委托的runnable
+     */
     private final Runnable runnable;
+    /**
+     * 创建的时间戳
+     */
     private final long createTimestamp = System.currentTimeMillis();
+    /**
+     * channel通道
+     */
     private final Channel channel;
+    /**
+     * 请求
+     */
     private final RemotingCommand request;
+    /**
+     * 是否停止运行，默认false
+     */
     private boolean stopRun = false;
 
     public RequestTask(final Runnable runnable, final Channel channel, final RemotingCommand request) {
@@ -80,6 +98,11 @@ public class RequestTask implements Runnable {
             this.runnable.run();
     }
 
+    /**
+     * 返回response
+     * @param code 状态码
+     * @param remark 自定义文本
+     */
     public void returnResponse(int code, String remark) {
         final RemotingCommand response = RemotingCommand.createResponseCommand(code, remark);
         response.setOpaque(request.getOpaque());

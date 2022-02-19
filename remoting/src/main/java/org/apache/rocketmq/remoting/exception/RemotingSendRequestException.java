@@ -16,6 +16,9 @@
  */
 package org.apache.rocketmq.remoting.exception;
 
+/**
+ * 远程请求发送失败异常
+ */
 public class RemotingSendRequestException extends RemotingException {
     private static final long serialVersionUID = 5391285827332471674L;
 

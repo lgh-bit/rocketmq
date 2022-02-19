@@ -24,8 +24,14 @@ import org.apache.rocketmq.logging.InternalLoggerFactory;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ * NettyLogger对象
+ */
 public class NettyLogger {
 
+    /**
+     * 一个标记，是否set了nettyLogLevel
+     */
     private static AtomicBoolean nettyLoggerSeted = new AtomicBoolean(false);
     
     private static InternalLogLevel nettyLogLevel = InternalLogLevel.ERROR;

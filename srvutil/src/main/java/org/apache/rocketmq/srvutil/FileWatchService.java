@@ -33,13 +33,31 @@ import org.apache.rocketmq.common.constant.LoggerName;
 import org.apache.rocketmq.logging.InternalLogger;
 import org.apache.rocketmq.logging.InternalLoggerFactory;
 
+/**
+ * 文件监听器线程
+ */
 public class FileWatchService extends ServiceThread {
     private static final InternalLogger log = InternalLoggerFactory.getLogger(LoggerName.COMMON_LOGGER_NAME);
 
+    /**
+     * 监听的文件
+     */
     private final List<String> watchFiles;
+
+    /**
+     * 文件当前的哈希
+     */
     private final List<String> fileCurrentHash;
+
+    /**
+     * 监听周期
+     */
     private final Listener listener;
     private static final int WATCH_INTERVAL = 500;
+
+    /**
+     * 指纹算法
+     */
     private MessageDigest md = MessageDigest.getInstance("MD5");
 
     public FileWatchService(final String[] watchFiles,
@@ -89,6 +107,10 @@ public class FileWatchService extends ServiceThread {
         log.info(this.getServiceName() + " service end");
     }
 
+    /**
+     * hash文件的指纹
+     * @param filePath 文件路径
+     */
     private String hash(String filePath) throws IOException, NoSuchAlgorithmException {
         Path path = Paths.get(filePath);
         md.update(Files.readAllBytes(path));
@@ -96,6 +118,9 @@ public class FileWatchService extends ServiceThread {
         return UtilAll.bytes2string(hash);
     }
 
+    /**
+     * 文件改变的监听器
+     */
     public interface Listener {
         /**
          * Will be called when the target files are changed

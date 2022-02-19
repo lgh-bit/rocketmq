@@ -36,10 +36,20 @@ import org.apache.rocketmq.logging.InternalLogger;
 import org.apache.rocketmq.logging.InternalLoggerFactory;
 
 public class RemotingUtil {
+    /**
+     * 操作系统名称
+     */
     public static final String OS_NAME = System.getProperty("os.name");
 
     private static final InternalLogger log = InternalLoggerFactory.getLogger(RemotingHelper.ROCKETMQ_REMOTING);
+
+    /**
+     * 是linix操作系统
+     */
     private static boolean isLinuxPlatform = false;
+    /**
+     * 是windows操作系统
+     */
     private static boolean isWindowsPlatform = false;
 
     static {
@@ -56,11 +66,18 @@ public class RemotingUtil {
         return isWindowsPlatform;
     }
 
+    /**
+     * 开启一个Selector ;
+     */
     public static Selector openSelector() throws IOException {
         Selector result = null;
 
+        /*
+         * 如果是linux平台
+         */
         if (isLinuxPlatform()) {
             try {
+                //在linux下使用EpollSelectorProvider
                 final Class<?> providerClazz = Class.forName("sun.nio.ch.EPollSelectorProvider");
                 if (providerClazz != null) {
                     try {
@@ -81,6 +98,7 @@ public class RemotingUtil {
         }
 
         if (result == null) {
+            //如果执行失败，就直接Selector.open
             result = Selector.open();
         }
 
@@ -91,6 +109,9 @@ public class RemotingUtil {
         return isLinuxPlatform;
     }
 
+    /**
+     * 获取本地的网卡的接口地址。
+     */
     public static String getLocalAddress() {
         try {
             // Traversal Network interface to get the first non-loopback and non-private address
@@ -106,6 +127,7 @@ public class RemotingUtil {
                 final Enumeration<InetAddress> en = networkInterface.getInetAddresses();
                 while (en.hasMoreElements()) {
                     final InetAddress address = en.nextElement();
+                    //过滤掉回环地址
                     if (!address.isLoopbackAddress()) {
                         if (address instanceof Inet6Address) {
                             ipv6Result.add(normalizeHostAddress(address));
@@ -119,6 +141,7 @@ public class RemotingUtil {
             // prefer ipv4
             if (!ipv4Result.isEmpty()) {
                 for (String ip : ipv4Result) {
+                    //过滤掉127.0.x和192。168
                     if (ip.startsWith("127.0") || ip.startsWith("192.168")) {
                         continue;
                     }
@@ -131,6 +154,7 @@ public class RemotingUtil {
                 return ipv6Result.get(0);
             }
             //If failed to find,fall back to localhost
+            //都失败就返回localhost
             final InetAddress localHost = InetAddress.getLocalHost();
             return normalizeHostAddress(localHost);
         } catch (Exception e) {
@@ -140,6 +164,7 @@ public class RemotingUtil {
         return null;
     }
 
+
     public static String normalizeHostAddress(final InetAddress localHost) {
         if (localHost instanceof Inet6Address) {
             return "[" + localHost.getHostAddress() + "]";
@@ -148,6 +173,9 @@ public class RemotingUtil {
         }
     }
 
+    /**
+     * 字符串转换成socketAdress
+     */
     public static SocketAddress string2SocketAddress(final String addr) {
         int split = addr.lastIndexOf(":");
         String host = addr.substring(0, split);
@@ -156,6 +184,9 @@ public class RemotingUtil {
         return isa;
     }
 
+    /**
+     * SocketAddress 转换成地址字符串
+     */
     public static String socketAddress2String(final SocketAddress addr) {
         StringBuilder sb = new StringBuilder();
         InetSocketAddress inetSocketAddress = (InetSocketAddress) addr;
@@ -178,10 +209,18 @@ public class RemotingUtil {
         return false;
     }
 
+    /**
+     * 连接，默认超时时间5秒
+     * @param remote 远程socket地址
+     * @return 返回连接的结果
+     */
     public static SocketChannel connect(SocketAddress remote) {
         return connect(remote, 1000 * 5);
     }
 
+    /**
+     * 连接远程地址
+     */
     public static SocketChannel connect(SocketAddress remote, final int timeoutMillis) {
         SocketChannel sc = null;
         try {
@@ -207,6 +246,10 @@ public class RemotingUtil {
         return null;
     }
 
+    /**
+     * 关闭channel
+     * @param channel channel通道
+     */
     public static void closeChannel(Channel channel) {
         final String addrRemote = RemotingHelper.parseChannelRemoteAddr(channel);
         channel.close().addListener(new ChannelFutureListener() {

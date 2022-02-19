@@ -19,6 +19,9 @@ package org.apache.rocketmq.remoting.common;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ * 只Release一次的信号量
+ */
 public class SemaphoreReleaseOnlyOnce {
     private final AtomicBoolean released = new AtomicBoolean(false);
     private final Semaphore semaphore;

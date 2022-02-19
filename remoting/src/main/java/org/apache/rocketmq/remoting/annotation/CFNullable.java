@@ -25,5 +25,8 @@ import java.lang.annotation.Target;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.LOCAL_VARIABLE})
+/**
+ * 可以为null的注解
+ */
 public @interface CFNullable {
 }
