@@ -16,15 +16,48 @@
  */
 package org.apache.rocketmq.store;
 
+/**
+ * 添加消息的结果
+ */
 public enum PutMessageStatus {
+    /**
+     * 添加消息ok
+     */
     PUT_OK,
+    /**
+     * 刷盘超时
+     */
     FLUSH_DISK_TIMEOUT,
+    /**
+     * 刷新slave节点超时
+     */
     FLUSH_SLAVE_TIMEOUT,
+    /**
+     * slave节点不可用
+     */
     SLAVE_NOT_AVAILABLE,
+    /**
+     * 服务不可用
+     */
     SERVICE_NOT_AVAILABLE,
+    /**
+     * 创建MappedFile 失败
+     */
     CREATE_MAPEDFILE_FAILED,
+    /**
+     * 消息不合法
+     */
     MESSAGE_ILLEGAL,
+    /**
+     * 属性size 超限
+     */
     PROPERTIES_SIZE_EXCEEDED,
+    /**
+     * OS PAGECACHE 繁忙
+     */
     OS_PAGECACHE_BUSY,
+    /**
+     * 未知错误
+     */
     UNKNOWN_ERROR,
 }

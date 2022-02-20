@@ -27,18 +27,54 @@ import org.apache.rocketmq.common.stats.MomentStatsItemSet;
 import org.apache.rocketmq.common.stats.StatsItem;
 import org.apache.rocketmq.common.stats.StatsItemSet;
 
+/**
+ * Broker状态管理器
+ */
 public class BrokerStatsManager {
 
+    /**
+     * 某一个主题putMessage的数量集合
+     */
     public static final String TOPIC_PUT_NUMS = "TOPIC_PUT_NUMS";
+    /**
+     * 某一个主题putMessage的大小集合
+     */
     public static final String TOPIC_PUT_SIZE = "TOPIC_PUT_SIZE";
+    /**
+     * 某一个消费组获取消息次数的集合
+     */
     public static final String GROUP_GET_NUMS = "GROUP_GET_NUMS";
+    /**
+     * 某一个消费组获取消息的历史size
+     */
     public static final String GROUP_GET_SIZE = "GROUP_GET_SIZE";
+    /**
+     * 消费者将消费发回来的消息的集合
+     */
     public static final String SNDBCK_PUT_NUMS = "SNDBCK_PUT_NUMS";
+    /**
+     * 某一个brokerput消息的数量集合
+     */
     public static final String BROKER_PUT_NUMS = "BROKER_PUT_NUMS";
+    /**
+     * 某一个broker获取消息数量的集合
+     */
     public static final String BROKER_GET_NUMS = "BROKER_GET_NUMS";
+    /**
+     * 消费者从磁盘上拉取数据的集合
+     */
     public static final String GROUP_GET_FROM_DISK_NUMS = "GROUP_GET_FROM_DISK_NUMS";
+    /**
+     * 消费者从磁盘上拉取数据的size
+     */
     public static final String GROUP_GET_FROM_DISK_SIZE = "GROUP_GET_FROM_DISK_SIZE";
+    /**
+     * broker从磁盘上拉取数据的大小
+     */
     public static final String BROKER_GET_FROM_DISK_NUMS = "BROKER_GET_FROM_DISK_NUMS";
+    /**
+     * broker从磁盘上获取消息的总大小
+     */
     public static final String BROKER_GET_FROM_DISK_SIZE = "BROKER_GET_FROM_DISK_SIZE";
     // For commercial
     public static final String COMMERCIAL_SEND_TIMES = "COMMERCIAL_SEND_TIMES";
@@ -54,7 +90,10 @@ public class BrokerStatsManager {
 
     public static final String GROUP_GET_FALL_SIZE = "GROUP_GET_FALL_SIZE";
     public static final String GROUP_GET_FALL_TIME = "GROUP_GET_FALL_TIME";
-    // Pull Message Latency
+    /**
+     * Pull Message Latency
+     * 拉取消息的延迟
+     */
     public static final String GROUP_GET_LATENCY = "GROUP_GET_LATENCY";
 
     /**
@@ -62,11 +101,23 @@ public class BrokerStatsManager {
      */
     private static final InternalLogger log = InternalLoggerFactory.getLogger(LoggerName.ROCKETMQ_STATS_LOGGER_NAME);
     private static final InternalLogger COMMERCIAL_LOG = InternalLoggerFactory.getLogger(LoggerName.COMMERCIAL_LOGGER_NAME);
+    /**
+     * broker状态单线程线程池
+     */
     private final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor(new ThreadFactoryImpl(
         "BrokerStatsThread"));
+    /**
+     * CommercialStatsThread线程池
+     */
     private final ScheduledExecutorService commercialExecutor = Executors.newSingleThreadScheduledExecutor(new ThreadFactoryImpl(
         "CommercialStatsThread"));
+    /**
+     * 监控项
+     */
     private final HashMap<String, StatsItemSet> statsTable = new HashMap<String, StatsItemSet>();
+    /**
+     * 集群名
+     */
     private final String clusterName;
     private final MomentStatsItemSet momentStatsItemSetFallSize = new MomentStatsItemSet(GROUP_GET_FALL_SIZE, scheduledExecutorService, log);
     private final MomentStatsItemSet momentStatsItemSetFallTime = new MomentStatsItemSet(GROUP_GET_FALL_TIME, scheduledExecutorService, log);

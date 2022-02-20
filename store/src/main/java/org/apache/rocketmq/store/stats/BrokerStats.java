@@ -21,11 +21,20 @@ import org.apache.rocketmq.logging.InternalLogger;
 import org.apache.rocketmq.logging.InternalLoggerFactory;
 import org.apache.rocketmq.store.DefaultMessageStore;
 
+/**
+ * BrokerStats的状态
+ * 其实就是一些监控统计数据
+ */
 public class BrokerStats {
     private static final InternalLogger log = InternalLoggerFactory.getLogger(LoggerName.BROKER_LOGGER_NAME);
 
     private final DefaultMessageStore defaultMessageStore;
 
+    /**
+     * 一些指标。分别是昨天的数据和今天的数据
+     * 今天的数据从getStoreStatsService() 获取。
+     * 昨天的数据覆盖为今天获取之间的数据
+     */
     private volatile long msgPutTotalYesterdayMorning;
 
     private volatile long msgPutTotalTodayMorning;
@@ -38,6 +47,9 @@ public class BrokerStats {
         this.defaultMessageStore = defaultMessageStore;
     }
 
+    /**
+     * 这个方法被Broker所调度。一天执行一次。
+     */
     public void record() {
         this.msgPutTotalYesterdayMorning = this.msgPutTotalTodayMorning;
         this.msgGetTotalYesterdayMorning = this.msgGetTotalTodayMorning;

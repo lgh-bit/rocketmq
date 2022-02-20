@@ -21,18 +21,39 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.rocketmq.store.stats.BrokerStatsManager;
 
+/**
+ * 获取消息的结果
+ */
 public class GetMessageResult {
 
+    /**
+     * 用于释放资源的
+     */
     private final List<SelectMappedBufferResult> messageMapedList =
         new ArrayList<SelectMappedBufferResult>(100);
 
+    /**
+     * 消息list
+     */
     private final List<ByteBuffer> messageBufferList = new ArrayList<ByteBuffer>(100);
 
     private GetMessageStatus status;
-    private long nextBeginOffset;
-    private long minOffset;
-    private long maxOffset;
 
+    /**
+     * 下一个开始的偏移量
+     */
+    private long nextBeginOffset;
+    /**
+     * 最小偏移量
+     */
+    private long minOffset;
+    /**
+     * 最大偏移量
+     */
+    private long maxOffset;
+    /**
+     * buffer的总大小
+     */
     private int bufferTotalSize = 0;
 
     private boolean suggestPullingFromSlave = false;

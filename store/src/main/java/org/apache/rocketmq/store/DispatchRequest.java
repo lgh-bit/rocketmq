@@ -18,6 +18,10 @@ package org.apache.rocketmq.store;
 
 import java.util.Map;
 
+/**
+ * 执行分发请求
+ * @author ;
+ */
 public class DispatchRequest {
     // 消息主题
     private final String topic;

@@ -22,10 +22,13 @@ import org.apache.rocketmq.store.CommitLog.PutMessageContext;
 
 /**
  * Write messages callback interface
+ * 拼接消息的回调
  */
 public interface AppendMessageCallback {
 
     /**
+     * 执行append普通消息
+     *
      * After message serialization, write MapedByteBuffer
      *
      * @return How many bytes to write
@@ -34,6 +37,8 @@ public interface AppendMessageCallback {
         final int maxBlank, final MessageExtBrokerInner msg, PutMessageContext putMessageContext);
 
     /**
+     * 执行append批量消息
+     *
      * After batched message serialization, write MapedByteBuffer
      *
      * @param messageExtBatch, backed up by a byte array

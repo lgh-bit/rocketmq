@@ -16,10 +16,19 @@
  */
 package org.apache.rocketmq.store;
 
+/**
+ * PutMessage的结果
+ */
 public class PutMessageResult {
+    /**
+     * putMessage的状态枚举
+     */
     private PutMessageStatus putMessageStatus;
     private AppendMessageResult appendMessageResult;
 
+    /**
+     * appendMessage结果
+     */
     public PutMessageResult(PutMessageStatus putMessageStatus, AppendMessageResult appendMessageResult) {
         this.putMessageStatus = putMessageStatus;
         this.appendMessageResult = appendMessageResult;

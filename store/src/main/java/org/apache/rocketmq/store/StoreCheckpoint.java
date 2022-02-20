@@ -28,12 +28,20 @@ import org.apache.rocketmq.logging.InternalLogger;
 import org.apache.rocketmq.logging.InternalLoggerFactory;
 /**
  * 记录刷盘时间点
- *
  */
 public class StoreCheckpoint {
     private static final InternalLogger log = InternalLoggerFactory.getLogger(LoggerName.STORE_LOGGER_NAME);
+    /**
+     * checkPoint文件
+     */
     private final RandomAccessFile randomAccessFile;
+    /**
+     * fileChannel
+     */
     private final FileChannel fileChannel;
+    /**
+     * MappedByteBuffer
+     */
     private final MappedByteBuffer mappedByteBuffer;
     // CommitLog刷盘时间点
     private volatile long physicMsgTimestamp = 0;
@@ -42,6 +50,9 @@ public class StoreCheckpoint {
     // 索引文件刷盘时间点
     private volatile long indexMsgTimestamp = 0;
 
+    /**
+     * 实例化构造函数
+     */
     public StoreCheckpoint(final String scpPath) throws IOException {
         File file = new File(scpPath);
         MappedFile.ensureDirOK(file.getParent());
@@ -54,8 +65,11 @@ public class StoreCheckpoint {
         if (fileExists) {
             log.info("store checkpoint file exists, " + scpPath);
             // 记录CommitLog、ConsumeQueue和Index索引文件刷刷盘点
+            //物理消息时间戳
             this.physicMsgTimestamp = this.mappedByteBuffer.getLong(0);
+            //逻辑消息时间戳
             this.logicsMsgTimestamp = this.mappedByteBuffer.getLong(8);
+            //索引消息时间戳
             this.indexMsgTimestamp = this.mappedByteBuffer.getLong(16);
 
             log.info("store checkpoint file physicMsgTimestamp " + this.physicMsgTimestamp + ", "
@@ -72,7 +86,10 @@ public class StoreCheckpoint {
     public void shutdown() {
         this.flush();
 
-        // unmap mappedByteBuffer
+        /*
+         * 清除mappedbytebuffer的内存
+         * unmap mappedByteBuffer
+         */
         MappedFile.clean(this.mappedByteBuffer);
 
         try {
@@ -82,6 +99,9 @@ public class StoreCheckpoint {
         }
     }
 
+    /**
+     * flush
+     */
     public void flush() {
         this.mappedByteBuffer.putLong(0, this.physicMsgTimestamp);
         this.mappedByteBuffer.putLong(8, this.logicsMsgTimestamp);
@@ -109,6 +129,9 @@ public class StoreCheckpoint {
         return Math.min(this.getMinTimestamp(), this.indexMsgTimestamp);
     }
 
+    /**
+     * 获取最小的时间戳
+     */
     public long getMinTimestamp() {
         long min = Math.min(this.physicMsgTimestamp, this.logicsMsgTimestamp);
 

@@ -18,18 +18,38 @@ package org.apache.rocketmq.store;
 
 import java.util.concurrent.atomic.AtomicLong;
 
+/**
+ * 引用的资源
+ */
 public abstract class ReferenceResource {
+    /**
+     * 引用计数
+     */
     protected final AtomicLong refCount = new AtomicLong(1);
+    /**
+     * 是否可用
+     */
     protected volatile boolean available = true;
-    // release成功，释放资源时为true
+    /**
+     * 是否清除完毕
+     */
     protected volatile boolean cleanupOver = false;
+    /**
+     * 第一次shutdown的时间戳
+     */
     private volatile long firstShutdownTimestamp = 0;
 
+    /**
+     * 是否存在引用
+     * @return ;
+     */
     public synchronized boolean hold() {
         if (this.isAvailable()) {
+            //refCount.getAndIncrement() >0,返回true
             if (this.refCount.getAndIncrement() > 0) {
                 return true;
             } else {
+                //减一
                 this.refCount.getAndDecrement();
             }
         }
@@ -37,23 +57,36 @@ public abstract class ReferenceResource {
         return false;
     }
 
+    /**
+     * 是否可用
+     */
     public boolean isAvailable() {
         return this.available;
     }
 
+    /**
+     * shutdown
+     * @param intervalForcibly 周期
+     */
     public void shutdown(final long intervalForcibly) {
         if (this.available) {
             this.available = false;
             this.firstShutdownTimestamp = System.currentTimeMillis();
             this.release();
-        } else if (this.getRefCount() > 0) {
+        } else if (this.getRefCount() > 0) { //不可用，但是getRefCount>0
+            //判断当前时间距离第一次shutdown超过了intervalForcibly
             if ((System.currentTimeMillis() - this.firstShutdownTimestamp) >= intervalForcibly) {
+                //计数-为负数
                 this.refCount.set(-1000 - this.getRefCount());
                 this.release();
             }
         }
     }
 
+    /**
+     * release
+     * 释放引用
+     */
     public void release() {
         // 引用次数减一
         long value = this.refCount.decrementAndGet();
@@ -70,6 +103,11 @@ public abstract class ReferenceResource {
         return this.refCount.get();
     }
 
+    /**
+     * 子类实现cleanup
+     * @param currentRef 当前的引用
+     * @return ;
+     */
     public abstract boolean cleanup(final long currentRef);
 
     public boolean isCleanupOver() {

@@ -34,18 +34,32 @@ import org.apache.rocketmq.store.config.BrokerRole;
 /**
  * Create MappedFile in advance
  *
- * 创建MappedFile的服务，继承ServiceThread，说明有个循环任务，类似生成者消费者
+ * 一个创建MappedBytebuffer并进行预热处理的线程服务
+ *
+ * 创建MappedFile的服务，继承ServiceThread，说明有个循环任务，类似生产者消费者
  */
 public class AllocateMappedFileService extends ServiceThread {
     private static final InternalLogger log = InternalLoggerFactory.getLogger(LoggerName.STORE_LOGGER_NAME);
+    /**
+     * wait周期
+     */
     private static int waitTimeOut = 1000 * 5;
-    // 记录请求
+    // 记录请求，key:文件全路径path ，v :申请文件的请求
     private ConcurrentMap<String, AllocateRequest> requestTable =
         new ConcurrentHashMap<String, AllocateRequest>();
+    /**
+     * 请求队列
+     */
     // 优先级同步队列
     private PriorityBlockingQueue<AllocateRequest> requestQueue =
         new PriorityBlockingQueue<AllocateRequest>();
+    /**
+     * 是否有异常
+     */
     private volatile boolean hasException = false;
+    /**
+     * defaultMeesageStorege
+     */
     private DefaultMessageStore messageStore;
 
     public AllocateMappedFileService(DefaultMessageStore messageStore) {
@@ -53,12 +67,13 @@ public class AllocateMappedFileService extends ServiceThread {
     }
 
     /**
+     * 添加请求并返回mappedFile
      * 创建文件的请求，生成方法
      * 大致思路就是简单的生产者和消费者模型，这里有个小优化就是提前创建下次需要分配的文件，因为创建文件有不小的成本
      *
      *
-     * @param nextFilePath 当前需要分配的MappedFile
-     * @param nextNextFilePath 下次需要分配的文件
+     * @param nextFilePath 下一个文件的路径，当前需要分配的MappedFile
+     * @param nextNextFilePath 下下个文件的路径
      * @param fileSize 文件大小
      * @return MappedFile文件
      */
@@ -191,12 +206,14 @@ public class AllocateMappedFileService extends ServiceThread {
                 return true;
             }
 
+            //如果req.getMappedFile()==null,那么就执行分配操作
             if (req.getMappedFile() == null) {
                 long beginTime = System.currentTimeMillis();
 
                 MappedFile mappedFile;
                 if (messageStore.getMessageStoreConfig().isTransientStorePoolEnable()) {
                     try {
+                        //尝试使用SPI加载
                         mappedFile = ServiceLoader.load(MappedFile.class).iterator().next();
                         // 使用临时写入缓存
                         mappedFile.init(req.getFilePath(), req.getFileSize(), messageStore.getTransientStorePool());
@@ -215,11 +232,12 @@ public class AllocateMappedFileService extends ServiceThread {
                         + " " + req.getFilePath() + " " + req.getFileSize());
                 }
 
-                // pre write mappedFile
+                // pre write mappedFile 预处理mappedFile,先填充，优先写入一些内容
                 if (mappedFile.getFileSize() >= this.messageStore.getMessageStoreConfig()
                     .getMappedFileSizeCommitLog()
                     &&
                     this.messageStore.getMessageStoreConfig().isWarmMapedFileEnable()) {
+                    //进行文件预热
                     mappedFile.warmMappedFile(this.messageStore.getMessageStoreConfig().getFlushDiskType(),
                         this.messageStore.getMessageStoreConfig().getFlushLeastPagesWhenWarmMapedFile());
                 }

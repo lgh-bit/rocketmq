@@ -18,14 +18,26 @@ package org.apache.rocketmq.store;
 
 import java.nio.ByteBuffer;
 
+/**
+ * 查询MappedByteBuffer结果
+ */
 public class SelectMappedBufferResult {
 
+    /**
+     * 起始偏移量
+     */
     private final long startOffset;
-
+    /**
+     * 查询结果
+     */
     private final ByteBuffer byteBuffer;
-
+    /**
+     * size大小
+     */
     private int size;
-
+    /**
+     * MappedFile文件
+     */
     private MappedFile mappedFile;
 
     public SelectMappedBufferResult(long startOffset, ByteBuffer byteBuffer, int size, MappedFile mappedFile) {

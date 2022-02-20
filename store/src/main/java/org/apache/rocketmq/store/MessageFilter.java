@@ -19,6 +19,9 @@ package org.apache.rocketmq.store;
 import java.nio.ByteBuffer;
 import java.util.Map;
 
+/**
+ * 消息过滤器
+ */
 public interface MessageFilter {
     /**
      * match by tags code or filter bit map which is calculated when message received
@@ -26,6 +29,7 @@ public interface MessageFilter {
      *
      * @param tagsCode tagsCode
      * @param cqExtUnit extend unit of consume queue
+     *   是否匹配在消费队列里
      */
     boolean isMatchedByConsumeQueue(final Long tagsCode,
         final ConsumeQueueExt.CqExtUnit cqExtUnit);
@@ -37,6 +41,8 @@ public interface MessageFilter {
      *
      * @param msgBuffer message buffer in commit log, may be null if not invoked in store.
      * @param properties message properties, should decode from buffer if null by yourself.
+     *
+     *   是否匹配在commitlog里
      */
     boolean isMatchedByCommitLog(final ByteBuffer msgBuffer,
         final Map<String, String> properties);

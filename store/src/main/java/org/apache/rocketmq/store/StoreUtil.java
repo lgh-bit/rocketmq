@@ -19,10 +19,20 @@ package org.apache.rocketmq.store;
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
 
+/**
+ * 存储工具类
+ */
 public class StoreUtil {
+    /**
+     * 系统总共物理内存大小
+     */
     public static final long TOTAL_PHYSICAL_MEMORY_SIZE = getTotalPhysicalMemorySize();
 
     @SuppressWarnings("restriction")
+    /**
+     * 获取总的物理内存的大小
+     * @return ;
+     */
     public static long getTotalPhysicalMemorySize() {
         long physicalTotal = 1024 * 1024 * 1024 * 24L;
         OperatingSystemMXBean osmxb = ManagementFactory.getOperatingSystemMXBean();

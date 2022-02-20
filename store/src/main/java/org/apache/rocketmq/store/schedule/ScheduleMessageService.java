@@ -45,16 +45,29 @@ import org.apache.rocketmq.store.PutMessageStatus;
 import org.apache.rocketmq.store.SelectMappedBufferResult;
 import org.apache.rocketmq.store.config.StorePathConfigHelper;
 // 延迟定时消息实现
+/**
+ * 定时从延迟队列获取消息进行处理
+ * delayLevelTable定义了延迟级别和延迟时间的对应关系，offsetTable存放延延迟级别对应的队列消费的offset
+ */
 public class ScheduleMessageService extends ConfigManager {
     private static final InternalLogger log = InternalLoggerFactory.getLogger(LoggerName.STORE_LOGGER_NAME);
 
+    /**
+     * 延时队列topic
+     */
     private static final long FIRST_DELAY_TIME = 1000L;
     private static final long DELAY_FOR_A_WHILE = 100L;
     private static final long DELAY_FOR_A_PERIOD = 10000L;
 
+    /**
+     * 延迟level，延迟对应的毫秒
+     */
     private final ConcurrentMap<Integer /* level */, Long/* delay timeMillis */> delayLevelTable =
         new ConcurrentHashMap<Integer, Long>(32);
 
+    /**
+     * 延迟level，offset
+     */
     private final ConcurrentMap<Integer /* level */, Long/* offset */> offsetTable =
         new ConcurrentHashMap<Integer, Long>(32);
     private final DefaultMessageStore defaultMessageStore;
@@ -69,10 +82,20 @@ public class ScheduleMessageService extends ConfigManager {
         this.writeMessageStore = defaultMessageStore;
     }
 
+    /**
+     * 队列id计算延迟level
+     * @param queueId ;
+     * @return ;
+     */
     public static int queueId2DelayLevel(final int queueId) {
         return queueId + 1;
     }
 
+    /**
+     * 延迟level计算队列id
+     * @param delayLevel ;
+     * @return ；
+     */
     public static int delayLevel2QueueId(final int delayLevel) {
         return delayLevel - 1;
     }

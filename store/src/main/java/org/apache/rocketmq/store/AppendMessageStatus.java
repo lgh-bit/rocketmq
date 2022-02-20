@@ -17,6 +17,7 @@
 package org.apache.rocketmq.store;
 
 /**
+ * 写一个消息到CommitLog的状态
  * When write a message to the commit log, returns code
  */
 public enum AppendMessageStatus {
@@ -28,5 +29,8 @@ public enum AppendMessageStatus {
     MESSAGE_SIZE_EXCEEDED,
     // 消息属性过长
     PROPERTIES_SIZE_EXCEEDED,
+    /**
+     * 未知错误
+     */
     UNKNOWN_ERROR,
 }

@@ -19,7 +19,20 @@ package org.apache.rocketmq.store;
 
 import java.util.Map;
 
+/**
+ * 消息到达的监听
+ */
 public interface MessageArrivingListener {
+    /**
+     * topic
+     * @param topic topic
+     * @param queueId 队列id
+     * @param logicOffset 逻辑偏移量
+     * @param tagsCode tagsCode
+     * @param msgStoreTime 存储时间
+     * @param filterBitMap bitmap
+     * @param properties 配置
+     */
     void arriving(String topic, int queueId, long logicOffset, long tagsCode,
         long msgStoreTime, byte[] filterBitMap, Map<String, String> properties);
 }
